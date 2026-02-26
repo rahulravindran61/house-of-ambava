@@ -1,21 +1,15 @@
 """
 Generate dummy gallery images for each ShowcaseProduct.
 Creates 3 extra views per product: Back View, Detail View, Close-up.
+Usage: python manage.py generate_gallery
 """
-import os
-import sys
-import django
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
-sys.path.insert(0, os.path.dirname(__file__))
-django.setup()
-
-from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
+from PIL import Image, ImageDraw, ImageFont
 from django.core.files.base import ContentFile
+from django.core.management.base import BaseCommand
 from store.models import ShowcaseProduct, ProductImage
 
-# Color palettes per category
 PALETTES = {
     'bridal': [
         {'bg': (210, 165, 120), 'accent': (180, 130, 85)},
@@ -52,11 +46,9 @@ def create_gallery_image(product_name, view_label, bg_color, accent_color, width
     img = Image.new('RGB', (width, height), bg_color)
     draw = ImageDraw.Draw(img)
 
-    # Decorative pattern — diagonal lines
     for i in range(-height, width + height, 40):
         draw.line([(i, 0), (i + height, height)], fill=accent_color, width=1)
 
-    # Central diamond
     cx, cy = width // 2, height // 2
     diamond_size = 120
     diamond = [
@@ -67,7 +59,6 @@ def create_gallery_image(product_name, view_label, bg_color, accent_color, width
     ]
     draw.polygon(diamond, fill=accent_color, outline=(255, 255, 255, 180))
 
-    # Inner diamond
     inner = 60
     inner_diamond = [
         (cx, cy - inner),
@@ -77,7 +68,6 @@ def create_gallery_image(product_name, view_label, bg_color, accent_color, width
     ]
     draw.polygon(inner_diamond, fill=bg_color, outline=(255, 255, 255))
 
-    # View label text
     try:
         font_large = ImageFont.truetype("arial.ttf", 28)
         font_small = ImageFont.truetype("arial.ttf", 16)
@@ -85,18 +75,15 @@ def create_gallery_image(product_name, view_label, bg_color, accent_color, width
         font_large = ImageFont.load_default()
         font_small = font_large
 
-    # View label at top
     bbox = draw.textbbox((0, 0), view_label, font=font_large)
     tw = bbox[2] - bbox[0]
     draw.text(((width - tw) // 2, 50), view_label, fill=(255, 255, 255), font=font_large)
 
-    # Product name at bottom
     short_name = product_name[:30]
     bbox2 = draw.textbbox((0, 0), short_name, font=font_small)
     tw2 = bbox2[2] - bbox2[0]
     draw.text(((width - tw2) // 2, height - 60), short_name, fill=(255, 255, 255), font=font_small)
 
-    # Border frame
     draw.rectangle([(10, 10), (width - 11, height - 11)], outline=(255, 255, 255, 128), width=2)
 
     buffer = BytesIO()
@@ -105,40 +92,40 @@ def create_gallery_image(product_name, view_label, bg_color, accent_color, width
     return buffer
 
 
-def run():
-    products = ShowcaseProduct.objects.filter(is_active=True)
-    total_created = 0
+class Command(BaseCommand):
+    help = 'Generate dummy gallery images for each ShowcaseProduct.'
 
-    for product in products:
-        # Skip if already has gallery images
-        existing = product.images.count()
-        if existing > 0:
-            print(f'  ⏭ {product.name} — already has {existing} gallery images, skipping')
-            continue
+    def handle(self, *args, **options):
+        products = ShowcaseProduct.objects.filter(is_active=True)
+        total_created = 0
 
-        palette = PALETTES.get(product.category, PALETTES['bridal'])
+        for product in products:
+            existing = product.images.count()
+            if existing > 0:
+                self.stdout.write(f'  ⏭ {product.name} — already has {existing} gallery images, skipping')
+                continue
 
-        for idx, (view_label, colors) in enumerate(zip(VIEW_LABELS, palette)):
-            img_buffer = create_gallery_image(
-                product.name,
-                view_label,
-                colors['bg'],
-                colors['accent'],
-            )
-            filename = f"{product.slug}-{view_label.lower().replace(' ', '-')}.jpg"
+            palette = PALETTES.get(product.category, PALETTES['bridal'])
 
-            gallery_img = ProductImage(
-                product=product,
-                alt_text=f'{product.name} — {view_label}',
-                display_order=idx + 1,
-            )
-            gallery_img.image.save(filename, ContentFile(img_buffer.read()), save=True)
-            total_created += 1
+            for idx, (view_label, colors) in enumerate(zip(VIEW_LABELS, palette)):
+                img_buffer = create_gallery_image(
+                    product.name,
+                    view_label,
+                    colors['bg'],
+                    colors['accent'],
+                )
+                filename = f"{product.slug}-{view_label.lower().replace(' ', '-')}.jpg"
 
-        print(f'  ✓ {product.name} — 3 gallery images created')
+                gallery_img = ProductImage(
+                    product=product,
+                    alt_text=f'{product.name} — {view_label}',
+                    display_order=idx + 1,
+                )
+                gallery_img.image.save(filename, ContentFile(img_buffer.read()), save=True)
+                total_created += 1
 
-    print(f'\nDone! Created {total_created} gallery images for {products.count()} products.')
+            self.stdout.write(f'  ✓ {product.name} — 3 gallery images created')
 
-
-if __name__ == '__main__':
-    run()
+        self.stdout.write(self.style.SUCCESS(
+            f'\nDone! Created {total_created} gallery images for {products.count()} products.'
+        ))

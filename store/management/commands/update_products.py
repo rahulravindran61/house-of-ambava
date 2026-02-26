@@ -1,14 +1,11 @@
 """
 Update existing showcase products with descriptions, sizes, fabric, and slugs.
-Run: python manage.py shell < update_products.py
+Usage: python manage.py update_products
 """
-import os, django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'mysite.settings')
-django.setup()
 
+from django.core.management.base import BaseCommand
 from store.models import ShowcaseProduct
 
-# Map product names to rich details
 PRODUCT_DETAILS = {
     'Royal Crimson Bridal Lehenga': {
         'description': 'A breathtaking bridal lehenga in deep crimson red, adorned with intricate zardozi work and hand-embroidered motifs. The voluminous flared skirt features cascading floral patterns in gold thread, paired with a beautifully crafted choli and a sheer dupatta with scalloped borders. Perfect for the modern bride who cherishes tradition.',
@@ -35,7 +32,7 @@ PRODUCT_DETAILS = {
         'care': 'Dry clean recommended',
     },
     'Rose Gold Sequin Designer Set': {
-        'description': 'A show-stopping designer set drenched in rose gold sequins that catch every ray of light. The fluid silhouette moves gracefully, while the intricate sequin pattern creates a mesmerizing ombré effect from blush to deep rose. Perfect for receptions and cocktail evenings.',
+        'description': 'A show-stopping designer set drenched in rose gold sequins that catch every ray of light. The fluid silhouette moves gracefully, while the intricate sequin pattern creates a mesmerizing ombre effect from blush to deep rose. Perfect for receptions and cocktail evenings.',
         'fabric': 'Georgette with Sequin Work',
         'sizes': 'S,M,L,XL',
         'care': 'Dry clean only',
@@ -47,13 +44,13 @@ PRODUCT_DETAILS = {
         'care': 'Professional dry clean only',
     },
     'Diwali Collection Floral Lehenga': {
-        'description': 'Celebrate the festival of lights in this vibrant floral lehenga from our exclusive Diwali collection. Hand-painted floral motifs in jewel tones dance across the fabric, accented with delicate gota patti work. Light yet lavish — perfect for festive celebrations.',
+        'description': 'Celebrate the festival of lights in this vibrant floral lehenga from our exclusive Diwali collection. Hand-painted floral motifs in jewel tones dance across the fabric, accented with delicate gota patti work. Light yet lavish -- perfect for festive celebrations.',
         'fabric': 'Chanderi Silk',
         'sizes': 'XS,S,M,L,XL',
         'care': 'Gentle dry clean',
     },
     'Navratri Special Chaniya Choli': {
-        'description': 'Dance through nine nights of Navratri in this vibrant chaniya choli. Traditional bandhani patterns merge with contemporary embellishments — mirror work that catches the light with every twirl. The flared chaniya gives a perfect spin-worthy silhouette.',
+        'description': 'Dance through nine nights of Navratri in this vibrant chaniya choli. Traditional bandhani patterns merge with contemporary embellishments -- mirror work that catches the light with every twirl. The flared chaniya gives a perfect spin-worthy silhouette.',
         'fabric': 'Cotton Silk with Mirror Work',
         'sizes': 'S,M,L,XL,XXL',
         'care': 'Hand wash separately, dry clean recommended',
@@ -95,25 +92,29 @@ PRODUCT_DETAILS = {
         'care': 'Machine wash gentle, iron while damp',
     },
     'Indigo Block Print Lehenga': {
-        'description': 'A stunning indigo lehenga featuring traditional Rajasthani block printing techniques passed down through generations. Natural indigo dye creates rich, deep tones while hand-stamped patterns tell stories of heritage. Eco-friendly and artisanal — fashion with a conscience.',
+        'description': 'A stunning indigo lehenga featuring traditional Rajasthani block printing techniques passed down through generations. Natural indigo dye creates rich, deep tones while hand-stamped patterns tell stories of heritage. Eco-friendly and artisanal -- fashion with a conscience.',
         'fabric': 'Handloom Cotton',
         'sizes': 'S,M,L,XL,XXL',
         'care': 'Hand wash separately in cold water',
     },
 }
 
-updated = 0
-for product in ShowcaseProduct.objects.all():
-    details = PRODUCT_DETAILS.get(product.name)
-    if details:
-        product.description = details['description']
-        product.fabric = details['fabric']
-        product.available_sizes = details['sizes']
-        product.care_instructions = details['care']
-        # Force slug regeneration
-        product.slug = ''
-        product.save()
-        updated += 1
-        print(f'  ✓ Updated: {product.name}  →  /shop/{product.slug}/')
 
-print(f'\nDone! Updated {updated} products.')
+class Command(BaseCommand):
+    help = 'Update existing showcase products with descriptions, sizes, fabric, and slugs.'
+
+    def handle(self, *args, **options):
+        updated = 0
+        for product in ShowcaseProduct.objects.all():
+            details = PRODUCT_DETAILS.get(product.name)
+            if details:
+                product.description = details['description']
+                product.fabric = details['fabric']
+                product.available_sizes = details['sizes']
+                product.care_instructions = details['care']
+                product.slug = ''  # Force slug regeneration
+                product.save()
+                updated += 1
+                self.stdout.write(f'  ✓ Updated: {product.name}  →  /shop/{product.slug}/')
+
+        self.stdout.write(self.style.SUCCESS(f'\nDone! Updated {updated} products.'))
