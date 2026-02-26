@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+from django.views.decorators.cache import cache_page
 import random, json, re, uuid, requests as http_requests, logging
 from store.models import (
     HeroSection, FeaturedCollection, ShowcaseProduct, ProductImage,
@@ -14,6 +15,14 @@ from store.models import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+# ── Custom error handlers ──────────────────────────────────────
+def custom_404(request, exception):
+    return render(request, '404.html', status=404)
+
+def custom_500(request):
+    return render(request, '500.html', status=500)
 
 
 def normalize_phone(raw):
@@ -32,20 +41,24 @@ def normalize_phone(raw):
 def home(request):
     featured_collections = list(FeaturedCollection.objects.filter(is_active=True))
     collection_cards = list(CollectionCard.objects.filter(is_active=True))
-    
-    # Attach product slugs to featured collections and collection cards
+
+    # Batch-fetch product slugs in one query instead of N+1
+    all_names = [fc.name for fc in featured_collections] + [cc.name for cc in collection_cards]
+    slug_map = dict(
+        ShowcaseProduct.objects.filter(name__in=all_names, is_active=True)
+        .values_list('name', 'slug')
+    )
     for fc in featured_collections:
-        product = ShowcaseProduct.objects.filter(name=fc.name, is_active=True).first()
-        fc.product_slug = product.slug if product else None
-    
+        fc.product_slug = slug_map.get(fc.name)
     for cc in collection_cards:
-        product = ShowcaseProduct.objects.filter(name=cc.name, is_active=True).first()
-        cc.product_slug = product.slug if product else None
-    
+        cc.product_slug = slug_map.get(cc.name)
+
     context = {
         'hero': HeroSection.objects.filter(is_active=True).first(),
         'featured_collections': featured_collections,
-        'showcase_products': ShowcaseProduct.objects.filter(is_active=True),
+        'showcase_products': ShowcaseProduct.objects.filter(is_active=True).only(
+            'name', 'slug', 'image', 'price', 'discount_percent', 'discounted_price', 'category',
+        ),
         'collection_cards': collection_cards,
         'parallax': ParallaxSection.objects.filter(is_active=True).first(),
         'stats': StatItem.objects.filter(is_active=True),
@@ -66,7 +79,9 @@ def about(request):
 def shop(request):
     """Shop page — all products with category sidebar filtering."""
     category = request.GET.get('category', 'all')
-    products = ShowcaseProduct.objects.filter(is_active=True)
+    products = ShowcaseProduct.objects.filter(is_active=True).only(
+        'name', 'slug', 'image', 'price', 'discount_percent', 'discounted_price', 'category',
+    )
     if category and category != 'all':
         products = products.filter(category=category)
     context = {
@@ -82,10 +97,12 @@ def shop(request):
 def product_detail(request, slug):
     """Individual product detail page."""
     product = get_object_or_404(ShowcaseProduct, slug=slug, is_active=True)
-    gallery_images = product.images.all()
+    gallery_images = product.images.only('image', 'alt_text', 'display_order')
     related_products = ShowcaseProduct.objects.filter(
         category=product.category, is_active=True
-    ).exclude(pk=product.pk)[:4]
+    ).exclude(pk=product.pk).only(
+        'name', 'slug', 'image', 'price', 'discount_percent', 'discounted_price',
+    )[:4]
     context = {
         'product': product,
         'gallery_images': gallery_images,
@@ -151,8 +168,39 @@ def search_api(request):
     return JsonResponse({'results': results[:12]})
 
 
-# ── In-memory OTP store (use Redis/cache in production) ──
-_otp_store = {}
+# ── OTP helpers (cache-backed — works across workers) ──
+from django.core.cache import cache as _cache
+
+_OTP_TTL = 300          # OTP valid for 5 minutes
+_OTP_RATE_WINDOW = 60   # 1 request per phone per minute
+
+def _otp_key(phone):
+    return f'otp:{phone}'
+
+def _otp_rate_key(phone):
+    return f'otp_rate:{phone}'
+
+def _store_otp(phone, otp, raw_phone=None):
+    _cache.set(_otp_key(phone), otp, _OTP_TTL)
+    if raw_phone and raw_phone != phone:
+        _cache.set(_otp_key(raw_phone), otp, _OTP_TTL)
+
+def _get_otp(phone, raw_phone=None):
+    return _cache.get(_otp_key(phone)) or (
+        _cache.get(_otp_key(raw_phone)) if raw_phone else None
+    )
+
+def _clear_otp(phone, raw_phone=None):
+    _cache.delete(_otp_key(phone))
+    if raw_phone:
+        _cache.delete(_otp_key(raw_phone))
+
+def _is_rate_limited(phone):
+    key = _otp_rate_key(phone)
+    if _cache.get(key):
+        return True
+    _cache.set(key, 1, _OTP_RATE_WINDOW)
+    return False
 
 
 def customer_login(request):
@@ -273,7 +321,7 @@ def customer_login(request):
                 errors['otp'] = 'OTP is required.'
 
             # Try matching OTP with both raw and normalized phone (in case OTP was stored with raw value)
-            stored_otp = _otp_store.get(phone) or _otp_store.get(raw_phone)
+            stored_otp = _get_otp(phone, raw_phone)
             print(f"[PHONE_LOGIN] raw={raw_phone!r} normalized={phone!r} otp={otp!r} stored={stored_otp!r}")
 
             if errors:
@@ -288,8 +336,7 @@ def customer_login(request):
                 messages.error(request, err)
             else:
                 # OTP valid — find or create user by phone
-                _otp_store.pop(phone, None)
-                _otp_store.pop(raw_phone, None)
+                _clear_otp(phone, raw_phone)
                 # 1. Check UserProfile for existing account with this phone
                 profile = UserProfile.objects.filter(phone=phone).select_related('user').first()
                 if profile:
@@ -646,11 +693,12 @@ def send_otp(request):
     if phone_err:
         return JsonResponse({'ok': False, 'error': phone_err})
 
+    # Rate-limit: 1 OTP per phone per minute
+    if _is_rate_limited(phone):
+        return JsonResponse({'ok': False, 'error': 'Please wait before requesting another OTP.'}, status=429)
+
     otp = str(random.randint(100000, 999999))
-    _otp_store[phone] = otp
-    # Also store under raw input so OTP matches regardless of normalization timing
-    if raw_phone != phone:
-        _otp_store[raw_phone] = otp
+    _store_otp(phone, otp, raw_phone)
 
     # Demo mode: return OTP in response so the front-end can show it.
     # When ready to send real SMS, replace this with MSG91 integration
@@ -1114,13 +1162,12 @@ def checkout_login(request):
         if errors:
             return JsonResponse({'ok': False, 'errors': errors})
 
-        stored_otp = _otp_store.get(phone) or _otp_store.get(raw_phone)
+        stored_otp = _get_otp(phone, raw_phone)
         if stored_otp != otp:
             return JsonResponse({'ok': False, 'errors': {'otp': 'Invalid or expired OTP.'}})
 
         # OTP valid — find or create user by phone
-        _otp_store.pop(phone, None)
-        _otp_store.pop(raw_phone, None)
+        _clear_otp(phone, raw_phone)
         phone_digits = re.sub(r'[^\d]', '', phone)[-10:]
         # 1. Check UserProfile for existing account with this phone
         profile = UserProfile.objects.filter(phone=phone).select_related('user').first()

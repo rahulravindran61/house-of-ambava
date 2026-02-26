@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found — House Of Ambava</title>
+    <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .error-page{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:80vh;text-align:center;padding:2rem}
+        .error-code{font-size:8rem;font-weight:800;color:var(--gold);line-height:1;margin-bottom:.5rem;font-family:var(--heading-font)}
+        .error-title{font-size:1.8rem;margin-bottom:1rem;font-family:var(--heading-font);color:var(--text-color)}
+        .error-text{max-width:500px;margin-bottom:2rem;color:var(--text-secondary);line-height:1.7}
+        .error-btn{display:inline-flex;align-items:center;gap:.5rem;padding:.9rem 2rem;background:var(--gold);color:#fff;border:none;border-radius:var(--radius);font-weight:600;text-decoration:none;transition:all .3s}
+        .error-btn:hover{background:var(--gold-dark);transform:translateY(-2px)}
+        .error-icon{font-size:3rem;color:var(--gold);margin-bottom:1.5rem;opacity:.6}
+    </style>
+</head>
+<body>
+    <div class="error-page">
+        <i class="fas fa-compass error-icon"></i>
+        <div class="error-code">404</div>
+        <h1 class="error-title">Page Not Found</h1>
+        <p class="error-text">The page you're looking for doesn't exist or has been moved. Let's get you back to our beautiful collections.</p>
+        <a href="/" class="error-btn"><i class="fas fa-home"></i> Back to Home</a>
+    </div>
+</body>
+</html>

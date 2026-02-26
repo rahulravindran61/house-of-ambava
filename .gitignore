@@ -38,6 +38,10 @@ desktop.ini
 *.log
 nul
 
+# Logs folder (keep .gitkeep)
+logs/
+!logs/.gitkeep
+
 # Temp / scratch files
 cook*.txt
 cookies.txt
