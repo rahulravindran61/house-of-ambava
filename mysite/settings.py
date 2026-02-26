@@ -125,6 +125,9 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # WhiteNoise — compressed + forever-cacheable static files in prod
 STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
     'staticfiles': {
         'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
     },
@@ -177,7 +180,7 @@ CACHES = {
 # ────────────────────────────────────────────────────────────────
 # Logging
 # ────────────────────────────────────────────────────────────────
-LOG_LEVEL = os.environ.get('DJANGO_LOG_LEVEL', 'INFO' if not DEBUG else 'DEBUG')
+LOG_LEVEL = os.environ.get('DJANGO_LOG_LEVEL', 'INFO')
 
 LOGGING = {
     'version': 1,
@@ -195,7 +198,7 @@ LOGGING = {
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'formatter': 'verbose',
+            'formatter': 'simple',
         },
         'file': {
             'class': 'logging.FileHandler',
