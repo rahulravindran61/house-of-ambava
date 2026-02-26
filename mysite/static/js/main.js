@@ -119,81 +119,36 @@
 })();
 
 // ============================================================
-// Mobile Hamburger Menu Toggle — slide-from-right with backdrop
+// Mobile Hamburger Menu Toggle
 // ============================================================
 (function initHamburger() {
     const hamburger = document.getElementById('hamburger');
     const nav = document.getElementById('mainNav');
     if (!hamburger || !nav) return;
 
-    // Create backdrop overlay for mobile nav
-    let navBackdrop = document.getElementById('navBackdrop');
-    if (!navBackdrop) {
-        navBackdrop = document.createElement('div');
-        navBackdrop.id = 'navBackdrop';
-        navBackdrop.style.cssText = `
-            position: fixed; inset: 0; z-index: 999;
-            background: rgba(0,0,0,0.4); backdrop-filter: blur(2px);
-            opacity: 0; visibility: hidden; pointer-events: none;
-            transition: opacity 0.4s ease, visibility 0s 0.4s;
-        `;
-        document.body.appendChild(navBackdrop);
-    }
-
-    function openNav() {
-        hamburger.classList.add('active');
-        nav.classList.add('nav-open');
-        document.body.classList.add('nav-open-body');
-        navBackdrop.style.opacity = '1';
-        navBackdrop.style.visibility = 'visible';
-        navBackdrop.style.pointerEvents = 'all';
-        navBackdrop.style.transition = 'opacity 0.4s ease, visibility 0s 0s';
-        if (lenis) lenis.stop();
-    }
-
-    function closeNav() {
-        hamburger.classList.remove('active');
-        nav.classList.remove('nav-open');
-        document.body.classList.remove('nav-open-body');
-        navBackdrop.style.opacity = '0';
-        navBackdrop.style.visibility = 'hidden';
-        navBackdrop.style.pointerEvents = 'none';
-        navBackdrop.style.transition = 'opacity 0.4s ease, visibility 0s 0.4s';
-        if (lenis) lenis.start();
-    }
-
     hamburger.addEventListener('click', () => {
-        nav.classList.contains('nav-open') ? closeNav() : openNav();
+        hamburger.classList.toggle('active');
+        nav.classList.toggle('nav-open');
+        document.body.classList.toggle('nav-open-body');
     });
-
-    navBackdrop.addEventListener('click', closeNav);
 
     // Close nav when a link is clicked
     nav.querySelectorAll('a').forEach(a => {
-        a.addEventListener('click', closeNav);
+        a.addEventListener('click', () => {
+            hamburger.classList.remove('active');
+            nav.classList.remove('nav-open');
+            document.body.classList.remove('nav-open-body');
+        });
     });
 
     // Close nav on Escape key
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && nav.classList.contains('nav-open')) closeNav();
-    });
-
-    // Touch swipe-to-close: swipe right on nav to dismiss
-    let touchStartX = 0;
-    let touchStartY = 0;
-    nav.addEventListener('touchstart', (e) => {
-        touchStartX = e.touches[0].clientX;
-        touchStartY = e.touches[0].clientY;
-    }, { passive: true });
-
-    nav.addEventListener('touchend', (e) => {
-        const dx = e.changedTouches[0].clientX - touchStartX;
-        const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
-        // Swipe right > 60px and more horizontal than vertical
-        if (dx > 60 && dy < dx * 0.5 && nav.classList.contains('nav-open')) {
-            closeNav();
+        if (e.key === 'Escape' && nav.classList.contains('nav-open')) {
+            hamburger.classList.remove('active');
+            nav.classList.remove('nav-open');
+            document.body.classList.remove('nav-open-body');
         }
-    }, { passive: true });
+    });
 })();
 
 // ============================================================
