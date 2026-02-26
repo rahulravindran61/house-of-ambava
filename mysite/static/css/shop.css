@@ -3,6 +3,12 @@
    Elegant, fluid, polished layout with ultra-smooth animations
    ═══════════════════════════════════════════════════════════════ */
 
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .product-card { animation: none !important; opacity: 1 !important; transform: none !important; }
+    .product-card.is-visible { animation: none !important; }
+}
+
 /* ── Shop-specific nav active ── */
 nav a.shop-active {
     color: var(--primary) !important;
@@ -88,9 +94,9 @@ nav a.shop-active::after {
 
 .shop-hero-content h1 {
     font-family: 'Playfair Display', serif;
-    font-size: 52px;
+    font-size: clamp(1.75rem, 1rem + 3.2vw, 3.25rem);
     font-weight: 600;
-    letter-spacing: 3px;
+    letter-spacing: clamp(1px, 0.2vw, 3px);
     margin-bottom: 14px;
     background: linear-gradient(135deg, #ffffff 30%, var(--primary));
     -webkit-background-clip: text;
@@ -161,7 +167,7 @@ nav a.shop-active::after {
 .shop-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 40px;
+    padding: 0 clamp(14px, 3vw, 40px);
 }
 
 .shop-mobile-bar {

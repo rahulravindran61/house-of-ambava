@@ -73,6 +73,41 @@ body {
     color: var(--text);
     overflow-x: clip;
     transition: background 0.5s ease, color 0.5s ease;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* ═══════════════════════════════════════════
+   PREFERS-REDUCED-MOTION — accessibility
+   ═══════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .lenis.lenis-smooth { scroll-behavior: auto !important; }
+    body { animation: none !important; }
+    header { animation: none !important; }
+    body main, body > section:first-of-type { animation: none !important; }
+    footer { animation: none !important; }
+    #cursor-canvas { display: none !important; }
+}
+
+/* ═══════════════════════════════════════════
+   CONTENT VISIBILITY — lazy render off-screen
+   ═══════════════════════════════════════════ */
+.featured-section,
+.showcase-section,
+.collection-section,
+.parallax-section,
+.stats-section,
+.newsletter-section,
+.contact-section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 600px;
 }
 
 /* GPU-hint only on actively animated elements (fewer = better) */
@@ -96,10 +131,27 @@ section {
     perspective: 1200px;
 }
 
-/* Crisp image rendering */
+/* Crisp image rendering + smooth lazy-load fade */
 img {
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
+}
+
+img[loading="lazy"] {
+    opacity: 0;
+    transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+img[loading="lazy"].loaded,
+img[loading="lazy"][complete] {
+    opacity: 1;
+}
+
+/* Smooth focus states for accessibility */
+:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+    border-radius: 4px;
 }
 
 #cursor-canvas {
@@ -131,7 +183,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 40px;
+    padding: 0 clamp(16px, 3vw, 40px);
 }
 
 .logo {
@@ -1701,15 +1753,15 @@ nav a:active {
 }
 
 .floating-text h1 {
-    font-size: 72px;
+    font-size: clamp(1.25rem, 0.35rem + 4.8vw, 4.5rem);
     font-weight: 900;
     margin-bottom: 20px;
     color: white;
     animation: slideDown 1s ease-out;
-    letter-spacing: 4px;
+    letter-spacing: clamp(1px, 0.25vw + 1px, 4px);
     text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
     transition: all 0.3s ease;
-    padding: 30px 60px;
+    padding: clamp(12px, 1vw + 10px, 30px) clamp(16px, 2vw + 10px, 60px);
     border-top: 2px solid #e8d5c4;
     border-bottom: 2px solid #e8d5c4;
     display: inline-block;
@@ -1756,11 +1808,11 @@ nav a:active {
 }
 
 .hero-subtitle {
-    font-size: 24px;
+    font-size: clamp(0.7rem, 0.4rem + 1.4vw, 1.5rem);
     color: #FFFFFF;
-    margin-bottom: 50px;
+    margin-bottom: clamp(24px, 3vw + 10px, 50px);
     animation: slideUp 1.2s ease-out 0.2s both;
-    letter-spacing: 2px;
+    letter-spacing: clamp(0.5px, 0.15vw, 2px);
     font-weight: 900;
     text-shadow: 
         0 1px 3px rgba(0, 0, 0, 1),
@@ -1942,7 +1994,7 @@ nav a:active {
 
 /* Featured Section */
 .featured-section {
-    padding: 50px 40px;
+    padding: clamp(30px, 4vw, 50px) clamp(16px, 3vw, 40px);
     max-width: 1400px;
     margin: 0 auto;
 }
@@ -1953,7 +2005,7 @@ nav a:active {
 }
 
 .section-header h2 {
-    font-size: 48px;
+    font-size: clamp(1.25rem, 0.5rem + 3vw, 3rem);
     margin-bottom: 15px;
     background: var(--gradient);
     -webkit-background-clip: text;
@@ -1962,7 +2014,7 @@ nav a:active {
 }
 
 .section-header p {
-    font-size: 16px;
+    font-size: clamp(0.7rem, 0.58rem + 0.4vw, 1rem);
     color: var(--text-muted);
     letter-spacing: 1px;
 }
@@ -2139,19 +2191,19 @@ nav a:active {
 }
 
 .parallax-content h2 {
-    font-size: 56px;
+    font-size: clamp(1.375rem, 0.5rem + 3.5vw, 3.5rem);
     margin-bottom: 20px;
-    letter-spacing: 2px;
+    letter-spacing: clamp(1px, 0.15vw, 2px);
 }
 
 .parallax-content p {
-    font-size: 20px;
+    font-size: clamp(0.8rem, 0.6rem + 0.8vw, 1.25rem);
     opacity: 0.9;
 }
 
 /* Showcase Section */
 .showcase-section {
-    padding: 50px 40px;
+    padding: clamp(30px, 4vw, 50px) clamp(16px, 3vw, 40px);
     max-width: 1400px;
     margin: 0 auto;
 }
@@ -2205,7 +2257,7 @@ nav a:active {
 
 /* Collection Section */
 .collection-section {
-    padding: 50px 40px;
+    padding: clamp(30px, 4vw, 50px) clamp(16px, 3vw, 40px);
     max-width: 1400px;
     margin: 0 auto;
 }
@@ -2293,7 +2345,7 @@ nav a:active {
     gap: 30px;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 50px 40px;
+    padding: clamp(30px, 4vw, 50px) clamp(16px, 3vw, 40px);
 }
 
 .stat-card {
@@ -2394,7 +2446,7 @@ nav a:active {
 }
 
 .newsletter-section h2 {
-    font-size: 42px;
+    font-size: clamp(1.375rem, 0.5rem + 3vw, 2.625rem);
     color: white;
     margin-bottom: 15px;
     font-weight: 700;
@@ -2453,7 +2505,7 @@ nav a:active {
 
 /* Contact Section */
 .contact-section {
-    padding: 50px 40px;
+    padding: clamp(30px, 4vw, 50px) clamp(16px, 3vw, 40px);
     max-width: 1400px;
     margin: 0 auto;
 }
@@ -2521,7 +2573,7 @@ nav a:active {
 footer {
     background: var(--footer-bg);
     color: white;
-    padding: 50px 40px 20px;
+    padding: clamp(30px, 4vw, 50px) clamp(16px, 3vw, 40px) 20px;
     margin-top: 0;
     transition: background 0.5s ease;
     position: relative;
@@ -2819,18 +2871,6 @@ footer {
         min-height: 350px;
     }
 
-    .parallax-content h2 {
-        font-size: 40px;
-    }
-
-    .parallax-content p {
-        font-size: 17px;
-    }
-
-    .newsletter-section h2 {
-        font-size: 34px;
-    }
-
     .stats-section {
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
@@ -2839,24 +2879,6 @@ footer {
 
     .stat-number {
         font-size: 36px;
-    }
-
-    .section-header h2 {
-        font-size: 38px;
-    }
-
-    .hero-title {
-        font-size: 3rem;
-    }
-
-    .floating-text h1 {
-        font-size: 56px;
-        padding: 25px 40px;
-        letter-spacing: 3px;
-    }
-
-    .hero-subtitle {
-        font-size: 20px;
     }
 
     footer {
@@ -2889,8 +2911,8 @@ footer {
     #mainNav {
         position: fixed;
         top: 0;
-        left: 0;
-        width: 100%;
+        right: 0;
+        width: min(85vw, 340px);
         height: 100dvh;
         background: var(--bg);
         flex-direction: column;
@@ -2898,15 +2920,18 @@ footer {
         justify-content: center;
         gap: 0;
         z-index: 1000;
-        opacity: 0;
+        transform: translateX(100%);
         visibility: hidden;
-        transition: opacity 0.35s ease, visibility 0s 0.35s;
+        transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                    visibility 0s 0.45s;
+        box-shadow: -8px 0 40px rgba(0, 0, 0, 0.12);
     }
 
     #mainNav.nav-open {
-        opacity: 1;
+        transform: translateX(0);
         visibility: visible;
-        transition: opacity 0.35s ease, visibility 0s 0s;
+        transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                    visibility 0s 0s;
     }
 
     #mainNav a {
@@ -2916,20 +2941,21 @@ footer {
         width: 100%;
         text-align: center;
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateX(30px);
     }
 
     #mainNav.nav-open a {
         opacity: 1;
-        transform: translateY(0);
-        transition: opacity 0.3s ease, transform 0.3s ease;
+        transform: translateX(0);
+        transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                    transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    #mainNav.nav-open a:nth-child(1) { transition-delay: 0.08s; }
-    #mainNav.nav-open a:nth-child(2) { transition-delay: 0.14s; }
-    #mainNav.nav-open a:nth-child(3) { transition-delay: 0.20s; }
-    #mainNav.nav-open a:nth-child(4) { transition-delay: 0.26s; }
-    #mainNav.nav-open a:nth-child(5) { transition-delay: 0.32s; }
+    #mainNav.nav-open a:nth-child(1) { transition-delay: 0.10s; }
+    #mainNav.nav-open a:nth-child(2) { transition-delay: 0.16s; }
+    #mainNav.nav-open a:nth-child(3) { transition-delay: 0.22s; }
+    #mainNav.nav-open a:nth-child(4) { transition-delay: 0.28s; }
+    #mainNav.nav-open a:nth-child(5) { transition-delay: 0.34s; }
 
     body.nav-open-body {
         overflow: hidden;
@@ -2970,22 +2996,6 @@ footer {
         padding: 20px;
     }
 
-    .hero-title {
-        font-size: 2.2rem;
-    }
-
-    .floating-text h1 {
-        font-size: 32px;
-        padding: 18px 24px;
-        letter-spacing: 2px;
-    }
-
-    .hero-subtitle {
-        font-size: 15px;
-        margin-bottom: 30px;
-        letter-spacing: 1px;
-    }
-
     .cta-section {
         flex-direction: column;
         align-items: center;
@@ -2998,19 +3008,11 @@ footer {
         width: 80%;
         max-width: 280px;
         text-align: center;
+        min-height: 44px; /* Touch-friendly target */
     }
 
     .scroll-indicator {
         bottom: 16px;
-    }
-
-    /* ── Section Headers ── */
-    .section-header h2 {
-        font-size: 28px;
-    }
-
-    .section-header p {
-        font-size: 14px;
     }
 
     .section-header {
@@ -3117,15 +3119,6 @@ footer {
         background-attachment: scroll; /* Fix iOS Safari */
     }
 
-    .parallax-content h2 {
-        font-size: 28px;
-        letter-spacing: 1px;
-    }
-
-    .parallax-content p {
-        font-size: 15px;
-    }
-
     /* ── Stats Section ── */
     .stats-section {
         grid-template-columns: repeat(2, 1fr);
@@ -3152,10 +3145,6 @@ footer {
     /* ── Newsletter Section ── */
     .newsletter-section {
         padding: 40px 16px;
-    }
-
-    .newsletter-section h2 {
-        font-size: 26px;
     }
 
     .newsletter-section p {
@@ -3235,33 +3224,10 @@ footer {
         height: 70vh;
     }
 
-    .hero-title {
-        font-size: 1.7rem;
-    }
-
-    .floating-text h1 {
-        font-size: 24px;
-        padding: 14px 18px;
-        letter-spacing: 1.5px;
-    }
-
-    .hero-subtitle {
-        font-size: 13px;
-        margin-bottom: 24px;
-    }
-
     .btn {
         padding: 12px 28px;
         font-size: 11px;
         width: 90%;
-    }
-
-    .section-header h2 {
-        font-size: 22px;
-    }
-
-    .section-header p {
-        font-size: 12px;
     }
 
     .featured-card,
@@ -3311,18 +3277,6 @@ footer {
 
     .stat-number {
         font-size: 26px;
-    }
-
-    .parallax-content h2 {
-        font-size: 22px;
-    }
-
-    .parallax-content p {
-        font-size: 13px;
-    }
-
-    .newsletter-section h2 {
-        font-size: 22px;
     }
 
     .contact-section {
@@ -4019,23 +3973,6 @@ footer {
 }
 
 @media (max-width: 480px) {
-    /* Extra-tight hero for small phones */
-    .floating-text h1 {
-        font-size: 22px !important;
-        padding: 12px 14px !important;
-        letter-spacing: 1px !important;
-    }
-
-    .hero-subtitle {
-        font-size: 12px !important;
-        letter-spacing: 0.5px !important;
-        margin-bottom: 20px !important;
-    }
-
-    .hero-title {
-        font-size: 1.5rem !important;
-    }
-
     .hero-content {
         padding: 16px;
     }
@@ -4124,27 +4061,6 @@ footer {
         width: 22px;
         height: 22px;
         gap: 4px;
-    }
-
-    .floating-text h1 {
-        font-size: 18px !important;
-        padding: 10px 12px !important;
-    }
-
-    .hero-title {
-        font-size: 1.3rem !important;
-    }
-
-    .hero-subtitle {
-        font-size: 11px !important;
-    }
-
-    .section-header h2 {
-        font-size: 20px;
-    }
-
-    .section-header p {
-        font-size: 11px;
     }
 
     .featured-card,

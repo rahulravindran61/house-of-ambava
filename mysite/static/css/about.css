@@ -3,6 +3,11 @@
    Ultra-smooth animations & elegant layout
    ══════════════════════════════════════════════════ */
 
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .about-page * { animation: none !important; transition-duration: 0.01ms !important; }
+}
+
 /* ── Keyframes ── */
 @keyframes labelLineExpand {
     from { transform: scaleX(0); }

@@ -3,6 +3,11 @@
    Ultra-fluid design · Theme-aware via CSS custom properties
    ================================================================ */
 
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .login-page * { animation: none !important; transition-duration: 0.01ms !important; }
+}
+
 /* ── Global fluid timing ── */
 :root {
     --ease-fluid: cubic-bezier(.22, 1, .36, 1);

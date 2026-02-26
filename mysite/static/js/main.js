@@ -119,36 +119,81 @@
 })();
 
 // ============================================================
-// Mobile Hamburger Menu Toggle
+// Mobile Hamburger Menu Toggle — slide-from-right with backdrop
 // ============================================================
 (function initHamburger() {
     const hamburger = document.getElementById('hamburger');
     const nav = document.getElementById('mainNav');
     if (!hamburger || !nav) return;
 
+    // Create backdrop overlay for mobile nav
+    let navBackdrop = document.getElementById('navBackdrop');
+    if (!navBackdrop) {
+        navBackdrop = document.createElement('div');
+        navBackdrop.id = 'navBackdrop';
+        navBackdrop.style.cssText = `
+            position: fixed; inset: 0; z-index: 999;
+            background: rgba(0,0,0,0.4); backdrop-filter: blur(2px);
+            opacity: 0; visibility: hidden; pointer-events: none;
+            transition: opacity 0.4s ease, visibility 0s 0.4s;
+        `;
+        document.body.appendChild(navBackdrop);
+    }
+
+    function openNav() {
+        hamburger.classList.add('active');
+        nav.classList.add('nav-open');
+        document.body.classList.add('nav-open-body');
+        navBackdrop.style.opacity = '1';
+        navBackdrop.style.visibility = 'visible';
+        navBackdrop.style.pointerEvents = 'all';
+        navBackdrop.style.transition = 'opacity 0.4s ease, visibility 0s 0s';
+        if (lenis) lenis.stop();
+    }
+
+    function closeNav() {
+        hamburger.classList.remove('active');
+        nav.classList.remove('nav-open');
+        document.body.classList.remove('nav-open-body');
+        navBackdrop.style.opacity = '0';
+        navBackdrop.style.visibility = 'hidden';
+        navBackdrop.style.pointerEvents = 'none';
+        navBackdrop.style.transition = 'opacity 0.4s ease, visibility 0s 0.4s';
+        if (lenis) lenis.start();
+    }
+
     hamburger.addEventListener('click', () => {
-        hamburger.classList.toggle('active');
-        nav.classList.toggle('nav-open');
-        document.body.classList.toggle('nav-open-body');
+        nav.classList.contains('nav-open') ? closeNav() : openNav();
     });
+
+    navBackdrop.addEventListener('click', closeNav);
 
     // Close nav when a link is clicked
     nav.querySelectorAll('a').forEach(a => {
-        a.addEventListener('click', () => {
-            hamburger.classList.remove('active');
-            nav.classList.remove('nav-open');
-            document.body.classList.remove('nav-open-body');
-        });
+        a.addEventListener('click', closeNav);
     });
 
     // Close nav on Escape key
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && nav.classList.contains('nav-open')) {
-            hamburger.classList.remove('active');
-            nav.classList.remove('nav-open');
-            document.body.classList.remove('nav-open-body');
-        }
+        if (e.key === 'Escape' && nav.classList.contains('nav-open')) closeNav();
     });
+
+    // Touch swipe-to-close: swipe right on nav to dismiss
+    let touchStartX = 0;
+    let touchStartY = 0;
+    nav.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    nav.addEventListener('touchend', (e) => {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+        // Swipe right > 60px and more horizontal than vertical
+        if (dx > 60 && dy < dx * 0.5 && nav.classList.contains('nav-open')) {
+            closeNav();
+        }
+    }, { passive: true });
 })();
 
 // ============================================================
@@ -305,19 +350,26 @@
 })();
 
 // ============================================================
+// Prefers Reduced Motion — global flag
+// ============================================================
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ============================================================
 // Lenis Smooth Scroll — momentum-based inertial scrolling
 // ============================================================
 let lenis = null;
-if (typeof Lenis !== 'undefined') {
+if (typeof Lenis !== 'undefined' && !prefersReducedMotion) {
     lenis = new Lenis({
-        duration: 1.2,
+        duration: 1.0,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         orientation: 'vertical',
         gestureOrientation: 'vertical',
         smoothWheel: true,
-        wheelMultiplier: 1,
-        touchMultiplier: 2,
+        smoothTouch: false,
+        wheelMultiplier: 0.9,
+        touchMultiplier: 1.8,
         infinite: false,
+        lerp: 0.1,
     });
 }
 
@@ -330,14 +382,14 @@ if (typeof Lenis !== 'undefined') {
 const _isPureTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
 let _canvas = document.getElementById('cursor-canvas');
 
-// Auto-create canvas if missing from the page HTML
-if (!_canvas && !_isPureTouchDevice) {
+// Auto-create canvas if missing from the page HTML (skip if reduced motion)
+if (!_canvas && !_isPureTouchDevice && !prefersReducedMotion) {
     _canvas = document.createElement('canvas');
     _canvas.id = 'cursor-canvas';
     document.body.appendChild(_canvas);
 }
 
-if (_canvas && _isPureTouchDevice) {
+if (_canvas && (_isPureTouchDevice || prefersReducedMotion)) {
     _canvas.style.display = 'none';
 }
 const _ctx = (_canvas && !_isPureTouchDevice) ? _canvas.getContext('2d') : null;
@@ -680,8 +732,11 @@ function lerp(a, b, t) { return a + (b - a) * t; }
 
 const _isHomePage = !!document.querySelector('.hero, #home');
 
+// Skip heavy 3D animations if user prefers reduced motion
+const _enable3D = _isHomePage && !prefersReducedMotion;
+
 // Cache ALL DOM lookups once at startup — only meaningful on home page
-const _sections       = _isHomePage ? document.querySelectorAll('section') : [];
+const _sections       = _enable3D ? document.querySelectorAll('section') : [];
 const _showcaseItems  = document.querySelectorAll('.showcase-item');
 const _featuredCards  = document.querySelectorAll('.featured-card');
 const _flipCards      = document.querySelectorAll('.flip-card');
@@ -958,7 +1013,7 @@ function tick(now) {
     }
 }
 
-function startTick() { if (_isHomePage && !_running) { _running = true; _prevTime = 0; requestAnimationFrame(tick); } }
+function startTick() { if (_enable3D && !_running) { _running = true; _prevTime = 0; requestAnimationFrame(tick); } }
 window.addEventListener('scroll', startTick, { passive: true });
 
 // Unified rAF loop — drives both Lenis smooth scroll and our 3D animations
@@ -989,17 +1044,27 @@ if (_heroBackground) {
     }
 }
 
-// Lazy Load Images
+// Lazy Load Images — smooth fade-in on enter + native lazy loading
 const images = document.querySelectorAll('img');
 const imageObserver = new IntersectionObserver((entries, observer) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             const img = entry.target;
-            img.style.animation = 'fadeInUp 0.6s ease-out';
+            // Add native lazy loading attribute if not present
+            if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy');
+            // Smooth fade-in via CSS (.loaded class)
+            if (img.complete) {
+                img.classList.add('loaded');
+            } else {
+                img.addEventListener('load', () => img.classList.add('loaded'), { once: true });
+            }
+            if (!prefersReducedMotion) {
+                img.style.animation = 'fadeInUp 0.6s ease-out';
+            }
             observer.unobserve(img);
         }
     });
-});
+}, { rootMargin: '50px' });
 
 images.forEach(img => imageObserver.observe(img));
 
@@ -1055,6 +1120,24 @@ if (mobileMenuToggle) {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && overlay.classList.contains('active')) closeCart();
     });
+
+    // Touch swipe-to-close: swipe right on cart drawer to dismiss
+    const drawer = overlay.querySelector('.cart-drawer');
+    if (drawer) {
+        let cartTouchStartX = 0;
+        let cartTouchStartY = 0;
+        drawer.addEventListener('touchstart', (e) => {
+            cartTouchStartX = e.touches[0].clientX;
+            cartTouchStartY = e.touches[0].clientY;
+        }, { passive: true });
+        drawer.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - cartTouchStartX;
+            const dy = Math.abs(e.changedTouches[0].clientY - cartTouchStartY);
+            if (dx > 80 && dy < dx * 0.5 && overlay.classList.contains('active')) {
+                closeCart();
+            }
+        }, { passive: true });
+    }
 
     // ── Save to localStorage ──
     function saveCart() {
@@ -1266,8 +1349,9 @@ console.log('Crafted with elegance and precision');
 // (Magnetic buttons, 3D tilt cards, click ripples, glow spotlight)
 // ============================================================
 (function initMouseEffects() {
-    // Skip on pure-touch devices (not laptops with touchscreen)
+    // Skip on pure-touch devices (not laptops with touchscreen) or reduced motion
     if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return;
+    if (prefersReducedMotion) return;
 
     // ── Shared state ──
     let mouseX = 0, mouseY = 0;

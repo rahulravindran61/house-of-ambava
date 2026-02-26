@@ -3,6 +3,11 @@
    Fluid animations, elegant layout, polished micro-interactions
    ═══════════════════════════════════════════════════════════════ */
 
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .pdp-page * { animation: none !important; transition-duration: 0.01ms !important; }
+}
+
 /* ── Nav active state ── */
 nav a.shop-active {
     color: var(--primary) !important;
@@ -23,7 +28,7 @@ nav a.shop-active::after {
 .pdp-container {
     max-width: 1300px;
     margin: 0 auto;
-    padding: 0 40px;
+    padding: 0 clamp(12px, 3vw, 40px);
 }
 
 
@@ -349,7 +354,7 @@ nav a.shop-active::after {
 /* ── Title ── */
 .pdp-title {
     font-family: 'Playfair Display', serif;
-    font-size: 38px;
+    font-size: clamp(1.5rem, 0.8rem + 2.5vw, 2.375rem);
     font-weight: 600;
     color: var(--text);
     line-height: 1.2;
