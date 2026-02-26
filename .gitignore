@@ -1,0 +1,50 @@
+# Virtual environment
+env/
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+dist/
+build/
+
+# Database
+db.sqlite3
+db.sqlite3-journal
+
+# Media uploads
+media/
+
+# Static files (collected)
+staticfiles/
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Environment variables
+.env
+*.log
+nul
+
+# Temp / scratch files
+cook*.txt
+cookies.txt
+test_animations.html
+IMPLEMENTATION_COMPLETE.md
+PINCODE_FRONTEND_GUIDE.md
+PINCODE_GUIDE.md
+PINCODE_IMPLEMENTATION_SUMMARY.md
+PINCODE_VISUAL_GUIDE.md
+README_PINCODE_CHECKER.md

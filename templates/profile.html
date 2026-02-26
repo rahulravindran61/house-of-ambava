@@ -1,0 +1,690 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile — House Of Ambava</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=7">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        (function(){ var t=localStorage.getItem('theme'); if(t==='dark') document.documentElement.setAttribute('data-theme','dark'); })();
+    </script>
+</head>
+<body class="profile-page">
+    <canvas id="cursor-canvas"></canvas>
+
+    <!-- Header -->
+    <header id="header">
+        <div class="header-content">
+            <a href="{% url 'home' %}" class="logo" style="text-decoration: none;">
+                <svg class="logo-emblem" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+                    <g stroke="currentColor" stroke-width="3" fill="none">
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(22.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(45,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(67.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(90,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(112.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(135,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(157.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(180,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(202.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(225,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(247.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(270,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(292.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(315,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(337.5,100,100)"/>
+                    </g>
+                    <circle cx="100" cy="100" r="78" stroke="currentColor" stroke-width="4.5" fill="none"/>
+                    <circle cx="100" cy="100" r="73" stroke="currentColor" stroke-width="4" fill="none"/>
+                    <g stroke="currentColor" stroke-width="2.5" fill="none">
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(22.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(45,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(67.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(90,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(112.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(135,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(157.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(180,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(202.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(225,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(247.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(270,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(292.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(315,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(337.5,100,100)"/>
+                    </g>
+                    <circle cx="100" cy="100" r="55" stroke="currentColor" stroke-width="3.5" fill="none"/>
+                    <rect x="66" y="66" width="68" height="68" stroke="currentColor" stroke-width="3" fill="none"/>
+                    <rect x="66" y="66" width="68" height="68" stroke="currentColor" stroke-width="3" fill="none" transform="rotate(45,100,100)"/>
+                    <line x1="100" y1="52" x2="100" y2="148" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="52" y1="100" x2="148" y2="100" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="66" y1="66" x2="134" y2="134" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="134" y1="66" x2="66" y2="134" stroke="currentColor" stroke-width="2.5"/>
+                    <rect x="82" y="82" width="36" height="36" stroke="currentColor" stroke-width="2.5" fill="none" transform="rotate(45,100,100)"/>
+                    <rect x="88" y="88" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none"/>
+                    <circle cx="100" cy="100" r="4" fill="currentColor"/>
+                </svg>
+                <span class="logo-text">HOUSE OF AMBAVA</span>
+            </a>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+            <nav id="mainNav">
+                <a href="{% url 'home' %}">HOME</a>
+                <a href="{% url 'shop' %}">SHOP</a>
+                <a href="{% url 'about' %}">ABOUT</a>
+            </nav>
+            <div class="header-icons">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+                {% if user.is_authenticated and not user.is_staff %}
+                <div class="profile-dropdown-wrap">
+                    <a href="#" class="profile-trigger" id="profileTrigger" title="My Profile">
+                        <i class="fas fa-user"></i>
+                        <span class="profile-status-dot"></span>
+                    </a>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-dropdown-header">
+                            <div class="profile-dd-avatar"><i class="fas fa-user"></i></div>
+                            <div class="profile-dropdown-name">{% if user.first_name %}{{ user.first_name }} {{ user.last_name }}{% else %}Welcome!{% endif %}</div>
+                            <div class="profile-dropdown-email">{% if user.email %}{{ user.email }}{% else %}{{ user.username }}{% endif %}</div>
+                        </div>
+                        {% if not user.first_name or not user.email %}
+                        <div class="profile-complete-prompt">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Please add your name & email in Profile</span>
+                        </div>
+                        {% endif %}
+                        <div class="profile-dropdown-menu">
+                            <a href="{% url 'profile' %}" class="profile-dropdown-item">
+                                <i class="fas fa-user-circle"></i> <span>Profile</span>
+                            </a>
+                            <a href="{% url 'profile' %}#addresses" class="profile-dropdown-item">
+                                <i class="fas fa-address-book"></i> <span>Addresses</span>
+                            </a>
+                            <a href="{% url 'order_history' %}" class="profile-dropdown-item">
+                                <i class="fas fa-shopping-bag"></i> <span>Order History</span>
+                            </a>
+                            <a href="{% url 'track_order' %}" class="profile-dropdown-item">
+                                <i class="fas fa-map-marker-alt"></i> <span>Track Order</span>
+                            </a>
+                            <a href="{% url 'returns_exchanges' %}" class="profile-dropdown-item">
+                                <i class="fas fa-exchange-alt"></i> <span>Returns & Exchanges</span>
+                            </a>
+                            <div class="profile-dropdown-divider"></div>
+                            <a href="{% url 'customer_logout' %}" class="profile-dropdown-item logout">
+                                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{% url 'customer_login' %}" class="user-link"><i class="fas fa-user"></i></a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Toast notifications -->
+    <div class="profile-toast" id="profileToast"></div>
+
+    <!-- Main content -->
+    <div class="profile-container">
+
+        <!-- Back button -->
+        <a href="{% url 'home' %}" class="profile-back-btn" id="profileBackBtn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back</span>
+        </a>
+
+        <!-- Profile header -->
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {{ user.first_name|default:user.username|make_list|first|upper }}
+            </div>
+            <h1>{{ user.first_name|default:"Customer" }} {{ user.last_name }}</h1>
+            <p class="profile-username">@{{ user.username }}</p>
+        </div>
+
+        <!-- ── Personal Info ── -->
+        <div class="profile-section">
+            <h2 class="profile-section-title"><i class="fas fa-user"></i> Personal Information</h2>
+            <form id="profileForm">
+                {% csrf_token %}
+                <div class="profile-form-row">
+                    <div class="profile-field">
+                        <label for="profFirstName">First Name <span style="color:#c0392b">*</span></label>
+                        <input type="text" id="profFirstName" name="first_name" value="{{ user.first_name }}" placeholder="Your first name" required>
+                        <span class="field-error"></span>
+                    </div>
+                    <div class="profile-field">
+                        <label for="profLastName">Last Name</label>
+                        <input type="text" id="profLastName" name="last_name" value="{{ user.last_name }}" placeholder="Your last name">
+                        <span class="field-error"></span>
+                    </div>
+                </div>
+                <div class="profile-form-row full">
+                    <div class="profile-field">
+                        <label for="profEmail">Email Address <span style="color:#c0392b">*</span></label>
+                        <input type="email" id="profEmail" name="email" value="{{ user.email }}" placeholder="your@email.com" required>
+                        <span class="field-error"></span>
+                    </div>
+                </div>
+                <div class="profile-form-row full">
+                    <div class="profile-field">
+                        <label for="profPhone">Phone Number</label>
+                        <input type="tel" id="profPhone" name="phone" value="{{ user_phone }}" placeholder="+91 XXXXX XXXXX" maxlength="15">
+                        <span class="field-error"></span>
+                    </div>
+                </div>
+                <div class="profile-form-row full">
+                    <div class="profile-field">
+                        <label>Username</label>
+                        <input type="text" value="{{ user.username }}" disabled style="opacity:.6;cursor:not-allowed">
+                    </div>
+                </div>
+                <div class="profile-form-actions">
+                    <button type="submit" class="profile-btn profile-btn-primary">
+                        <i class="fas fa-save"></i> Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ── Saved Addresses ── -->
+        <div class="profile-section" id="addresses">
+            <div class="profile-section-header">
+                <h2 class="profile-section-title"><i class="fas fa-map-marker-alt"></i> Saved Addresses</h2>
+                <button class="addr-add-btn" id="addAddressBtn" title="Add new address">
+                    <i class="fas fa-plus"></i> <span>Add Address</span>
+                </button>
+            </div>
+
+            <!-- Address Cards Grid -->
+            <div class="addr-grid" id="addrGrid">
+                {% for addr in addresses %}
+                <div class="addr-card {% if addr.is_default %}addr-default{% endif %}" data-id="{{ addr.id }}">
+                    <div class="addr-card-header">
+                        <span class="addr-label-tag addr-label-{{ addr.label }}">
+                            <i class="fas {% if addr.label == 'home' %}fa-home{% elif addr.label == 'work' %}fa-briefcase{% else %}fa-map-pin{% endif %}"></i>
+                            {{ addr.get_label_display }}
+                        </span>
+                        {% if addr.is_default %}
+                        <span class="addr-default-tag"><i class="fas fa-star"></i> Default</span>
+                        {% endif %}
+                    </div>
+                    <p class="addr-card-name">{{ addr.full_name }}</p>
+                    <p class="addr-card-line">{{ addr.address_line1 }}{% if addr.address_line2 %}, {{ addr.address_line2 }}{% endif %}</p>
+                    <p class="addr-card-line">{{ addr.city }}, {{ addr.state }} — {{ addr.pincode }}</p>
+                    {% if addr.phone %}<p class="addr-card-phone"><i class="fas fa-phone"></i> {{ addr.phone }}</p>{% endif %}
+                    <div class="addr-card-actions">
+                        <button class="addr-action-btn addr-edit-btn" data-id="{{ addr.id }}" title="Edit">
+                            <i class="fas fa-pen"></i> Edit
+                        </button>
+                        <button class="addr-action-btn addr-delete-btn" data-id="{{ addr.id }}" title="Delete">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="addr-empty" id="addrEmpty">
+                    <div class="addr-empty-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <p>No saved addresses yet</p>
+                    <span>Add addresses for faster checkout</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Address Modal -->
+        <div class="addr-modal-overlay" id="addrModalOverlay" style="display:none;">
+            <div class="addr-modal">
+                <div class="addr-modal-header">
+                    <h3 id="addrModalTitle"><i class="fas fa-map-marker-alt"></i> Add Address</h3>
+                    <button class="addr-modal-close" id="addrModalClose"><i class="fas fa-times"></i></button>
+                </div>
+                <form id="addrForm">
+                    <input type="hidden" id="addrId" name="address_id" value="">
+                    <div class="addr-form-row">
+                        <div class="addr-field">
+                            <label for="addrName">Full Name <span class="req">*</span></label>
+                            <input type="text" id="addrName" name="full_name" placeholder="Recipient's full name">
+                            <span class="addr-field-error"></span>
+                        </div>
+                        <div class="addr-field">
+                            <label for="addrPhone">Phone</label>
+                            <input type="tel" id="addrPhone" name="phone" placeholder="+91 XXXXX XXXXX">
+                            <span class="addr-field-error"></span>
+                        </div>
+                    </div>
+                    <div class="addr-form-row full">
+                        <div class="addr-field">
+                            <label for="addrLine1">Address Line 1 <span class="req">*</span></label>
+                            <input type="text" id="addrLine1" name="address_line1" placeholder="House/Flat No., Street">
+                            <span class="addr-field-error"></span>
+                        </div>
+                    </div>
+                    <div class="addr-form-row full">
+                        <div class="addr-field">
+                            <label for="addrLine2">Address Line 2 <small>(optional)</small></label>
+                            <input type="text" id="addrLine2" name="address_line2" placeholder="Landmark, Area">
+                        </div>
+                    </div>
+                    <div class="addr-form-row addr-form-row-3">
+                        <div class="addr-field">
+                            <label for="addrCity">City <span class="req">*</span></label>
+                            <input type="text" id="addrCity" name="city" placeholder="City">
+                            <span class="addr-field-error"></span>
+                        </div>
+                        <div class="addr-field">
+                            <label for="addrState">State <span class="req">*</span></label>
+                            <input type="text" id="addrState" name="state" placeholder="State">
+                            <span class="addr-field-error"></span>
+                        </div>
+                        <div class="addr-field">
+                            <label for="addrPincode">Pincode <span class="req">*</span></label>
+                            <input type="text" id="addrPincode" name="pincode" placeholder="6-digit" maxlength="6">
+                            <span class="addr-field-error"></span>
+                        </div>
+                    </div>
+                    <div class="addr-form-row addr-form-bottom">
+                        <div class="addr-label-picker">
+                            <label>Label:</label>
+                            <div class="addr-label-options">
+                                <label class="addr-label-radio active"><input type="radio" name="label" value="home" checked><i class="fas fa-home"></i> Home</label>
+                                <label class="addr-label-radio"><input type="radio" name="label" value="work"><i class="fas fa-briefcase"></i> Work</label>
+                                <label class="addr-label-radio"><input type="radio" name="label" value="other"><i class="fas fa-map-pin"></i> Other</label>
+                            </div>
+                        </div>
+                        <label class="addr-default-check">
+                            <input type="checkbox" id="addrDefault" name="is_default">
+                            <span class="addr-custom-check"></span>
+                            Set as default address
+                        </label>
+                    </div>
+                    <div class="addr-form-actions">
+                        <button type="button" class="addr-btn addr-btn-cancel" id="addrCancelBtn">Cancel</button>
+                        <button type="submit" class="addr-btn addr-btn-save" id="addrSaveBtn">
+                            <i class="fas fa-save"></i> <span>Save Address</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Delete Confirmation Modal -->
+        <div class="addr-modal-overlay addr-confirm-overlay" id="addrDeleteOverlay" style="display:none;">
+            <div class="addr-confirm-modal">
+                <div class="addr-confirm-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                <h3>Delete Address?</h3>
+                <p>This address will be permanently removed.</p>
+                <div class="addr-confirm-actions">
+                    <button class="addr-btn addr-btn-cancel" id="addrDeleteCancelBtn">Cancel</button>
+                    <button class="addr-btn addr-btn-delete" id="addrDeleteConfirmBtn">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Quick Links ── -->
+        <div class="profile-section">
+            <h2 class="profile-section-title"><i class="fas fa-th-large"></i> My Account</h2>
+            <div class="profile-quick-links">
+                <a href="{% url 'order_history' %}" class="profile-quick-link">
+                    <div class="quick-link-icon"><i class="fas fa-shopping-bag"></i></div>
+                    <div class="quick-link-info">
+                        <span class="quick-link-title">Order History</span>
+                        <span class="quick-link-desc">View all your past orders</span>
+                    </div>
+                    <i class="fas fa-chevron-right quick-link-arrow"></i>
+                </a>
+                <a href="{% url 'track_order' %}" class="profile-quick-link">
+                    <div class="quick-link-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div class="quick-link-info">
+                        <span class="quick-link-title">Track Your Order</span>
+                        <span class="quick-link-desc">Real-time order tracking</span>
+                    </div>
+                    <i class="fas fa-chevron-right quick-link-arrow"></i>
+                </a>
+                <a href="{% url 'returns_exchanges' %}" class="profile-quick-link">
+                    <div class="quick-link-icon"><i class="fas fa-exchange-alt"></i></div>
+                    <div class="quick-link-info">
+                        <span class="quick-link-title">Returns & Exchanges</span>
+                        <span class="quick-link-desc">Request returns or exchanges</span>
+                    </div>
+                    <i class="fas fa-chevron-right quick-link-arrow"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- ── Logout ── -->
+        <div class="profile-logout-section">
+            <a href="{% url 'customer_logout' %}" class="profile-logout-btn">
+                <i class="fas fa-sign-out-alt"></i> Sign Out
+            </a>
+        </div>
+    </div>
+
+    <script src="{% static 'js/main.js' %}?v=3"></script>
+    <script>
+    (function() {
+        /* ── CSRF helper ── */
+        function getCSRF() {
+            const el = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (el) return el.value;
+            const c = document.cookie.split('; ').find(c => c.startsWith('csrftoken='));
+            return c ? c.split('=')[1] : '';
+        }
+
+        /* ── Toast ── */
+        const toast = document.getElementById('profileToast');
+        function showToast(msg, type) {
+            toast.textContent = msg;
+            toast.className = 'profile-toast ' + type + ' show';
+            setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        /* ── Profile form ── */
+        const profileForm = document.getElementById('profileForm');
+        profileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            profileForm.querySelectorAll('.profile-field').forEach(f => f.classList.remove('has-error'));
+
+            const fd = new FormData(profileForm);
+            try {
+                const resp = await fetch('{% url "profile_update" %}', {
+                    method: 'POST',
+                    body: fd,
+                    credentials: 'same-origin',
+                    headers: { 'X-CSRFToken': getCSRF(), 'X-Requested-With': 'XMLHttpRequest' },
+                });
+                const data = await resp.json();
+                if (data.ok) {
+                    showToast(data.message, 'success');
+                    const firstChar = (fd.get('first_name') || '{{ user.username }}')[0].toUpperCase();
+                    document.querySelector('.profile-avatar').textContent = firstChar;
+                    const ddName = document.querySelector('.profile-dropdown-name');
+                    if (ddName) ddName.textContent = (fd.get('first_name') + ' ' + fd.get('last_name')).trim() || 'Welcome!';
+                    const ddEmail = document.querySelector('.profile-dropdown-email');
+                    if (ddEmail && fd.get('email')) ddEmail.textContent = fd.get('email');
+                    const h1 = document.querySelector('.profile-header h1');
+                    if (h1) h1.textContent = (fd.get('first_name') + ' ' + fd.get('last_name')).trim() || '{{ user.username }}';
+                } else if (data.errors) {
+                    Object.entries(data.errors).forEach(([field, msg]) => {
+                        const inp = profileForm.querySelector(`[name="${field}"]`);
+                        if (inp) {
+                            const wrap = inp.closest('.profile-field');
+                            if (wrap) {
+                                wrap.classList.add('has-error');
+                                const err = wrap.querySelector('.field-error');
+                                if (err) err.textContent = msg;
+                            }
+                        }
+                    });
+                    showToast('Please fix the errors.', 'error');
+                }
+            } catch (err) {
+                showToast('Network error. Please try again.', 'error');
+            }
+        });
+
+        /* Theme toggle & hamburger are handled by main.js */
+
+        /* ── Address Management ── */
+        const addrGrid = document.getElementById('addrGrid');
+        const addrModal = document.getElementById('addrModalOverlay');
+        const addrForm = document.getElementById('addrForm');
+        const addrDeleteOverlay = document.getElementById('addrDeleteOverlay');
+        let deleteTargetId = null;
+
+        function openAddrModal(title, data) {
+            document.getElementById('addrModalTitle').innerHTML = `<i class="fas fa-map-marker-alt"></i> ${title}`;
+            document.getElementById('addrId').value = data.id || '';
+            document.getElementById('addrName').value = data.full_name || '';
+            document.getElementById('addrPhone').value = data.phone || '';
+            document.getElementById('addrLine1').value = data.address_line1 || '';
+            document.getElementById('addrLine2').value = data.address_line2 || '';
+            document.getElementById('addrCity').value = data.city || '';
+            document.getElementById('addrState').value = data.state || '';
+            document.getElementById('addrPincode').value = data.pincode || '';
+            document.getElementById('addrDefault').checked = data.is_default || false;
+            // Set label radio
+            const labelVal = data.label || 'home';
+            addrForm.querySelectorAll('[name="label"]').forEach(r => {
+                r.checked = (r.value === labelVal);
+                r.closest('.addr-label-radio').classList.toggle('active', r.value === labelVal);
+            });
+            // Clear errors
+            addrForm.querySelectorAll('.addr-field').forEach(f => f.classList.remove('has-error'));
+            addrForm.querySelectorAll('.addr-field-error').forEach(e => e.textContent = '');
+            addrModal.style.display = '';
+            document.getElementById('addrName').focus();
+        }
+
+        function closeAddrModal() {
+            addrModal.style.display = 'none';
+        }
+
+        // Label radio toggle
+        addrForm.querySelectorAll('.addr-label-radio').forEach(lbl => {
+            lbl.addEventListener('click', () => {
+                addrForm.querySelectorAll('.addr-label-radio').forEach(l => l.classList.remove('active'));
+                lbl.classList.add('active');
+            });
+        });
+
+        // Add Address button
+        document.getElementById('addAddressBtn').addEventListener('click', () => {
+            openAddrModal('Add Address', {});
+        });
+
+        // Close modal
+        document.getElementById('addrModalClose').addEventListener('click', closeAddrModal);
+        document.getElementById('addrCancelBtn').addEventListener('click', closeAddrModal);
+        addrModal.addEventListener('click', (e) => {
+            if (e.target === addrModal) closeAddrModal();
+        });
+
+        // Build card HTML
+        function buildCardHTML(a) {
+            const labelIcons = { home: 'fa-home', work: 'fa-briefcase', other: 'fa-map-pin' };
+            const labelNames = { home: 'Home', work: 'Work', other: 'Other' };
+            return `
+                <div class="addr-card ${a.is_default ? 'addr-default' : ''}" data-id="${a.id}" style="animation: profileFadeInUp 0.5s cubic-bezier(0.16,1,0.3,1) both;">
+                    <div class="addr-card-header">
+                        <span class="addr-label-tag addr-label-${a.label}">
+                            <i class="fas ${labelIcons[a.label] || 'fa-map-pin'}"></i>
+                            ${labelNames[a.label] || 'Other'}
+                        </span>
+                        ${a.is_default ? '<span class="addr-default-tag"><i class="fas fa-star"></i> Default</span>' : ''}
+                    </div>
+                    <p class="addr-card-name">${a.full_name}</p>
+                    <p class="addr-card-line">${a.address_line1}${a.address_line2 ? ', ' + a.address_line2 : ''}</p>
+                    <p class="addr-card-line">${a.city}, ${a.state} — ${a.pincode}</p>
+                    ${a.phone ? `<p class="addr-card-phone"><i class="fas fa-phone"></i> ${a.phone}</p>` : ''}
+                    <div class="addr-card-actions">
+                        <button class="addr-action-btn addr-edit-btn" data-id="${a.id}" title="Edit">
+                            <i class="fas fa-pen"></i> Edit
+                        </button>
+                        <button class="addr-action-btn addr-delete-btn" data-id="${a.id}" title="Delete">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Save address form submit
+        addrForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            addrForm.querySelectorAll('.addr-field').forEach(f => f.classList.remove('has-error'));
+            addrForm.querySelectorAll('.addr-field-error').forEach(el => el.textContent = '');
+
+            const fd = new FormData(addrForm);
+            try {
+                const resp = await fetch('{% url "address_save" %}', {
+                    method: 'POST',
+                    body: fd,
+                    credentials: 'same-origin',
+                    headers: { 'X-CSRFToken': getCSRF(), 'X-Requested-With': 'XMLHttpRequest' },
+                });
+                const data = await resp.json();
+                if (data.ok) {
+                    showToast(data.message, 'success');
+                    closeAddrModal();
+                    const a = data.address;
+                    const existingCard = addrGrid.querySelector(`[data-id="${a.id}"]`);
+
+                    // If this is now default, remove default from all others
+                    if (a.is_default) {
+                        addrGrid.querySelectorAll('.addr-card').forEach(c => {
+                            c.classList.remove('addr-default');
+                            const dtag = c.querySelector('.addr-default-tag');
+                            if (dtag) dtag.remove();
+                        });
+                    }
+
+                    if (existingCard) {
+                        existingCard.outerHTML = buildCardHTML(a);
+                    } else {
+                        // Remove empty state if present
+                        const empty = document.getElementById('addrEmpty');
+                        if (empty) empty.remove();
+                        addrGrid.insertAdjacentHTML('beforeend', buildCardHTML(a));
+                    }
+                    bindCardEvents();
+                } else if (data.errors) {
+                    Object.entries(data.errors).forEach(([key, msg]) => {
+                        const inp = addrForm.querySelector(`[name="${key}"]`);
+                        if (inp) {
+                            const wrap = inp.closest('.addr-field');
+                            if (wrap) {
+                                wrap.classList.add('has-error');
+                                const err = wrap.querySelector('.addr-field-error');
+                                if (err) err.textContent = msg;
+                            }
+                        }
+                    });
+                }
+            } catch (err) {
+                showToast('Network error. Please try again.', 'error');
+            }
+        });
+
+        // Edit address
+        function handleEdit(btn) {
+            const card = btn.closest('.addr-card');
+            const id = btn.dataset.id;
+            const data = {
+                id: id,
+                full_name: card.querySelector('.addr-card-name')?.textContent || '',
+                phone: (card.querySelector('.addr-card-phone')?.textContent || '').replace(/[^\d+]/g, ''),
+                label: 'home',
+                is_default: card.classList.contains('addr-default'),
+            };
+            // Parse address lines from card
+            const lines = card.querySelectorAll('.addr-card-line');
+            if (lines[0]) {
+                const parts = lines[0].textContent.split(',');
+                data.address_line1 = parts[0]?.trim() || '';
+                data.address_line2 = parts.slice(1).join(',').trim() || '';
+            }
+            if (lines[1]) {
+                const cityState = lines[1].textContent.split('—');
+                const cs = (cityState[0] || '').split(',');
+                data.city = cs[0]?.trim() || '';
+                data.state = cs[1]?.trim() || '';
+                data.pincode = (cityState[1] || '').trim();
+            }
+            // Get label from tag
+            const labelTag = card.querySelector('.addr-label-tag');
+            if (labelTag) {
+                if (labelTag.classList.contains('addr-label-work')) data.label = 'work';
+                else if (labelTag.classList.contains('addr-label-other')) data.label = 'other';
+                else data.label = 'home';
+            }
+            openAddrModal('Edit Address', data);
+        }
+
+        // Delete address
+        function handleDelete(btn) {
+            deleteTargetId = btn.dataset.id;
+            addrDeleteOverlay.style.display = '';
+        }
+
+        document.getElementById('addrDeleteCancelBtn').addEventListener('click', () => {
+            addrDeleteOverlay.style.display = 'none';
+            deleteTargetId = null;
+        });
+
+        addrDeleteOverlay.addEventListener('click', (e) => {
+            if (e.target === addrDeleteOverlay) {
+                addrDeleteOverlay.style.display = 'none';
+                deleteTargetId = null;
+            }
+        });
+
+        document.getElementById('addrDeleteConfirmBtn').addEventListener('click', async () => {
+            if (!deleteTargetId) return;
+            const fd = new FormData();
+            fd.append('address_id', deleteTargetId);
+            try {
+                const resp = await fetch('{% url "address_delete" %}', {
+                    method: 'POST',
+                    body: fd,
+                    credentials: 'same-origin',
+                    headers: { 'X-CSRFToken': getCSRF(), 'X-Requested-With': 'XMLHttpRequest' },
+                });
+                const data = await resp.json();
+                if (data.ok) {
+                    showToast(data.message, 'success');
+                    const card = addrGrid.querySelector(`[data-id="${deleteTargetId}"]`);
+                    if (card) {
+                        card.style.transition = 'all 0.3s ease';
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.9)';
+                        setTimeout(() => {
+                            card.remove();
+                            // Show empty state if no cards left
+                            if (!addrGrid.querySelector('.addr-card')) {
+                                addrGrid.innerHTML = `
+                                    <div class="addr-empty" id="addrEmpty">
+                                        <div class="addr-empty-icon"><i class="fas fa-map-marker-alt"></i></div>
+                                        <p>No saved addresses yet</p>
+                                        <span>Add addresses for faster checkout</span>
+                                    </div>`;
+                            }
+                        }, 300);
+                    }
+                } else {
+                    showToast(data.error || 'Failed to delete.', 'error');
+                }
+            } catch (err) {
+                showToast('Network error. Please try again.', 'error');
+            }
+            addrDeleteOverlay.style.display = 'none';
+            deleteTargetId = null;
+        });
+
+        // Bind events to card buttons (re-bind after DOM updates)
+        function bindCardEvents() {
+            addrGrid.querySelectorAll('.addr-edit-btn').forEach(btn => {
+                btn.onclick = () => handleEdit(btn);
+            });
+            addrGrid.querySelectorAll('.addr-delete-btn').forEach(btn => {
+                btn.onclick = () => handleDelete(btn);
+            });
+        }
+        bindCardEvents();
+    })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,532 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop — House of Ambava</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=7">
+    <link rel="stylesheet" href="{% static 'css/shop.css' %}?v=4">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.18/dist/lenis.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        (function() {
+            var t = localStorage.getItem('theme');
+            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        })();
+    </script>
+</head>
+<body>
+    <canvas id="cursor-canvas"></canvas>
+
+    <!-- ═══ HEADER — same as home ═══ -->
+    <header>
+        <div class="header-content">
+            <a href="{% url 'home' %}" class="logo" style="text-decoration: none;">
+                <svg class="logo-emblem" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+                    <g stroke="currentColor" stroke-width="3" fill="none">
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(22.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(45,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(67.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(90,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(112.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(135,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(157.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(180,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(202.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(225,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(247.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(270,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(292.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(315,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(337.5,100,100)"/>
+                    </g>
+                    <circle cx="100" cy="100" r="78" stroke="currentColor" stroke-width="4.5" fill="none"/>
+                    <circle cx="100" cy="100" r="73" stroke="currentColor" stroke-width="4" fill="none"/>
+                    <g stroke="currentColor" stroke-width="2.5" fill="none">
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(22.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(45,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(67.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(90,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(112.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(135,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(157.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(180,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(202.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(225,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(247.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(270,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(292.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(315,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(337.5,100,100)"/>
+                    </g>
+                    <circle cx="100" cy="100" r="55" stroke="currentColor" stroke-width="3.5" fill="none"/>
+                    <rect x="66" y="66" width="68" height="68" stroke="currentColor" stroke-width="3" fill="none"/>
+                    <rect x="66" y="66" width="68" height="68" stroke="currentColor" stroke-width="3" fill="none" transform="rotate(45,100,100)"/>
+                    <line x1="100" y1="52" x2="100" y2="148" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="52" y1="100" x2="148" y2="100" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="66" y1="66" x2="134" y2="134" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="134" y1="66" x2="66" y2="134" stroke="currentColor" stroke-width="2.5"/>
+                    <rect x="82" y="82" width="36" height="36" stroke="currentColor" stroke-width="2.5" fill="none" transform="rotate(45,100,100)"/>
+                    <rect x="88" y="88" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none"/>
+                    <circle cx="100" cy="100" r="4" fill="currentColor"/>
+                </svg>
+                <span class="logo-text">HOUSE OF AMBAVA</span>
+            </a>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav id="mainNav">
+                <a href="{% url 'home' %}">HOME</a>
+                <a href="{% url 'home' %}#collection">COLLECTION</a>
+                <a href="{% url 'shop' %}" class="shop-active">SHOP</a>
+                <a href="{% url 'about' %}">ABOUT</a>
+                <a href="{% url 'home' %}#contact">CONTACT</a>
+            </nav>
+            <div class="header-icons">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+                <a href="#" class="search-toggle" id="searchToggle"><i class="fas fa-search"></i></a>
+                <a href="#" class="cart-toggle" id="cartToggle"><i class="fas fa-shopping-bag"></i><span class="cart-badge" id="cartBadge">0</span></a>
+                {% if user.is_authenticated and not user.is_staff %}
+                <div class="profile-dropdown-wrap">
+                    <a href="#" class="profile-trigger" id="profileTrigger" title="My Profile">
+                        <i class="fas fa-user"></i>
+                        <span class="profile-status-dot"></span>
+                    </a>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-dropdown-header">
+                            <div class="profile-dd-avatar"><i class="fas fa-user"></i></div>
+                            <div class="profile-dropdown-name">{% if user.first_name %}{{ user.first_name }} {{ user.last_name }}{% else %}Welcome!{% endif %}</div>
+                            <div class="profile-dropdown-email">{% if user.email %}{{ user.email }}{% else %}{{ user.username }}{% endif %}</div>
+                        </div>
+                        {% if not user.first_name or not user.email %}
+                        <div class="profile-complete-prompt">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Please add your name & email in Profile</span>
+                        </div>
+                        {% endif %}
+                        <div class="profile-dropdown-menu">
+                            <a href="{% url 'profile' %}" class="profile-dropdown-item">
+                                <i class="fas fa-user-circle"></i> <span>Profile</span>
+                            </a>
+                            <a href="{% url 'profile' %}#addresses" class="profile-dropdown-item">
+                                <i class="fas fa-address-book"></i> <span>Addresses</span>
+                            </a>
+                            <a href="{% url 'order_history' %}" class="profile-dropdown-item">
+                                <i class="fas fa-shopping-bag"></i> <span>Order History</span>
+                            </a>
+                            <a href="{% url 'track_order' %}" class="profile-dropdown-item">
+                                <i class="fas fa-map-marker-alt"></i> <span>Track Order</span>
+                            </a>
+                            <a href="{% url 'returns_exchanges' %}" class="profile-dropdown-item">
+                                <i class="fas fa-exchange-alt"></i> <span>Returns & Exchanges</span>
+                            </a>
+                            <div class="profile-dropdown-divider"></div>
+                            <a href="{% url 'customer_logout' %}" class="profile-dropdown-item logout">
+                                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% elif user.is_authenticated and user.is_staff %}
+                <a href="/admin/" class="user-link admin-badge" title="Admin Panel"><i class="fas fa-user-shield"></i></a>
+                {% else %}
+                <a href="{% url 'customer_login' %}" class="user-link"><i class="fas fa-user"></i></a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-overlay-backdrop"></div>
+        <div class="search-container">
+            <div class="search-header">
+                <div class="search-input-wrap">
+                    <i class="fas fa-search search-input-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Search collections, products..." autocomplete="off" />
+                    <button class="search-clear" id="searchClear"><i class="fas fa-times"></i></button>
+                </div>
+                <button class="search-close" id="searchClose"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="search-results" id="searchResults">
+                <div class="search-empty">
+                    <i class="fas fa-search"></i>
+                    <p>Start typing to search...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ SHOP PAGE ═══ -->
+    <main class="shop-page">
+
+        <!-- Hero Banner -->
+        {% if shop_banner and shop_banner.media_type == 'video' and shop_banner.background_video %}
+        <section class="shop-hero shop-hero--media">
+            <video class="shop-hero-video" autoplay muted loop playsinline>
+                <source src="{{ shop_banner.background_video.url }}" type="video/mp4">
+            </video>
+            <div class="shop-hero-overlay" style="opacity: {{ shop_banner.overlay_opacity_css }}"></div>
+        {% elif shop_banner and shop_banner.media_type == 'image' and shop_banner.background_image %}
+        <section class="shop-hero shop-hero--media" style="background-image: url('{{ shop_banner.background_image.url }}'); background-size: cover; background-position: center;">
+            <div class="shop-hero-overlay" style="opacity: {{ shop_banner.overlay_opacity_css }}"></div>
+        {% else %}
+        <section class="shop-hero">
+            <div class="shop-hero-bg">
+                <div class="shop-hero-pattern"></div>
+            </div>
+        {% endif %}
+            <div class="shop-hero-content">
+                <div class="shop-hero-badge">{{ shop_banner.badge_text|default:"CURATED COLLECTION" }}</div>
+                <h1>{{ shop_banner.title|default:"Our Shop" }}</h1>
+                <p>{{ shop_banner.subtitle|default:"Discover handcrafted lehengas that tell a story of elegance and tradition" }}</p>
+                <div class="shop-breadcrumb">
+                    <a href="{% url 'home' %}">Home</a>
+                    <span class="breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
+                    <span class="current">{% if active_category != 'all' %}{{ active_category|title }}{% else %}All Products{% endif %}</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Layout -->
+        <section class="shop-main">
+            <div class="shop-container">
+
+                <!-- Mobile Filter Toggle -->
+                <div class="shop-mobile-bar">
+                    <button class="filter-toggle-btn" id="filterToggle">
+                        <i class="fas fa-sliders-h"></i>
+                        <span>Filters</span>
+                    </button>
+                    <p class="shop-count">
+                        <strong>{{ products|length }}</strong> product{{ products|length|pluralize }}
+                    </p>
+                </div>
+
+                <div class="shop-layout">
+                    <!-- Sidebar -->
+                    <aside class="shop-sidebar" id="shopSidebar">
+                        <div class="sidebar-inner">
+                            <div class="sidebar-top">
+                                <h3>Browse</h3>
+                                <button class="sidebar-close-btn" id="sidebarClose"><i class="fas fa-times"></i></button>
+                            </div>
+
+                            <nav class="filter-nav">
+                                <a href="{% url 'shop' %}" 
+                                   class="filter-item {% if active_category == 'all' %}is-active{% endif %}" 
+                                   data-category="all">
+                                    <span class="filter-icon"><i class="fas fa-th-large"></i></span>
+                                    <span class="filter-label">All Products</span>
+                                    <span class="filter-count">{{ products.count }}</span>
+                                </a>
+                                {% for value, label in categories %}
+                                <a href="{% url 'shop' %}?category={{ value }}" 
+                                   class="filter-item {% if active_category == value %}is-active{% endif %}" 
+                                   data-category="{{ value }}">
+                                    <span class="filter-icon">
+                                        {% if value == 'bridal' %}<i class="fas fa-crown"></i>
+                                        {% elif value == 'designer' %}<i class="fas fa-gem"></i>
+                                        {% elif value == 'festival' %}<i class="fas fa-star"></i>
+                                        {% elif value == 'party' %}<i class="fas fa-glass-cheers"></i>
+                                        {% elif value == 'casual' %}<i class="fas fa-leaf"></i>
+                                        {% endif %}
+                                    </span>
+                                    <span class="filter-label">{{ label }}</span>
+                                </a>
+                                {% endfor %}
+                            </nav>
+
+                            <div class="sidebar-decoration">
+                                <div class="sidebar-line"></div>
+                                <span class="sidebar-emblem"><i class="fas fa-spa"></i></span>
+                                <div class="sidebar-line"></div>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <!-- Sidebar Backdrop (mobile) -->
+                    <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+                    <!-- Products Grid -->
+                    <div class="shop-content">
+                        <div class="shop-content-header">
+                            <p class="shop-results">
+                                Showing <strong>{{ products|length }}</strong> product{{ products|length|pluralize }}
+                                {% if active_category != 'all' %} in <strong>{{ active_category|title }}</strong>{% endif %}
+                            </p>
+                        </div>
+
+                        <div class="shop-grid" id="shopGrid">
+                            {% for product in products %}
+                            <article class="product-card" data-category="{{ product.category }}" style="--i: {{ forloop.counter0 }}">
+                                <a href="{% url 'product_detail' slug=product.slug %}" class="product-card-link">
+                                <div class="product-card-visual">
+                                    <div class="product-card-img">
+                                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" decoding="async">
+                                    </div>
+                                    {% if product.has_discount %}
+                                    <div class="product-badge">-{{ product.discount_percent }}%</div>
+                                    {% endif %}
+                                    <div class="product-overlay">
+                                        <button class="product-cart-btn add-to-cart" 
+                                                data-product="{{ product.name }}" 
+                                                data-price="{{ product.cart_price|floatformat:0 }}" 
+                                                data-image="{{ product.image.url }}" 
+                                                title="Add to Cart"
+                                                onclick="event.preventDefault(); event.stopPropagation();">
+                                            <i class="fas fa-shopping-bag"></i>
+                                            <span>Add to Bag</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="product-card-body">
+                                    <span class="product-category">{{ product.get_category_display }}</span>
+                                    <h3 class="product-name">{{ product.name }}</h3>
+                                    <div class="product-pricing">
+                                        {% if product.has_discount %}
+                                        <span class="product-price-old">{{ product.formatted_price }}</span>
+                                        <span class="product-price">{{ product.formatted_discounted_price }}</span>
+                                        {% else %}
+                                        <span class="product-price">{{ product.formatted_price }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                </a>
+                            </article>
+                            {% empty %}
+                            <div class="shop-empty-state">
+                                <div class="empty-icon-wrap">
+                                    <i class="fas fa-box-open"></i>
+                                </div>
+                                <h3>No Products Found</h3>
+                                <p>We're curating new pieces for this collection. Check back soon!</p>
+                                <a href="{% url 'shop' %}" class="empty-cta">
+                                    <span>View All Products</span>
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ═══ FOOTER — same as home ═══ -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>HOUSE OF AMBAVA</h4>
+                <p>Crafting elegance since 1996</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'home' %}#collection">Collection</a></li>
+                    <li><a href="{% url 'shop' %}">Shop</a></li>
+                    <li><a href="{% url 'about' %}">About</a></li>
+                    <li><a href="{% url 'home' %}#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    {% if contact and contact.social_links %}
+                        {% for link in contact.social_links %}
+                        <a href="{{ link.url }}" target="_blank" rel="noopener" title="{{ link.name }}"><i class="{{ link.icon }}"></i></a>
+                        {% endfor %}
+                    {% else %}
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-pinterest"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 House Of Ambava. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- ═══ CART DRAWER — same as home ═══ -->
+    <div class="cart-overlay" id="cartOverlay">
+        <div class="cart-overlay-backdrop"></div>
+        <div class="cart-drawer">
+            <div class="cart-drawer-header">
+                <h3><i class="fas fa-shopping-bag"></i> Shopping Bag</h3>
+                <button class="cart-drawer-close" id="cartClose"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="cart-drawer-body" id="cartBody">
+                <div class="cart-empty-state">
+                    <i class="fas fa-shopping-bag"></i>
+                    <p>Your bag is empty</p>
+                    <span>Discover something extraordinary</span>
+                </div>
+            </div>
+            <div class="cart-drawer-footer" id="cartFooter">
+                <div class="cart-subtotal">
+                    <span>Subtotal</span>
+                    <span id="cartSubtotal">₹0</span>
+                </div>
+                {% if user.is_staff %}
+                <div class="cart-admin-notice">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Admin accounts cannot checkout. Please use a customer account.</span>
+                </div>
+                {% else %}
+                <button class="cart-checkout-btn" onclick="window.location.href='/checkout/'">
+                    <span>Checkout</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                {% endif %}
+                <p class="cart-shipping-note"><i class="fas fa-truck"></i> Complimentary shipping above ₹5,000</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+    <script src="{% static 'js/main.js' %}?v=3"></script>
+    <script>
+    /* ═══════════════════════════════════════════════
+       SHOP PAGE — Ultra-smooth Interactions
+       ═══════════════════════════════════════════════ */
+    (function() {
+        'use strict';
+
+        const sidebar      = document.getElementById('shopSidebar');
+        const backdrop     = document.getElementById('sidebarBackdrop');
+        const filterToggle = document.getElementById('filterToggle');
+        const sidebarClose = document.getElementById('sidebarClose');
+        const shopGrid     = document.getElementById('shopGrid');
+        const shopResults  = document.querySelector('.shop-results');
+        const shopCount    = document.querySelector('.shop-count');
+        const filterItems  = document.querySelectorAll('.filter-item');
+
+        /* ── Mobile Sidebar ── */
+        function openSidebar() {
+            sidebar.classList.add('is-open');
+            backdrop.classList.add('is-visible');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeSidebar() {
+            sidebar.classList.remove('is-open');
+            backdrop.classList.remove('is-visible');
+            document.body.style.overflow = '';
+        }
+        if (filterToggle) filterToggle.addEventListener('click', openSidebar);
+        if (sidebarClose) sidebarClose.addEventListener('click', closeSidebar);
+        if (backdrop) backdrop.addEventListener('click', closeSidebar);
+
+        /* ── Staggered Card Reveal ── */
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.06, rootMargin: '0px 0px -30px 0px' });
+
+        function observeCards() {
+            shopGrid.querySelectorAll('.product-card').forEach(card => {
+                revealObserver.observe(card);
+            });
+        }
+        observeCards();
+
+        /* ── AJAX Category Filtering ── */
+        function bindFilterLinks(links) {
+            links.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = this.href;
+                    const cat = this.dataset.category;
+
+                    // Active state
+                    document.querySelectorAll('.filter-item').forEach(l => l.classList.remove('is-active'));
+                    this.classList.add('is-active');
+
+                    closeSidebar();
+
+                    // Animate out
+                    shopGrid.style.opacity = '0';
+                    shopGrid.style.transform = 'translateY(20px)';
+
+                    history.pushState({}, '', url);
+
+                    setTimeout(() => {
+                        fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                        .then(r => r.text())
+                        .then(html => {
+                            const doc = new DOMParser().parseFromString(html, 'text/html');
+                            const newGrid    = doc.getElementById('shopGrid');
+                            const newResults = doc.querySelector('.shop-results');
+                            const newCount   = doc.querySelector('.shop-count');
+
+                            if (newGrid)    shopGrid.innerHTML = newGrid.innerHTML;
+                            if (newResults && shopResults) shopResults.innerHTML = newResults.innerHTML;
+                            if (newCount && shopCount)     shopCount.innerHTML = newCount.innerHTML;
+
+                            // Re-observe
+                            observeCards();
+
+                            // Re-bind add-to-cart
+                            bindCartButtons();
+
+                            // Update breadcrumb
+                            const bc = document.querySelector('.shop-breadcrumb .current');
+                            if (bc) {
+                                const active = document.querySelector('.filter-item.is-active .filter-label');
+                                bc.textContent = active ? active.textContent.trim() : 'All Products';
+                            }
+
+                            // Animate in
+                            requestAnimationFrame(() => {
+                                shopGrid.style.transition = 'opacity .6s cubic-bezier(.16,1,.3,1), transform .6s cubic-bezier(.16,1,.3,1)';
+                                shopGrid.style.opacity = '1';
+                                shopGrid.style.transform = 'translateY(0)';
+                            });
+                        });
+                    }, 280);
+                });
+            });
+        }
+        bindFilterLinks(filterItems);
+
+        /* ── Cart Buttons ── */
+        function bindCartButtons() {
+            shopGrid.querySelectorAll('.add-to-cart').forEach(btn => {
+                btn.addEventListener('click', function(ev) {
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    const name  = this.dataset.product;
+                    const price = this.dataset.price;
+                    const image = this.dataset.image || '';
+                    if (typeof window.addToCart === 'function') window.addToCart(name, price, image);
+                });
+            });
+        }
+        bindCartButtons();
+
+        /* ── Active nav link styling ── */
+        const shopNav = document.querySelector('nav a.shop-active');
+        if (shopNav) {
+            shopNav.style.color = 'var(--primary)';
+        }
+    })();
+    </script>
+</body>
+</html>

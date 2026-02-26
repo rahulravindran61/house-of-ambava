@@ -1,0 +1,1109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout — House of Ambava</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=7">
+    <link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=5">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        // Restore theme before paint
+        (function(){
+            var t = localStorage.getItem('theme');
+            if (t === 'dark') document.documentElement.setAttribute('data-theme','dark');
+        })();
+    </script>
+</head>
+<body class="page-fade-in">
+    <canvas id="cursor-canvas"></canvas>
+
+    <!-- ─── Checkout Container ─── -->
+    <div class="checkout-page">
+        <!-- Header bar -->
+        <div class="checkout-header">
+            <a href="/" class="checkout-logo">
+                <i class="fas fa-arrow-left"></i>
+                <span>HOUSE OF AMBAVA</span>
+            </a>
+            <div class="checkout-secure">
+                <i class="fas fa-shield-alt"></i>
+                <span>Secure Checkout</span>
+            </div>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="checkout-progress">
+            <div class="progress-step active" data-step="1">
+                <div class="step-circle"><span>1</span></div>
+                <span class="step-label">Account</span>
+            </div>
+            <div class="progress-line"><div class="progress-line-fill"></div></div>
+            <div class="progress-step" data-step="2">
+                <div class="step-circle"><span>2</span></div>
+                <span class="step-label">Shipping</span>
+            </div>
+            <div class="progress-line"><div class="progress-line-fill"></div></div>
+            <div class="progress-step" data-step="3">
+                <div class="step-circle"><span>3</span></div>
+                <span class="step-label">Review</span>
+            </div>
+            <div class="progress-line"><div class="progress-line-fill"></div></div>
+            <div class="progress-step" data-step="4">
+                <div class="step-circle"><span>4</span></div>
+                <span class="step-label">Payment</span>
+            </div>
+        </div>
+
+        <div class="checkout-layout">
+            <!-- ─── Left: Form Steps ─── -->
+            <div class="checkout-main">
+
+                <!-- STEP 1: Account / Login -->
+                <div class="checkout-step" id="step1">
+                    <div class="step-header">
+                        <div class="step-icon"><i class="fas fa-user"></i></div>
+                        <div>
+                            <h2>Account</h2>
+                            <p class="step-desc">Sign in or continue as guest</p>
+                        </div>
+                    </div>
+
+                    <!-- Already logged in -->
+                    <div class="logged-in-card" id="loggedInCard" style="display:none;">
+                        <div class="logged-in-avatar"><i class="fas fa-user-check"></i></div>
+                        <div class="logged-in-info">
+                            <p class="logged-in-name" id="loggedInName"></p>
+                            <p class="logged-in-email" id="loggedInEmail"></p>
+                        </div>
+                        <button class="btn-continue" id="step1Continue">
+                            Continue to Shipping <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+
+                    <!-- Login form -->
+                    <div class="checkout-login-card" id="loginCard">
+                        <div class="checkout-tabs">
+                            <button class="checkout-tab active" data-tab="login">Sign In</button>
+                            <button class="checkout-tab" data-tab="phone">Phone OTP</button>
+                            <button class="checkout-tab" data-tab="signup">Create Account</button>
+                        </div>
+
+                        <!-- Login Tab -->
+                        <form class="checkout-form" id="loginForm">
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label for="loginUser"><i class="fas fa-user"></i> Username</label>
+                                    <input type="text" id="loginUser" name="username" placeholder="Enter username" autocomplete="username">
+                                    <span class="input-error" id="err_login_username"></span>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label for="loginPass"><i class="fas fa-lock"></i> Password</label>
+                                    <input type="password" id="loginPass" name="password" placeholder="Enter password" autocomplete="current-password">
+                                    <span class="input-error" id="err_login_password"></span>
+                                </div>
+                            </div>
+                            <span class="input-error" id="err_login_all" style="text-align:center;display:block;margin-bottom:10px;"></span>
+                            <button type="submit" class="btn-checkout-primary" id="loginBtn">
+                                <span>Sign In & Continue</span>
+                                <div class="btn-spinner" style="display:none;"><i class="fas fa-spinner fa-spin"></i></div>
+                            </button>
+                        </form>
+
+                        <!-- Phone OTP Tab -->
+                        <form class="checkout-form" id="phoneForm" style="display:none;">
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label for="otpPhone"><i class="fas fa-phone"></i> Phone Number</label>
+                                    <div class="otp-phone-row">
+                                        <span class="phone-prefix">+91</span>
+                                        <input type="tel" id="otpPhone" name="phone" placeholder="XXXXX XXXXX" autocomplete="tel" maxlength="12" inputmode="numeric">
+                                        <button type="button" class="btn-send-otp" id="sendOtpBtn">
+                                            <span>Send OTP</span>
+                                            <div class="btn-spinner" style="display:none;"><i class="fas fa-spinner fa-spin"></i></div>
+                                        </button>
+                                    </div>
+                                    <span class="input-error" id="err_phone_phone"></span>
+                                </div>
+                            </div>
+                            <div class="otp-sent-msg" id="otpSentMsg" style="display:none;">
+                                <i class="fas fa-check-circle"></i>
+                                <span>OTP sent! Check your phone.</span>
+                                <span class="otp-demo" id="otpDemo"></span>
+                            </div>
+                            <div class="form-row" id="otpInputRow" style="display:none;">
+                                <div class="input-group">
+                                    <label for="otpCode"><i class="fas fa-key"></i> Enter OTP</label>
+                                    <input type="text" id="otpCode" name="otp" placeholder="6-digit OTP" maxlength="6" autocomplete="one-time-code">
+                                    <span class="input-error" id="err_phone_otp"></span>
+                                </div>
+                            </div>
+                            <span class="input-error" id="err_phone_all" style="text-align:center;display:block;margin-bottom:10px;"></span>
+                            <button type="submit" class="btn-checkout-primary" id="phoneLoginBtn" style="display:none;">
+                                <span>Verify & Continue</span>
+                                <div class="btn-spinner" style="display:none;"><i class="fas fa-spinner fa-spin"></i></div>
+                            </button>
+                            <button type="button" class="btn-resend-otp" id="resendOtpBtn" style="display:none;">Didn't receive? <strong>Resend OTP</strong></button>
+                        </form>
+
+                        <!-- Signup Tab -->
+                        <form class="checkout-form" id="signupForm" style="display:none;">
+                            <div class="form-row form-row-2">
+                                <div class="input-group">
+                                    <label for="signupFirst"><i class="fas fa-user"></i> First Name</label>
+                                    <input type="text" id="signupFirst" name="first_name" placeholder="First name">
+                                </div>
+                                <div class="input-group">
+                                    <label for="signupLast">Last Name</label>
+                                    <input type="text" id="signupLast" name="last_name" placeholder="Last name">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label for="signupUser"><i class="fas fa-at"></i> Username</label>
+                                    <input type="text" id="signupUser" name="username" placeholder="Choose a username" autocomplete="username">
+                                    <span class="input-error" id="err_signup_username"></span>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="input-group">
+                                    <label for="signupEmail"><i class="fas fa-envelope"></i> Email</label>
+                                    <input type="email" id="signupEmail" name="email" placeholder="your@email.com" autocomplete="email">
+                                    <span class="input-error" id="err_signup_email"></span>
+                                </div>
+                            </div>
+                            <div class="form-row form-row-2">
+                                <div class="input-group">
+                                    <label for="signupPass"><i class="fas fa-lock"></i> Password</label>
+                                    <input type="password" id="signupPass" name="password" placeholder="Min 6 characters" autocomplete="new-password">
+                                    <span class="input-error" id="err_signup_password"></span>
+                                </div>
+                                <div class="input-group">
+                                    <label for="signupConfirm">Confirm</label>
+                                    <input type="password" id="signupConfirm" name="confirm_password" placeholder="Re-enter password" autocomplete="new-password">
+                                    <span class="input-error" id="err_signup_confirm_password"></span>
+                                </div>
+                            </div>
+                            <span class="input-error" id="err_signup_all" style="text-align:center;display:block;margin-bottom:10px;"></span>
+                            <button type="submit" class="btn-checkout-primary" id="signupBtn">
+                                <span>Create Account & Continue</span>
+                                <div class="btn-spinner" style="display:none;"><i class="fas fa-spinner fa-spin"></i></div>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Shipping Address -->
+                <div class="checkout-step" id="step2" style="display:none;">
+                    <div class="step-header">
+                        <div class="step-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div>
+                            <h2>Shipping Address</h2>
+                            <p class="step-desc">Where should we deliver your order?</p>
+                        </div>
+                    </div>
+
+                    <!-- Saved Addresses -->
+                    <div class="saved-addresses" id="savedAddresses" style="display:none;">
+                        <h3 class="saved-addr-title"><i class="fas fa-bookmark"></i> Your Saved Addresses</h3>
+                        <div class="saved-addr-grid" id="savedAddrGrid"></div>
+                        <div class="saved-addr-actions" id="savedAddrActions" style="display:none;">
+                            <button type="button" class="btn-back" id="step2BackSaved"><i class="fas fa-arrow-left"></i> Back</button>
+                            <button type="button" class="btn-checkout-primary" id="useSavedAddrBtn">
+                                <span>Use This Address</span> <i class="fas fa-arrow-right"></i>
+                            </button>
+                        </div>
+                        <div class="saved-addr-divider">
+                            <span>or</span>
+                        </div>
+                        <button class="btn-new-address" id="btnNewAddress">
+                            <i class="fas fa-plus"></i> Add New Address
+                        </button>
+                    </div>
+
+                    <!-- Address Form -->
+                    <button type="button" class="btn-back-to-saved" id="btnBackToSaved" style="display:none;">
+                        <i class="fas fa-arrow-left"></i> Back to saved addresses
+                    </button>
+                    <form class="checkout-form" id="addressForm">
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label for="shipEmail"><i class="fas fa-envelope"></i> Email Address</label>
+                                <input type="email" id="shipEmail" name="email" placeholder="your@email.com" autocomplete="email">
+                                <span class="input-hint" id="shipEmailHint" style="display:none;font-size:0.78rem;color:var(--primary);margin-top:2px;"><i class="fas fa-lock" style="font-size:0.7rem;"></i> Linked to your account</span>
+                                <span class="input-error" id="err_email"></span>
+                            </div>
+                        </div>
+                        <div class="form-row form-row-2">
+                            <div class="input-group">
+                                <label for="shipName"><i class="fas fa-user"></i> Full Name</label>
+                                <input type="text" id="shipName" name="full_name" placeholder="Full name" autocomplete="name">
+                                <span class="input-error" id="err_full_name"></span>
+                            </div>
+                            <div class="input-group">
+                                <label for="shipPhone"><i class="fas fa-phone"></i> Phone</label>
+                                <input type="tel" id="shipPhone" name="phone" placeholder="+91 XXXXX XXXXX" autocomplete="tel">
+                                <span class="input-hint" id="shipPhoneHint" style="display:none;font-size:0.78rem;color:var(--primary);margin-top:2px;"><i class="fas fa-lock" style="font-size:0.7rem;"></i> Linked to your account</span>
+                                <span class="input-error" id="err_phone"></span>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label for="shipAddr1"><i class="fas fa-home"></i> Address Line 1</label>
+                                <input type="text" id="shipAddr1" name="address_line1" placeholder="House/Flat No., Street" autocomplete="address-line1">
+                                <span class="input-error" id="err_address_line1"></span>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="input-group">
+                                <label for="shipAddr2">Address Line 2 <small>(optional)</small></label>
+                                <input type="text" id="shipAddr2" name="address_line2" placeholder="Landmark, Area" autocomplete="address-line2">
+                            </div>
+                        </div>
+                        <div class="form-row form-row-3">
+                            <div class="input-group">
+                                <label for="shipCity"><i class="fas fa-city"></i> City</label>
+                                <input type="text" id="shipCity" name="city" placeholder="City" autocomplete="address-level2">
+                                <span class="input-error" id="err_city"></span>
+                            </div>
+                            <div class="input-group">
+                                <label for="shipState">State</label>
+                                <input type="text" id="shipState" name="state" placeholder="State" autocomplete="address-level1">
+                                <span class="input-error" id="err_state"></span>
+                            </div>
+                            <div class="input-group">
+                                <label for="shipPin">Pincode</label>
+                                <input type="text" id="shipPin" name="pincode" placeholder="6-digit" maxlength="6" autocomplete="postal-code">
+                                <span class="input-error" id="err_pincode"></span>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="saveAddress" checked>
+                                <span class="custom-check"></span>
+                                Save this address for future orders
+                            </label>
+                        </div>
+                        <div class="step-actions">
+                            <button type="button" class="btn-back" id="step2Back"><i class="fas fa-arrow-left"></i> Back</button>
+                            <button type="submit" class="btn-checkout-primary" id="step2Continue">
+                                <span>Continue to Review</span>
+                                <div class="btn-spinner" style="display:none;"><i class="fas fa-spinner fa-spin"></i></div>
+                                <i class="fas fa-arrow-right btn-arrow"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- STEP 3: Review Order -->
+                <div class="checkout-step" id="step3" style="display:none;">
+                    <div class="step-header">
+                        <div class="step-icon"><i class="fas fa-clipboard-list"></i></div>
+                        <div>
+                            <h2>Review Your Order</h2>
+                            <p class="step-desc">Confirm everything looks good</p>
+                        </div>
+                    </div>
+
+                    <div class="review-section">
+                        <div class="review-shipping-card">
+                            <div class="review-label"><i class="fas fa-truck"></i> Shipping To</div>
+                            <p class="review-name" id="reviewName"></p>
+                            <p class="review-addr" id="reviewAddr"></p>
+                            <p class="review-phone" id="reviewPhone"></p>
+                            <button class="review-edit" id="editShipping"><i class="fas fa-pen"></i> Edit</button>
+                        </div>
+                    </div>
+
+                    <div class="review-items" id="reviewItems"></div>
+
+                    <div class="step-actions">
+                        <button type="button" class="btn-back" id="step3Back"><i class="fas fa-arrow-left"></i> Back</button>
+                        <button type="button" class="btn-checkout-primary" id="step3Continue">
+                            <span>Proceed to Payment</span> <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 4: Payment -->
+                <div class="checkout-step" id="step4" style="display:none;">
+                    <div class="step-header">
+                        <div class="step-icon"><i class="fas fa-credit-card"></i></div>
+                        <div>
+                            <h2>Payment</h2>
+                            <p class="step-desc">Choose your payment method</p>
+                        </div>
+                    </div>
+
+                    <div class="payment-methods">
+                        <label class="payment-option active" data-method="cod">
+                            <input type="radio" name="payment" value="cod" checked>
+                            <div class="payment-icon"><i class="fas fa-money-bill-wave"></i></div>
+                            <div class="payment-info">
+                                <span class="payment-title">Cash on Delivery</span>
+                                <span class="payment-desc">Pay when you receive your order</span>
+                            </div>
+                            <div class="payment-check"><i class="fas fa-check-circle"></i></div>
+                        </label>
+                        <label class="payment-option" data-method="upi">
+                            <input type="radio" name="payment" value="upi">
+                            <div class="payment-icon"><i class="fas fa-mobile-alt"></i></div>
+                            <div class="payment-info">
+                                <span class="payment-title">UPI</span>
+                                <span class="payment-desc">Google Pay, PhonePe, Paytm</span>
+                            </div>
+                            <div class="payment-check"><i class="fas fa-check-circle"></i></div>
+                        </label>
+                        <label class="payment-option" data-method="card">
+                            <input type="radio" name="payment" value="card">
+                            <div class="payment-icon"><i class="fas fa-credit-card"></i></div>
+                            <div class="payment-info">
+                                <span class="payment-title">Credit / Debit Card</span>
+                                <span class="payment-desc">Visa, Mastercard, RuPay</span>
+                            </div>
+                            <div class="payment-check"><i class="fas fa-check-circle"></i></div>
+                        </label>
+                        <label class="payment-option" data-method="netbanking">
+                            <input type="radio" name="payment" value="netbanking">
+                            <div class="payment-icon"><i class="fas fa-university"></i></div>
+                            <div class="payment-info">
+                                <span class="payment-title">Net Banking</span>
+                                <span class="payment-desc">All major banks supported</span>
+                            </div>
+                            <div class="payment-check"><i class="fas fa-check-circle"></i></div>
+                        </label>
+                    </div>
+
+                    <div class="step-actions">
+                        <button type="button" class="btn-back" id="step4Back"><i class="fas fa-arrow-left"></i> Back</button>
+                        <button type="button" class="btn-checkout-primary btn-place-order" id="placeOrderBtn">
+                            <span>Place Order</span>
+                            <div class="btn-spinner" style="display:none;"><i class="fas fa-spinner fa-spin"></i></div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 5: Confirmation (hidden until order placed) -->
+                <div class="checkout-step" id="step5" style="display:none;">
+                    <div class="order-success">
+                        <div class="success-animation">
+                            <div class="success-circle">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                        <h2 class="success-title">Order Placed Successfully!</h2>
+                        <p class="success-order-number">Order #<span id="successOrderNum"></span></p>
+                        <p class="success-msg">Thank you for shopping with House of Ambava. You'll receive a confirmation email shortly.</p>
+                        <div class="success-actions">
+                            <a href="/account/orders/" class="btn-checkout-primary"><i class="fas fa-box"></i> View Orders</a>
+                            <a href="/shop/" class="btn-back"><i class="fas fa-shopping-bag"></i> Continue Shopping</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ─── Right: Order Summary Sidebar ─── -->
+            <div class="checkout-sidebar" id="checkoutSidebar">
+                <div class="sidebar-card">
+                    <h3 class="sidebar-title" id="sidebarToggle"><i class="fas fa-shopping-bag"></i> Order Summary <i class="fas fa-chevron-down sidebar-toggle-icon"></i></h3>
+                    <div class="sidebar-collapsible" id="sidebarCollapsible">
+                    <div class="sidebar-items" id="sidebarItems">
+                        <div class="sidebar-empty">
+                            <i class="fas fa-shopping-bag"></i>
+                            <p>Your bag is empty</p>
+                        </div>
+                    </div>
+                    <div class="sidebar-totals">
+                        <div class="sidebar-row">
+                            <span>Subtotal</span>
+                            <span id="sidebarSubtotal">₹0</span>
+                        </div>
+                        <div class="sidebar-row">
+                            <span>Shipping</span>
+                            <span id="sidebarShipping">Free</span>
+                        </div>
+                        <div class="sidebar-divider"></div>
+                        <div class="sidebar-row sidebar-total-row">
+                            <span>Total</span>
+                            <span id="sidebarTotal">₹0</span>
+                        </div>
+                    </div>
+                    <div class="sidebar-trust">
+                        <div class="trust-item"><i class="fas fa-shield-alt"></i> Secure Payment</div>
+                        <div class="trust-item"><i class="fas fa-undo"></i> Easy Returns</div>
+                        <div class="trust-item"><i class="fas fa-truck"></i> Free Shipping ₹5,000+</div>
+                    </div>
+                    </div><!-- /sidebar-collapsible -->
+                    <!-- Mobile-only total peek -->
+                    <div class="sidebar-mobile-total" id="sidebarMobileTotal">
+                        <span>Total</span>
+                        <span id="sidebarMobileAmount">₹0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        'use strict';
+        // ── State ──
+        const cart = JSON.parse(localStorage.getItem('ambava_cart')) || [];
+        const savedAddresses = {{ saved_addresses|safe }};
+        let isLoggedIn = {{ request.user.is_authenticated|yesno:"true,false" }};
+        let currentStep = 1;
+        let selectedAddressId = null;
+
+        // CSRF helper
+        function getCSRF() {
+            const cookie = document.cookie.split('; ').find(c => c.startsWith('csrftoken='));
+            return cookie ? cookie.split('=')[1] : '';
+        }
+
+        // ── DOM refs ──
+        const steps = [null, gid('step1'), gid('step2'), gid('step3'), gid('step4'), gid('step5')];
+        const progressSteps = document.querySelectorAll('.progress-step');
+        const progressFills = document.querySelectorAll('.progress-line-fill');
+
+        function gid(id) { return document.getElementById(id); }
+
+        // ── Render sidebar summary ──
+        function renderSidebar() {
+            const container = gid('sidebarItems');
+            if (!cart.length) {
+                container.innerHTML = '<div class="sidebar-empty"><i class="fas fa-shopping-bag"></i><p>Your bag is empty</p></div>';
+                return;
+            }
+            container.innerHTML = cart.map(item => `
+                <div class="sidebar-item">
+                    ${item.image ? `<img src="${item.image}" alt="${item.name}" class="sidebar-item-img">` : '<div class="sidebar-item-img-ph"><i class="fas fa-image"></i></div>'}
+                    <div class="sidebar-item-info">
+                        <p class="sidebar-item-name">${item.name}</p>
+                        <p class="sidebar-item-qty">Qty: ${item.quantity}</p>
+                    </div>
+                    <p class="sidebar-item-price">₹${(item.price * item.quantity).toLocaleString('en-IN')}</p>
+                </div>
+            `).join('');
+
+            const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+            const shipping = subtotal >= 5000 ? 0 : 199;
+            const total = subtotal + shipping;
+            gid('sidebarSubtotal').textContent = `₹${subtotal.toLocaleString('en-IN')}`;
+            gid('sidebarShipping').textContent = shipping === 0 ? 'Free' : `₹${shipping}`;
+            gid('sidebarTotal').textContent = `₹${total.toLocaleString('en-IN')}`;
+            const mobileAmt = gid('sidebarMobileAmount');
+            if (mobileAmt) mobileAmt.textContent = `₹${total.toLocaleString('en-IN')}`;
+        }
+        renderSidebar();
+
+        // ── Mobile sidebar toggle ──
+        const sidebarToggle = gid('sidebarToggle');
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebarToggle.closest('.sidebar-card').classList.toggle('expanded');
+            });
+        }
+
+        // ── Step navigation ──
+        function goToStep(n) {
+            // Hide all
+            steps.forEach((s, i) => { if (s) s.style.display = 'none'; });
+            // Show target
+            if (steps[n]) {
+                steps[n].style.display = '';
+                steps[n].style.animation = 'checkoutSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+            }
+            // Update progress bar
+            progressSteps.forEach((ps, i) => {
+                const sn = parseInt(ps.dataset.step);
+                ps.classList.toggle('active', sn <= n);
+                ps.classList.toggle('completed', sn < n);
+            });
+            progressFills.forEach((pf, i) => {
+                pf.style.width = (i + 1) < n ? '100%' : '0%';
+            });
+            currentStep = n;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ── Lock email/phone and pre-fill shipping from profile ──
+        function lockAccountFields(userData) {
+            // Email: lock if user has email
+            const emailEl = gid('shipEmail');
+            const phoneEl = gid('shipPhone');
+            if (userData.email) {
+                emailEl.value = userData.email;
+                emailEl.readOnly = true;
+                emailEl.style.opacity = '0.7';
+                emailEl.style.cursor = 'not-allowed';
+                gid('shipEmailHint').style.display = '';
+            }
+            // Phone: lock if user has phone
+            if (userData.phone) {
+                phoneEl.value = userData.phone;
+                phoneEl.readOnly = true;
+                phoneEl.style.opacity = '0.7';
+                phoneEl.style.cursor = 'not-allowed';
+                gid('shipPhoneHint').style.display = '';
+            }
+            // Pre-fill name if user has one
+            const nameEl = gid('shipName');
+            const fullName = `${userData.first_name || ''} ${userData.last_name || ''}`.trim();
+            if (fullName && !nameEl.value.trim()) {
+                nameEl.value = fullName;
+            }
+        }
+
+        // ── Step 1: Account ──
+        if (isLoggedIn) {
+            const initialUser = {
+                first_name: '{{ request.user.first_name|escapejs }}',
+                last_name: '{{ request.user.last_name|escapejs }}',
+                email: '{{ request.user.email|escapejs }}',
+                phone: '{{ user_phone|escapejs }}',
+            };
+            gid('loginCard').style.display = 'none';
+            gid('loggedInCard').style.display = '';
+            gid('loggedInName').textContent = `${initialUser.first_name} ${initialUser.last_name}`.trim() || '{{ request.user.username|escapejs }}';
+            gid('loggedInEmail').textContent = initialUser.email || 'No email set';
+            lockAccountFields(initialUser);
+        }
+
+        gid('step1Continue')?.addEventListener('click', () => {
+            goToStep(2);
+            // Show saved addresses view if available, else show form
+            if (savedAddresses.length) {
+                gid('savedAddresses').style.display = '';
+                gid('addressForm').style.display = 'none';
+                gid('btnBackToSaved').style.display = 'none';
+                renderSavedAddresses();
+            } else {
+                gid('savedAddresses').style.display = 'none';
+                gid('addressForm').style.display = '';
+            }
+        });
+
+        // Tabs
+        document.querySelectorAll('.checkout-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.checkout-tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+                const target = tab.dataset.tab;
+                gid('loginForm').style.display = target === 'login' ? '' : 'none';
+                gid('phoneForm').style.display = target === 'phone' ? '' : 'none';
+                gid('signupForm').style.display = target === 'signup' ? '' : 'none';
+            });
+        });
+
+        // Login submit
+        gid('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearErrors('login');
+            const btn = gid('loginBtn');
+            btn.querySelector('span').style.display = 'none';
+            btn.querySelector('.btn-spinner').style.display = '';
+
+            const fd = new FormData();
+            fd.append('action', 'login');
+            fd.append('username', gid('loginUser').value);
+            fd.append('password', gid('loginPass').value);
+
+            try {
+                const r = await fetch('/checkout/login/', { method: 'POST', body: fd });
+                const d = await r.json();
+                if (d.ok) {
+                    isLoggedIn = true;
+                    savedAddresses.length = 0;
+                    (d.addresses || []).forEach(a => savedAddresses.push(a));
+                    gid('loginCard').style.display = 'none';
+                    gid('loggedInCard').style.display = '';
+                    gid('loggedInName').textContent = `${d.user.first_name} ${d.user.last_name}`.trim() || d.user.username;
+                    gid('loggedInEmail').textContent = d.user.email || 'No email set';
+                    lockAccountFields(d.user);
+                    gid('loggedInCard').style.animation = 'checkoutSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+                } else {
+                    showErrors(d.errors, 'login');
+                }
+            } catch (err) {
+                gid('err_login_all').textContent = 'Network error. Please try again.';
+            }
+            btn.querySelector('span').style.display = '';
+            btn.querySelector('.btn-spinner').style.display = 'none';
+        });
+
+        // Signup submit
+        gid('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearErrors('signup');
+            const btn = gid('signupBtn');
+            btn.querySelector('span').style.display = 'none';
+            btn.querySelector('.btn-spinner').style.display = '';
+
+            const fd = new FormData();
+            fd.append('action', 'signup');
+            fd.append('first_name', gid('signupFirst').value);
+            fd.append('last_name', gid('signupLast').value);
+            fd.append('username', gid('signupUser').value);
+            fd.append('email', gid('signupEmail').value);
+            fd.append('password', gid('signupPass').value);
+            fd.append('confirm_password', gid('signupConfirm').value);
+
+            try {
+                const r = await fetch('/checkout/login/', { method: 'POST', body: fd });
+                const d = await r.json();
+                if (d.ok) {
+                    isLoggedIn = true;
+                    gid('loginCard').style.display = 'none';
+                    gid('loggedInCard').style.display = '';
+                    gid('loggedInName').textContent = `${d.user.first_name} ${d.user.last_name}`.trim() || d.user.username;
+                    gid('loggedInEmail').textContent = d.user.email || 'No email set';
+                    lockAccountFields(d.user);
+                    gid('loggedInCard').style.animation = 'checkoutSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+                } else {
+                    showErrors(d.errors, 'signup');
+                }
+            } catch (err) {
+                gid('err_signup_all').textContent = 'Network error. Please try again.';
+            }
+            btn.querySelector('span').style.display = '';
+            btn.querySelector('.btn-spinner').style.display = 'none';
+        });
+
+        // ── Phone OTP logic ──
+        let otpSentPhone = '';
+
+        function normalizePhoneDigits(raw) {
+            let d = raw.replace(/[^\d]/g, '');
+            if (d.startsWith('91') && d.length === 12) d = d.slice(2);
+            if (d.startsWith('0')) d = d.slice(1);
+            return d;
+        }
+
+        async function sendOtp() {
+            clearErrors('phone');
+            const raw = gid('otpPhone').value.trim();
+            const digits = normalizePhoneDigits(raw);
+            if (digits.length !== 10) {
+                gid('err_phone_phone').textContent = 'Enter a valid 10-digit phone number.';
+                return;
+            }
+            const phone = '+91' + digits;
+            const btn = gid('sendOtpBtn');
+            btn.querySelector('span').style.display = 'none';
+            btn.querySelector('.btn-spinner').style.display = '';
+            btn.disabled = true;
+
+            try {
+                const r = await fetch('/account/send-otp/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone }),
+                });
+                const d = await r.json();
+                if (d.ok) {
+                    otpSentPhone = phone;
+                    gid('otpSentMsg').style.display = '';
+                    gid('otpSentMsg').style.animation = 'checkoutSlideIn 0.4s ease forwards';
+                    if (d.demo_otp) gid('otpDemo').textContent = `(Demo: ${d.demo_otp})`;
+                    gid('otpInputRow').style.display = '';
+                    gid('otpInputRow').style.animation = 'checkoutSlideIn 0.4s 0.1s ease both';
+                    gid('phoneLoginBtn').style.display = '';
+                    gid('phoneLoginBtn').style.animation = 'checkoutSlideIn 0.4s 0.15s ease both';
+                    gid('resendOtpBtn').style.display = '';
+                    gid('resendOtpBtn').style.animation = 'checkoutSlideIn 0.3s 0.2s ease both';
+                    gid('otpCode').focus();
+                    btn.querySelector('span').textContent = 'Resend';
+                } else {
+                    gid('err_phone_phone').textContent = d.error || 'Failed to send OTP.';
+                }
+            } catch (err) {
+                gid('err_phone_phone').textContent = 'Network error. Try again.';
+            }
+            btn.querySelector('span').style.display = '';
+            btn.querySelector('.btn-spinner').style.display = 'none';
+            btn.disabled = false;
+        }
+
+        gid('sendOtpBtn').addEventListener('click', sendOtp);
+        gid('resendOtpBtn').addEventListener('click', sendOtp);
+
+        // Phone OTP verify
+        gid('phoneForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearErrors('phone');
+            const raw = gid('otpPhone').value.trim();
+            const otp = gid('otpCode').value.trim();
+            const digits = normalizePhoneDigits(raw);
+            if (!raw) { gid('err_phone_phone').textContent = 'Phone is required.'; return; }
+            if (digits.length !== 10) { gid('err_phone_phone').textContent = 'Enter a valid 10-digit phone number.'; return; }
+            if (!otp) { gid('err_phone_otp').textContent = 'Enter the OTP.'; return; }
+            const phone = '+91' + digits;
+
+            const btn = gid('phoneLoginBtn');
+            btn.querySelector('span').style.display = 'none';
+            btn.querySelector('.btn-spinner').style.display = '';
+
+            const fd = new FormData();
+            fd.append('action', 'phone_login');
+            fd.append('phone', phone);
+            fd.append('otp', otp);
+
+            try {
+                const r = await fetch('/checkout/login/', { method: 'POST', body: fd });
+                const d = await r.json();
+                if (d.ok) {
+                    isLoggedIn = true;
+                    savedAddresses.length = 0;
+                    (d.addresses || []).forEach(a => savedAddresses.push(a));
+                    gid('loginCard').style.display = 'none';
+                    gid('loggedInCard').style.display = '';
+                    gid('loggedInName').textContent = `${d.user.first_name} ${d.user.last_name}`.trim() || d.user.username;
+                    gid('loggedInEmail').textContent = d.user.email || d.user.username;
+                    lockAccountFields(d.user);
+                    gid('loggedInCard').style.animation = 'checkoutSlideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards';
+                } else {
+                    showErrors(d.errors, 'phone');
+                }
+            } catch (err) {
+                gid('err_phone_all').textContent = 'Network error. Please try again.';
+            }
+            btn.querySelector('span').style.display = '';
+            btn.querySelector('.btn-spinner').style.display = 'none';
+        });
+
+        // ── Step 2: Shipping ──
+        function renderSavedAddresses() {
+            const grid = gid('savedAddrGrid');
+            const wrap = gid('savedAddresses');
+            const form = gid('addressForm');
+            const actionsBar = gid('savedAddrActions');
+            if (!savedAddresses.length) {
+                wrap.style.display = 'none';
+                form.style.display = '';
+                return;
+            }
+            wrap.style.display = '';
+            form.style.display = 'none'; // hide form when saved addresses exist
+            actionsBar.style.display = 'none';
+            selectedAddressId = null;
+
+            grid.innerHTML = savedAddresses.map((a, i) => `
+                <div class="saved-addr-card ${a.is_default ? 'default' : ''}" data-idx="${i}" style="animation-delay: ${i * 0.08}s">
+                    <div class="addr-label-badge">${a.label}</div>
+                    <p class="addr-name">${a.full_name}</p>
+                    <p class="addr-detail">${a.address_line1}${a.address_line2 ? ', ' + a.address_line2 : ''}</p>
+                    <p class="addr-detail">${a.city}, ${a.state} — ${a.pincode}</p>
+                    ${a.phone ? `<p class="addr-phone"><i class="fas fa-phone"></i> ${a.phone}</p>` : ''}
+                    ${a.is_default ? '<span class="addr-default-badge"><i class="fas fa-star"></i> Default</span>' : ''}
+                </div>
+            `).join('');
+
+            grid.querySelectorAll('.saved-addr-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    grid.querySelectorAll('.saved-addr-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    const idx = parseInt(card.dataset.idx);
+                    const a = savedAddresses[idx];
+                    selectedAddressId = a.id;
+                    // Pre-fill hidden form fields for order placement
+                    gid('shipName').value = a.full_name;
+                    if (!gid('shipPhone').readOnly) gid('shipPhone').value = a.phone || '';
+                    gid('shipAddr1').value = a.address_line1;
+                    gid('shipAddr2').value = a.address_line2 || '';
+                    gid('shipCity').value = a.city;
+                    gid('shipState').value = a.state;
+                    gid('shipPin').value = a.pincode;
+                    // Show "Use This Address" button
+                    actionsBar.style.display = '';
+                    actionsBar.style.animation = 'checkoutSlideIn 0.3s ease forwards';
+                });
+            });
+        }
+
+        // "Use This Address" — go directly to review
+        gid('useSavedAddrBtn')?.addEventListener('click', () => {
+            if (!selectedAddressId) return;
+            const fields = {
+                email: gid('shipEmail').value.trim(),
+                full_name: gid('shipName').value.trim(),
+                phone: gid('shipPhone').value.trim(),
+                address_line1: gid('shipAddr1').value.trim(),
+                city: gid('shipCity').value.trim(),
+                state: gid('shipState').value.trim(),
+                pincode: gid('shipPin').value.trim(),
+            };
+            // Render review
+            gid('reviewName').textContent = fields.full_name;
+            gid('reviewAddr').textContent = `${fields.address_line1}, ${gid('shipAddr2').value.trim() ? gid('shipAddr2').value.trim() + ', ' : ''}${fields.city}, ${fields.state} — ${fields.pincode}`;
+            gid('reviewPhone').innerHTML = `<i class="fas fa-phone"></i> ${fields.phone}`;
+            renderReviewItems();
+            goToStep(3);
+        });
+
+        gid('step2BackSaved')?.addEventListener('click', () => goToStep(1));
+
+        // "Add New Address" — show the form, hide address cards
+        gid('btnNewAddress')?.addEventListener('click', () => {
+            gid('savedAddresses').style.display = 'none';
+            gid('addressForm').style.display = '';
+            gid('addressForm').style.animation = 'checkoutSlideIn 0.4s ease forwards';
+            gid('btnBackToSaved').style.display = '';
+            selectedAddressId = null;
+            // Clear all fields except locked ones
+            ['shipName','shipAddr1','shipAddr2','shipCity','shipState','shipPin'].forEach(id => gid(id).value = '');
+            if (!gid('shipPhone').readOnly) gid('shipPhone').value = '';
+            gid('shipName').focus();
+        });
+
+        // "Back to saved addresses" in new address form
+        gid('btnBackToSaved')?.addEventListener('click', () => {
+            gid('addressForm').style.display = 'none';
+            gid('btnBackToSaved').style.display = 'none';
+            gid('savedAddresses').style.display = '';
+            renderSavedAddresses();
+        });
+
+        gid('step2Back').addEventListener('click', () => {
+            // If there are saved addresses and we're in the form, go back to saved list
+            if (savedAddresses.length && gid('addressForm').style.display !== 'none') {
+                gid('addressForm').style.display = 'none';
+                gid('btnBackToSaved').style.display = 'none';
+                gid('savedAddresses').style.display = '';
+                renderSavedAddresses();
+            } else {
+                goToStep(1);
+            }
+        });
+
+        gid('addressForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearErrors('');
+            const fields = {
+                email: gid('shipEmail').value.trim(),
+                full_name: gid('shipName').value.trim(),
+                phone: gid('shipPhone').value.trim(),
+                address_line1: gid('shipAddr1').value.trim(),
+                city: gid('shipCity').value.trim(),
+                state: gid('shipState').value.trim(),
+                pincode: gid('shipPin').value.trim(),
+            };
+            let hasErr = false;
+            if (!fields.email) { gid('err_email').textContent = 'Email is required.'; hasErr = true; }
+            if (!fields.full_name) { gid('err_full_name').textContent = 'Full name is required.'; hasErr = true; }
+            if (!fields.phone) { gid('err_phone').textContent = 'Phone is required.'; hasErr = true; }
+            else if (normalizePhoneDigits(fields.phone).length !== 10) { gid('err_phone').textContent = 'Enter a valid 10-digit phone number.'; hasErr = true; }
+            if (!fields.address_line1) { gid('err_address_line1').textContent = 'Address is required.'; hasErr = true; }
+            if (!fields.city) { gid('err_city').textContent = 'City is required.'; hasErr = true; }
+            if (!fields.state) { gid('err_state').textContent = 'State is required.'; hasErr = true; }
+            if (!fields.pincode || fields.pincode.length < 5) { gid('err_pincode').textContent = 'Valid pincode required.'; hasErr = true; }
+            if (hasErr) return;
+
+            const btn = gid('step2Continue');
+            const btnSpinner = btn.querySelector('.btn-spinner');
+            const btnText = btn.querySelector('span');
+            const btnArrow = btn.querySelector('.btn-arrow');
+
+            // Save address immediately if checkbox is checked
+            if (isLoggedIn && gid('saveAddress').checked) {
+                btnText.style.display = 'none';
+                if (btnArrow) btnArrow.style.display = 'none';
+                btnSpinner.style.display = '';
+                btn.disabled = true;
+
+                try {
+                    const fd = new FormData();
+                    fd.append('full_name', fields.full_name);
+                    fd.append('phone', fields.phone);
+                    fd.append('address_line1', fields.address_line1);
+                    fd.append('address_line2', gid('shipAddr2').value.trim());
+                    fd.append('city', fields.city);
+                    fd.append('state', fields.state);
+                    fd.append('pincode', fields.pincode);
+                    fd.append('label', 'home');
+                    if (!savedAddresses.length) fd.append('is_default', 'on');
+
+                    const r = await fetch('/account/address/save/', {
+                        method: 'POST',
+                        body: fd,
+                        credentials: 'same-origin',
+                        headers: { 'X-CSRFToken': getCSRF(), 'X-Requested-With': 'XMLHttpRequest' },
+                    });
+                    const d = await r.json();
+                    if (d.ok && d.address) {
+                        // Add to savedAddresses array
+                        savedAddresses.push(d.address);
+                        selectedAddressId = d.address.id;
+                    }
+                } catch (err) {
+                    // Fail silently — address will still be saved at order placement as fallback
+                }
+                btnText.style.display = '';
+                if (btnArrow) btnArrow.style.display = '';
+                btnSpinner.style.display = 'none';
+                btn.disabled = false;
+            }
+
+            // Save name to profile (async, don't block navigation)
+            if (isLoggedIn) {
+                try {
+                    const r = await fetch('/checkout/update-profile/', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ full_name: fields.full_name }),
+                    });
+                    const d = await r.json();
+                    if (d.ok && d.user) {
+                        const updatedName = `${d.user.first_name} ${d.user.last_name}`.trim();
+                        gid('loggedInName').textContent = updatedName || gid('loggedInName').textContent;
+                    }
+                } catch (err) { /* fail silently */ }
+            }
+
+            // Render review
+            gid('reviewName').textContent = fields.full_name;
+            gid('reviewAddr').textContent = `${fields.address_line1}, ${gid('shipAddr2').value.trim() ? gid('shipAddr2').value.trim() + ', ' : ''}${fields.city}, ${fields.state} — ${fields.pincode}`;
+            gid('reviewPhone').innerHTML = `<i class="fas fa-phone"></i> ${fields.phone}`;
+            renderReviewItems();
+            goToStep(3);
+        });
+
+        // ── Step 3: Review ──
+        function renderReviewItems() {
+            const container = gid('reviewItems');
+            container.innerHTML = cart.map((item, i) => `
+                <div class="review-item" style="animation-delay: ${i * 0.08}s">
+                    ${item.image ? `<img src="${item.image}" alt="${item.name}" class="review-item-img">` : '<div class="review-item-img-ph"><i class="fas fa-image"></i></div>'}
+                    <div class="review-item-info">
+                        <p class="review-item-name">${item.name}</p>
+                        <p class="review-item-qty">Qty: ${item.quantity}</p>
+                    </div>
+                    <p class="review-item-price">₹${(item.price * item.quantity).toLocaleString('en-IN')}</p>
+                </div>
+            `).join('');
+        }
+
+        gid('step3Back').addEventListener('click', () => {
+            // Show saved addresses or form depending on context
+            if (savedAddresses.length && selectedAddressId) {
+                // Came from a saved address — show saved list
+                gid('savedAddresses').style.display = '';
+                gid('addressForm').style.display = 'none';
+                gid('btnBackToSaved').style.display = 'none';
+                renderSavedAddresses();
+            } else if (savedAddresses.length) {
+                // Has saved addresses but was adding new — show form
+                gid('savedAddresses').style.display = 'none';
+                gid('addressForm').style.display = '';
+                gid('btnBackToSaved').style.display = '';
+            }
+            goToStep(2);
+        });
+        gid('editShipping').addEventListener('click', () => {
+            // When editing, show the address form pre-filled (not the saved list)
+            if (savedAddresses.length) {
+                gid('savedAddresses').style.display = 'none';
+                gid('addressForm').style.display = '';
+                gid('btnBackToSaved').style.display = '';
+            }
+            goToStep(2);
+        });
+        gid('step3Continue').addEventListener('click', () => goToStep(4));
+
+        // ── Step 4: Payment ──
+        document.querySelectorAll('.payment-option').forEach(opt => {
+            opt.addEventListener('click', () => {
+                document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('active'));
+                opt.classList.add('active');
+                opt.querySelector('input').checked = true;
+            });
+        });
+
+        gid('step4Back').addEventListener('click', () => goToStep(3));
+
+        gid('placeOrderBtn').addEventListener('click', async () => {
+            if (!isLoggedIn) { goToStep(1); return; }
+
+            const btn = gid('placeOrderBtn');
+            btn.querySelector('span').style.display = 'none';
+            btn.querySelector('.btn-spinner').style.display = '';
+            btn.disabled = true;
+
+            const payload = {
+                items: cart.map(i => ({ name: i.name, price: i.price, quantity: i.quantity, image: i.image || '' })),
+                email: gid('shipEmail').value.trim(),
+                save_address: false,  // address already saved at step 2 if checkbox was checked
+                shipping: {
+                    full_name: gid('shipName').value.trim(),
+                    phone: gid('shipPhone').value.trim(),
+                    address_line1: gid('shipAddr1').value.trim(),
+                    address_line2: gid('shipAddr2').value.trim(),
+                    city: gid('shipCity').value.trim(),
+                    state: gid('shipState').value.trim(),
+                    pincode: gid('shipPin').value.trim(),
+                },
+            };
+
+            try {
+                const r = await fetch('/checkout/place-order/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+                const d = await r.json();
+                if (d.ok) {
+                    // Clear cart
+                    localStorage.removeItem('ambava_cart');
+                    gid('successOrderNum').textContent = d.order_number;
+                    // Hide sidebar on success
+                    gid('checkoutSidebar').style.display = 'none';
+                    document.querySelector('.checkout-progress').style.display = 'none';
+                    goToStep(5);
+                } else {
+                    alert(d.error || Object.values(d.errors || {}).join('\n') || 'Something went wrong.');
+                }
+            } catch (err) {
+                alert('Network error. Please try again.');
+            }
+            btn.querySelector('span').style.display = '';
+            btn.querySelector('.btn-spinner').style.display = 'none';
+            btn.disabled = false;
+        });
+
+        // ── Error helpers ──
+        function clearErrors(prefix) {
+            document.querySelectorAll('.input-error').forEach(el => el.textContent = '');
+        }
+        function showErrors(errors, prefix) {
+            if (!errors) return;
+            Object.entries(errors).forEach(([key, msg]) => {
+                const el = document.getElementById(`err_${prefix}_${key}`) || document.getElementById(`err_${prefix}_all`);
+                if (el) el.textContent = msg;
+            });
+        }
+
+        // ── Redirect if cart empty ──
+        if (!cart.length) {
+            document.querySelector('.checkout-main').innerHTML = `
+                <div class="order-success" style="padding-top:60px;">
+                    <div class="success-animation">
+                        <div class="success-circle" style="background:rgba(196,165,123,0.1);"><i class="fas fa-shopping-bag" style="color:var(--primary);"></i></div>
+                    </div>
+                    <h2 class="success-title">Your bag is empty</h2>
+                    <p class="success-msg">Add some beautiful lehengas to your bag first!</p>
+                    <div class="success-actions">
+                        <a href="/shop/" class="btn-checkout-primary"><i class="fas fa-shopping-bag"></i> Browse Shop</a>
+                        <a href="/" class="btn-back"><i class="fas fa-home"></i> Go Home</a>
+                    </div>
+                </div>`;
+            document.querySelector('.checkout-progress').style.display = 'none';
+            gid('checkoutSidebar').style.display = 'none';
+        }
+    })();
+    </script>
+
+    <script src="{% static 'js/main.js' %}?v=3"></script>
+</body>
+</html>

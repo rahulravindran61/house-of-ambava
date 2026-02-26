@@ -1,0 +1,1526 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Of Ambava — My Account</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=7">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}?v=2">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        (function(){ var t=localStorage.getItem('theme'); if(t==='dark') document.documentElement.setAttribute('data-theme','dark'); })();
+    </script>
+</head>
+<body class="login-page">
+
+    <!-- Splash cursor canvas -->
+    <canvas id="cursor-canvas"></canvas>
+
+    <!-- Animated background canvas -->
+    <canvas id="loginParticles"></canvas>
+
+    <!-- Floating orbs -->
+    <div class="login-orb login-orb-1"></div>
+    <div class="login-orb login-orb-2"></div>
+    <div class="login-orb login-orb-3"></div>
+
+    <div class="login-wrapper">
+        <!-- Left: Brand panel -->
+        <div class="login-brand-panel">
+            <!-- Ambient glow -->
+            <div class="brand-glow brand-glow-1"></div>
+            <div class="brand-glow brand-glow-2"></div>
+
+            <!-- Top bar: Back (left) — Logo+Name (right) -->
+            <div class="brand-top">
+                <a href="{% url 'home' %}" class="login-back-link">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back to Store</span>
+                </a>
+                <div class="brand-identity">
+                    <img src="{% static 'images/logo.svg' %}" alt="House of Ambava" class="login-logo">
+                    <h1 class="login-brand-name">HOUSE OF AMBAVA</h1>
+                </div>
+            </div>
+
+            <!-- Center: Doodle character as hero -->
+            <div class="brand-middle">
+                <div class="doodle-couple" id="doodleCouple">
+                    <svg viewBox="0 0 220 295" xmlns="http://www.w3.org/2000/svg" class="doodle-svg">
+                        <!-- ─── FUN GUY — bold sketch style, facing right ─── -->
+                        <g class="doodle-him" transform="translate(20, 0)">
+
+                            <!-- ── Phone held up (left hand raised) ── -->
+                            <g class="doodle-phone" transform="translate(125, 5)">
+                                <!-- Phone body -->
+                                <rect x="0" y="0" width="28" height="42" rx="4" fill="var(--doodle-ink)" stroke="var(--doodle-ink)" stroke-width="2.5"/>
+                                <rect x="3" y="4" width="22" height="32" rx="2" fill="var(--doodle-phone-screen)"/>
+                                <!-- Screen glint -->
+                                <path d="M6,8 L18,8 L6,28Z" fill="#fff" opacity=".25"/>
+                                <!-- Sparkle lines around phone -->
+                                <line x1="30" y1="5" x2="38" y2="0" stroke="var(--doodle-ink)" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="32" y1="16" x2="40" y2="16" stroke="var(--doodle-ink)" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="30" y1="28" x2="37" y2="33" stroke="var(--doodle-ink)" stroke-width="2.5" stroke-linecap="round"/>
+                            </g>
+
+                            <!-- ── HEAD GROUP (rotates when looking away) ── -->
+                            <g class="doodle-head">
+                            <!-- ── Hair — messy curly top ── -->
+                            <path d="M49,62 Q40,32 48,22 Q53,14 65,12 Q78,10 88,14 Q96,20 100,35 Q102,28 98,16 Q90,6 75,4 Q58,3 48,12 Q40,20 42,42Z" fill="var(--doodle-hair)" stroke="var(--doodle-hair)" stroke-width="2"/>
+                            <!-- Curly bumps on top -->
+                            <path d="M53,20 Q50,12 56,10 Q60,8 62,14" fill="var(--doodle-hair)" stroke="var(--doodle-hair)" stroke-width="1.5"/>
+                            <path d="M63,14 Q62,6 70,6 Q76,6 76,12" fill="var(--doodle-hair)" stroke="var(--doodle-hair)" stroke-width="1.5"/>
+                            <path d="M76,12 Q78,4 86,8 Q90,12 88,18" fill="var(--doodle-hair)" stroke="var(--doodle-hair)" stroke-width="1.5"/>
+
+                            <!-- ── Face — turned slightly right ── -->
+                            <ellipse cx="75" cy="52" rx="26" ry="28" fill="var(--doodle-skin)" stroke="var(--doodle-ink)" stroke-width="2.5"/>
+
+                            <!-- ── Eyes — looking right (toward form) ── -->
+                            <g class="doodle-eyes doodle-him-eyes">
+                                <g class="doodle-eye-l">
+                                    <ellipse cx="68" cy="50" rx="5.5" ry="6" fill="#fff" stroke="var(--doodle-ink)" stroke-width="1.8"/>
+                                    <circle class="doodle-pupil" cx="70" cy="50" r="3" fill="#1a1a1a"/>
+                                    <circle cx="71.5" cy="48.5" r="1.2" fill="#fff" opacity=".9"/>
+                                </g>
+                                <g class="doodle-eye-r">
+                                    <ellipse cx="86" cy="50" rx="5.5" ry="6" fill="#fff" stroke="var(--doodle-ink)" stroke-width="1.8"/>
+                                    <circle class="doodle-pupil" cx="88" cy="50" r="3" fill="#1a1a1a"/>
+                                    <circle cx="89.5" cy="48.5" r="1.2" fill="#fff" opacity=".9"/>
+                                </g>
+                                <!-- Eyelids -->
+                                <ellipse class="doodle-lid doodle-lid-l" cx="68" cy="50" rx="6" ry="0" fill="var(--doodle-skin)" stroke="none"/>
+                                <ellipse class="doodle-lid doodle-lid-r" cx="86" cy="50" rx="6" ry="0" fill="var(--doodle-skin)" stroke="none"/>
+                            </g>
+
+                            <!-- ── Eyebrows — expressive thick ── -->
+                            <path class="doodle-brow doodle-brow-l" d="M61,40 Q68,35 76,40" fill="none" stroke="#1a1a1a" stroke-width="2.8" stroke-linecap="round"/>
+                            <path class="doodle-brow doodle-brow-r" d="M80,40 Q87,35 94,40" fill="none" stroke="#1a1a1a" stroke-width="2.8" stroke-linecap="round"/>
+
+                            <!-- ── Nose ── -->
+                            <path d="M78,56 Q80,62 83,58" fill="none" stroke="var(--doodle-ink)" stroke-width="2" stroke-linecap="round"/>
+
+                            <!-- ── Mouth — open happy (default) ── -->
+                            <path class="doodle-mouth" d="M70,68 Q80,78 90,68" fill="var(--doodle-mouth-fill)" stroke="var(--doodle-ink)" stroke-width="2.2" stroke-linecap="round"/>
+                            <!-- Tongue hint -->
+                            <ellipse class="doodle-tongue" cx="80" cy="72" rx="5" ry="3" fill="#e57373" opacity=".6"/>
+
+                            <!-- ── Ear (right side visible) ── -->
+                            <ellipse cx="100" cy="54" rx="5" ry="8" fill="var(--doodle-skin)" stroke="var(--doodle-ink)" stroke-width="2"/>
+                            </g><!-- /doodle-head -->
+
+                            <!-- ── Neck ── -->
+                            <path d="M67,78 Q75,82 83,78 L81,95 Q75,97 69,95Z" fill="var(--doodle-skin)" stroke="var(--doodle-ink)" stroke-width="2"/>
+
+                            <!-- ── T-shirt (white with "Hi") ── -->
+                            <path d="M52,95 Q75,88 98,95 L96,145 Q75,150 54,145Z" fill="var(--doodle-shirt)" stroke="var(--doodle-ink)" stroke-width="2.5"/>
+                            <!-- "Hi" text on shirt -->
+                            <text x="72" y="128" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="var(--doodle-shirt-text)" opacity=".7">Hi</text>
+
+                            <!-- ── Jacket — open, bold ── -->
+                            <!-- Left jacket side -->
+                            <path d="M52,95 Q48,100 44,145 L54,145 L54,95Z" fill="var(--doodle-jacket)" stroke="var(--doodle-jacket)" stroke-width="2"/>
+                            <!-- Right jacket side -->
+                            <path d="M98,95 Q102,100 106,145 L96,145 L96,95Z" fill="var(--doodle-jacket)" stroke="var(--doodle-jacket)" stroke-width="2"/>
+                            <!-- Collar left -->
+                            <path d="M52,95 L60,110 L52,108Z" fill="var(--doodle-jacket)" stroke="var(--doodle-jacket)" stroke-width="1.5"/>
+                            <!-- Collar right -->
+                            <path d="M98,95 L90,110 L98,108Z" fill="var(--doodle-jacket)" stroke="var(--doodle-jacket)" stroke-width="1.5"/>
+
+                            <!-- ── Left arm (raised up holding phone) ── -->
+                            <!-- Upper arm -->
+                            <path d="M106,100 Q120,85 135,60 Q140,50 145,40" fill="none" stroke="var(--doodle-jacket)" stroke-width="12" stroke-linecap="round"/>
+                            <!-- Jacket sleeve on arm -->
+                            <path d="M106,100 Q115,88 125,72" fill="none" stroke="var(--doodle-jacket)" stroke-width="14" stroke-linecap="round"/>
+                            <!-- Hand holding phone -->
+                            <circle cx="145" cy="38" r="8" fill="var(--doodle-skin)" stroke="var(--doodle-ink)" stroke-width="2.5"/>
+                            <!-- Fingers on phone -->
+                            <path d="M140,32 Q138,26 142,24" fill="none" stroke="var(--doodle-skin)" stroke-width="4" stroke-linecap="round"/>
+                            <path d="M148,30 Q150,24 148,22" fill="none" stroke="var(--doodle-skin)" stroke-width="3.5" stroke-linecap="round"/>
+
+                            <!-- ── Right arm (waving, open hand) ── -->
+                            <!-- Upper arm -->
+                            <path d="M44,100 Q30,85 18,65 Q14,55 8,48" fill="none" stroke="var(--doodle-jacket)" stroke-width="12" stroke-linecap="round"/>
+                            <!-- Jacket sleeve -->
+                            <path d="M44,100 Q35,88 28,75" fill="none" stroke="var(--doodle-jacket)" stroke-width="14" stroke-linecap="round"/>
+                            <!-- Forearm skin -->
+                            <path d="M22,68 Q16,58 10,50" fill="none" stroke="var(--doodle-skin)" stroke-width="8" stroke-linecap="round"/>
+                            <!-- Open waving hand -->
+                            <circle cx="8" cy="46" r="7" fill="var(--doodle-skin)" stroke="var(--doodle-ink)" stroke-width="2.5"/>
+                            <!-- Fingers splayed -->
+                            <path d="M2,40 L-2,30" fill="none" stroke="var(--doodle-skin)" stroke-width="3.5" stroke-linecap="round"/>
+                            <path d="M6,38 L4,27" fill="none" stroke="var(--doodle-skin)" stroke-width="3.5" stroke-linecap="round"/>
+                            <path d="M10,37 L12,26" fill="none" stroke="var(--doodle-skin)" stroke-width="3.5" stroke-linecap="round"/>
+                            <path d="M14,39 L18,30" fill="none" stroke="var(--doodle-skin)" stroke-width="3" stroke-linecap="round"/>
+                            <!-- Finger outlines -->
+                            <path d="M-2,30 L2,40 M4,27 L6,38 M12,26 L10,37 M18,30 L14,39" fill="none" stroke="var(--doodle-ink)" stroke-width="1.2" stroke-linecap="round"/>
+
+                            <!-- ── Pants — coral/pink with doodle patterns ── -->
+                            <path d="M54,145 Q52,200 46,260 L70,260 L75,180 L80,260 L104,260 Q98,200 96,145 Q75,150 54,145Z" fill="var(--doodle-pants)" stroke="var(--doodle-ink)" stroke-width="2.5"/>
+                            <!-- Doodle patterns on pants -->
+                            <ellipse cx="62" cy="175" rx="10" ry="14" fill="none" stroke="var(--doodle-ink)" stroke-width="1.5" opacity=".35" transform="rotate(-10,62,175)"/>
+                            <ellipse cx="90" cy="170" rx="8" ry="12" fill="none" stroke="var(--doodle-ink)" stroke-width="1.5" opacity=".35" transform="rotate(15,90,170)"/>
+                            <ellipse cx="58" cy="215" rx="7" ry="10" fill="none" stroke="var(--doodle-ink)" stroke-width="1.5" opacity=".3" transform="rotate(-5,58,215)"/>
+                            <ellipse cx="92" cy="220" rx="9" ry="11" fill="none" stroke="var(--doodle-ink)" stroke-width="1.5" opacity=".3" transform="rotate(10,92,220)"/>
+                            <path d="M66,160 Q72,155 78,162" fill="none" stroke="var(--doodle-ink)" stroke-width="1.3" opacity=".3"/>
+                            <path d="M55,195 Q60,190 65,197" fill="none" stroke="var(--doodle-ink)" stroke-width="1.3" opacity=".25"/>
+                            <path d="M85,200 Q90,195 97,202" fill="none" stroke="var(--doodle-ink)" stroke-width="1.3" opacity=".25"/>
+
+                            <!-- ── Left leg kicked up behind ── -->
+                            <path d="M46,260 Q40,275 50,280 L55,275 Q48,272 52,265" fill="var(--doodle-shoe)" stroke="var(--doodle-shoe)" stroke-width="2"/>
+                            <!-- Right leg (standing) -->
+                            <path d="M104,260 L104,278 Q100,282 92,282 L88,278 L96,260" fill="var(--doodle-shoe)" stroke="var(--doodle-shoe)" stroke-width="2"/>
+
+                            <!-- ── Sock on left leg ── -->
+                            <rect x="44" y="248" width="14" height="14" rx="2" fill="var(--doodle-pants)" stroke="var(--doodle-ink)" stroke-width="1.5"/>
+
+                            <!-- ── Left shoe (kicked up) ── -->
+                            <g class="doodle-shoe-l">
+                                <path d="M44,274 Q38,276 34,278 Q32,280 34,282 L56,282 Q58,280 56,278 L52,274Z" fill="var(--doodle-shoe)" stroke="var(--doodle-shoe)" stroke-width="1.8"/>
+                                <!-- Sole -->
+                                <path d="M34,282 L56,282" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round"/>
+                                <!-- Lace detail -->
+                                <path d="M46,275 L48,278 M50,274 L51,277" fill="none" stroke="var(--doodle-lace)" stroke-width="1" stroke-linecap="round" opacity=".6"/>
+                            </g>
+
+                            <!-- ── Right shoe (standing) ── -->
+                            <g class="doodle-shoe-r">
+                                <path d="M86,278 Q84,280 82,282 Q80,284 84,286 L108,286 Q112,284 110,282 L106,278Z" fill="var(--doodle-shoe)" stroke="var(--doodle-shoe)" stroke-width="1.8"/>
+                                <!-- Sole -->
+                                <path d="M84,286 L108,286" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round"/>
+                                <!-- Lace detail -->
+                                <path d="M92,279 L94,282 M96,278 L97,281 M100,278 L101,281" fill="none" stroke="var(--doodle-lace)" stroke-width="1" stroke-linecap="round" opacity=".6"/>
+                            </g>
+                        </g>
+
+                        <!-- ── Ground / Shadow ── -->
+                        <ellipse cx="95" cy="288" rx="80" ry="5" fill="var(--doodle-ground)" opacity=".1"/>
+                        <line x1="0" y1="290" x2="220" y2="290" stroke="var(--doodle-ground)" stroke-width="2.5" stroke-linecap="round" opacity=".2"/>
+                        <!-- Small grass/texture marks -->
+                        <path d="M30,290 L28,284" fill="none" stroke="var(--doodle-ground)" stroke-width="1" opacity=".1" stroke-linecap="round"/>
+                        <path d="M60,290 L58,285" fill="none" stroke="var(--doodle-ground)" stroke-width="1" opacity=".08" stroke-linecap="round"/>
+                        <path d="M130,290 L132,284" fill="none" stroke="var(--doodle-ground)" stroke-width="1" opacity=".1" stroke-linecap="round"/>
+                        <path d="M160,290 L158,285" fill="none" stroke="var(--doodle-ground)" stroke-width="1" opacity=".08" stroke-linecap="round"/>
+                        <path d="M190,290 L191,285" fill="none" stroke="var(--doodle-ground)" stroke-width="1" opacity=".06" stroke-linecap="round"/>
+
+                        <!-- Floating hearts -->
+                        <g class="doodle-hearts">
+                            <path class="doodle-heart doodle-heart-1" d="M100,15 Q100,8 95,8 Q90,8 90,15 Q90,22 100,28 Q110,22 110,15 Q110,8 105,8 Q100,8 100,15Z" fill="#e74c3c" opacity="0"/>
+                            <path class="doodle-heart doodle-heart-2" d="M130,25 Q130,21 127,21 Q124,21 124,25 Q124,29 130,32 Q136,29 136,25 Q136,21 133,21 Q130,21 130,25Z" fill="var(--primary)" opacity="0"/>
+                            <path class="doodle-heart doodle-heart-3" d="M70,8 Q70,4 67,4 Q64,4 64,8 Q64,12 70,15 Q76,12 76,8 Q76,4 73,4 Q70,4 70,8Z" fill="#e57373" opacity="0"/>
+                        </g>
+                    </svg>
+                </div>
+
+                <!-- Speech bubble: Welcome Buddy -->
+                <div class="doodle-speech" id="doodleSpeech">
+                    <span class="speech-text">
+                        <span class="speech-letter" style="--i:0">W</span><span class="speech-letter" style="--i:1">e</span><span class="speech-letter" style="--i:2">l</span><span class="speech-letter" style="--i:3">c</span><span class="speech-letter" style="--i:4">o</span><span class="speech-letter" style="--i:5">m</span><span class="speech-letter" style="--i:6">e</span><span class="speech-letter" style="--i:7">&nbsp;</span><span class="speech-letter" style="--i:8">B</span><span class="speech-letter" style="--i:9">u</span><span class="speech-letter" style="--i:10">d</span><span class="speech-letter" style="--i:11">d</span><span class="speech-letter" style="--i:12">y</span><span class="speech-letter" style="--i:13">!</span>
+                    </span>
+                    <div class="speech-tail"></div>
+                </div>
+
+                <!-- Speech bubble: Happy Shopping (permanent) -->
+                <div class="doodle-speech" id="doodleSpeechPermanent">
+                    <span class="speech-text">
+                        <span class="speech-letter" style="--i:0">H</span><span class="speech-letter" style="--i:1">a</span><span class="speech-letter" style="--i:2">p</span><span class="speech-letter" style="--i:3">p</span><span class="speech-letter" style="--i:4">y</span><span class="speech-letter" style="--i:5">&nbsp;</span><span class="speech-letter" style="--i:6">S</span><span class="speech-letter" style="--i:7">h</span><span class="speech-letter" style="--i:8">o</span><span class="speech-letter" style="--i:9">p</span><span class="speech-letter" style="--i:10">p</span><span class="speech-letter" style="--i:11">i</span><span class="speech-letter" style="--i:12">n</span><span class="speech-letter" style="--i:13">g</span><span class="speech-letter" style="--i:14">!</span>
+                    </span>
+                    <div class="speech-tail"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Form panel -->
+        <div class="login-form-panel">
+            <div class="login-form-container">
+
+                <p class="login-welcome-text">Welcome, Customer</p>
+
+                <!-- Tab switcher (2 tabs) -->
+                <div class="login-tabs">
+                    <button class="login-tab active" data-tab="login">Sign In</button>
+                    <button class="login-tab" data-tab="signup">Create Account</button>
+                    <div class="login-tab-indicator"></div>
+                </div>
+
+                <!-- Messages -->
+                {% if messages %}
+                <div class="login-messages">
+                    {% for message in messages %}
+                    <div class="login-msg login-msg-{{ message.tags }}">
+                        <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% elif message.tags == 'success' %}fa-check-circle{% else %}fa-info-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- ─── Login Form (Username/Password + Phone/OTP) ─── -->
+                <form class="login-form active" id="loginForm" method="POST" action="{% url 'customer_login' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="login" id="loginAction">
+
+                    <!-- Method: Username & Password -->
+                    <div class="login-method active" id="methodPassword">
+                        <div class="login-field">
+                            <div class="login-input-wrap">
+                                <i class="fas fa-user"></i>
+                                <input type="text" name="username" id="loginUsername" placeholder=" " autocomplete="username">
+                                <label for="loginUsername">Username</label>
+                                <div class="login-input-line"></div>
+                            </div>
+                        </div>
+
+                        <div class="login-field">
+                            <div class="login-input-wrap">
+                                <i class="fas fa-lock"></i>
+                                <input type="password" name="password" id="loginPassword" placeholder=" " autocomplete="current-password">
+                                <label for="loginPassword">Password</label>
+                                <button type="button" class="login-eye" tabindex="-1"><i class="fas fa-eye"></i></button>
+                                <div class="login-input-line"></div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="login-submit-btn">
+                            <span>Sign In</span>
+                            <i class="fas fa-arrow-right"></i>
+                            <div class="login-btn-shimmer"></div>
+                        </button>
+                    </div>
+
+                    <!-- Method: Phone & OTP -->
+                    <div class="login-method" id="methodPhone">
+                        <div class="login-field">
+                            <div class="login-input-wrap login-phone-wrap">
+                                <span class="login-phone-prefix">+91</span>
+                                <input type="tel" name="phone" id="phoneNumber" placeholder=" " autocomplete="tel" maxlength="12" inputmode="numeric">
+                                <label for="phoneNumber">Phone Number</label>
+                                <div class="login-input-line"></div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="login-otp-send-btn" id="sendOtpBtn">
+                            <i class="fas fa-paper-plane"></i>
+                            <span>Send OTP</span>
+                        </button>
+
+                        <div class="login-otp-group" id="otpGroup" style="display:none">
+                            <p class="login-otp-info" id="otpInfo"></p>
+                            <div class="login-otp-inputs" id="otpInputs">
+                                <input type="text" maxlength="1" class="login-otp-digit" data-idx="0" inputmode="numeric" autocomplete="one-time-code">
+                                <input type="text" maxlength="1" class="login-otp-digit" data-idx="1" inputmode="numeric">
+                                <input type="text" maxlength="1" class="login-otp-digit" data-idx="2" inputmode="numeric">
+                                <input type="text" maxlength="1" class="login-otp-digit" data-idx="3" inputmode="numeric">
+                                <input type="text" maxlength="1" class="login-otp-digit" data-idx="4" inputmode="numeric">
+                                <input type="text" maxlength="1" class="login-otp-digit" data-idx="5" inputmode="numeric">
+                            </div>
+                            <input type="hidden" name="otp" id="otpHidden">
+
+                            <button type="submit" class="login-submit-btn">
+                                <span>Verify &amp; Sign In</span>
+                                <i class="fas fa-check"></i>
+                                <div class="login-btn-shimmer"></div>
+                            </button>
+
+                            <button type="button" class="login-resend-btn" id="resendBtn">
+                                Resend OTP <span id="resendTimer"></span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Method toggle link -->
+                    <button type="button" class="login-method-toggle" id="methodToggle">
+                        <i class="fas fa-phone"></i>
+                        <span>Use phone number instead</span>
+                    </button>
+                </form>
+
+                <!-- ─── Signup Form ─── -->
+                <form class="login-form" id="signupForm" method="POST" action="{% url 'customer_login' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="signup">
+
+                    <div class="login-field-row">
+                        <div class="login-field">
+                            <div class="login-input-wrap">
+                                <i class="fas fa-id-card"></i>
+                                <input type="text" name="first_name" id="signupFirst" placeholder=" " autocomplete="given-name">
+                                <label for="signupFirst">First Name</label>
+                                <div class="login-input-line"></div>
+                            </div>
+                        </div>
+                        <div class="login-field">
+                            <div class="login-input-wrap">
+                                <i class="fas fa-id-card"></i>
+                                <input type="text" name="last_name" id="signupLast" placeholder=" " autocomplete="family-name">
+                                <label for="signupLast">Last Name</label>
+                                <div class="login-input-line"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="login-field">
+                        <div class="login-input-wrap">
+                            <i class="fas fa-user"></i>
+                            <input type="text" name="username" id="signupUsername" placeholder=" " required autocomplete="username">
+                            <label for="signupUsername">Username</label>
+                            <div class="login-input-line"></div>
+                        </div>
+                    </div>
+
+                    <div class="login-field">
+                        <div class="login-input-wrap">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" name="email" id="signupEmail" placeholder=" " required autocomplete="email">
+                            <label for="signupEmail">Email Address</label>
+                            <div class="login-input-line"></div>
+                        </div>
+                    </div>
+
+                    <div class="login-field">
+                        <div class="login-input-wrap">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" name="password" id="signupPassword" placeholder=" " required autocomplete="new-password">
+                            <label for="signupPassword">Password</label>
+                            <button type="button" class="login-eye" tabindex="-1"><i class="fas fa-eye"></i></button>
+                            <div class="login-input-line"></div>
+                        </div>
+                    </div>
+
+                    <div class="login-field">
+                        <div class="login-input-wrap">
+                            <i class="fas fa-lock"></i>
+                            <input type="password" name="confirm_password" id="signupConfirm" placeholder=" " required autocomplete="new-password">
+                            <label for="signupConfirm">Confirm Password</label>
+                            <div class="login-input-line"></div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="login-submit-btn">
+                        <span>Create Account</span>
+                        <i class="fas fa-arrow-right"></i>
+                        <div class="login-btn-shimmer"></div>
+                    </button>
+                </form>
+
+                <div class="login-divider" id="socialDivider">
+                    <span>or continue with</span>
+                </div>
+
+                <!-- Social buttons (Google) -->
+                <div class="login-social" id="socialButtons">
+                    <a href="{% url 'google_login' %}" class="login-social-btn login-social-google" title="Sign in with Google">
+                        <i class="fab fa-google"></i>
+                        <span>Google</span>
+                    </a>
+                </div>
+
+                <p class="login-note">
+                    <i class="fas fa-info-circle"></i>
+                    This login is for customers only. Staff members should use the
+                    <a href="/admin/" target="_blank">admin panel</a>.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        /* ── Tab switching ── */
+        const tabs = document.querySelectorAll('.login-tab');
+        const forms = document.querySelectorAll('.login-form');
+        const indicator = document.querySelector('.login-tab-indicator');
+
+        const formMap = { login: 'loginForm', signup: 'signupForm' };
+
+        function positionIndicator(tab) {
+            indicator.style.left = tab.offsetLeft + 'px';
+            indicator.style.width = tab.offsetWidth + 'px';
+        }
+
+        const socialDivider = document.getElementById('socialDivider');
+        const socialButtons = document.getElementById('socialButtons');
+
+        function switchTab(tabName) {
+            tabs.forEach(t => t.classList.toggle('active', t.dataset.tab === tabName));
+            positionIndicator(document.querySelector(`.login-tab[data-tab="${tabName}"]`));
+
+            // Hide social section on Create Account tab
+            const showSocial = tabName !== 'signup';
+            socialDivider.style.display = showSocial ? '' : 'none';
+            socialButtons.style.display = showSocial ? '' : 'none';
+
+            forms.forEach(f => {
+                const isTarget = f.id === formMap[tabName];
+                if (isTarget) {
+                    f.classList.add('active');
+                    const fields = f.querySelectorAll('.login-field');
+                    fields.forEach((field, i) => {
+                        field.classList.remove('field-in');
+                        field.style.animationDelay = `${i * 0.07}s`;
+                        void field.offsetWidth;
+                        field.classList.add('field-in');
+                    });
+                } else {
+                    f.classList.remove('active');
+                }
+            });
+        }
+
+        tabs.forEach(tab => tab.addEventListener('click', () => switchTab(tab.dataset.tab)));
+        requestAnimationFrame(() => {
+            const active = document.querySelector('.login-tab.active');
+            if (active) positionIndicator(active);
+        });
+
+        // Initial field stagger
+        document.querySelectorAll('.login-form.active .login-field').forEach((f, i) => {
+            f.style.animationDelay = `${0.35 + i * 0.07}s`;
+            f.classList.add('field-in');
+        });
+
+        /* ── Password toggle ── */
+        document.querySelectorAll('.login-eye').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const inp = btn.closest('.login-input-wrap').querySelector('input');
+                const ico = btn.querySelector('i');
+                const show = inp.type === 'password';
+                inp.type = show ? 'text' : 'password';
+                ico.classList.replace(show ? 'fa-eye' : 'fa-eye-slash', show ? 'fa-eye-slash' : 'fa-eye');
+            });
+        });
+
+        /* ── Submit shimmer ── */
+        document.querySelectorAll('.login-submit-btn').forEach(btn => {
+            btn.addEventListener('mouseenter', function() {
+                const s = this.querySelector('.login-btn-shimmer');
+                if (s) { s.classList.remove('active'); void s.offsetWidth; s.classList.add('active'); }
+            });
+        });
+
+        /* ── Sign-in method toggle (Password ↔ Phone) ── */
+        const methodPassword = document.getElementById('methodPassword');
+        const methodPhone = document.getElementById('methodPhone');
+        const methodToggle = document.getElementById('methodToggle');
+        const loginAction = document.getElementById('loginAction');
+        let isPhoneMode = false;
+
+        methodToggle.addEventListener('click', () => {
+            isPhoneMode = !isPhoneMode;
+            methodPassword.classList.toggle('active', !isPhoneMode);
+            methodPhone.classList.toggle('active', isPhoneMode);
+            loginAction.value = isPhoneMode ? 'phone_login' : 'login';
+            methodToggle.innerHTML = isPhoneMode
+                ? '<i class="fas fa-user"></i> <span>Use username instead</span>'
+                : '<i class="fas fa-phone"></i> <span>Use phone number instead</span>';
+
+            // Animate fields in the active method
+            const activeMethod = isPhoneMode ? methodPhone : methodPassword;
+            const fields = activeMethod.querySelectorAll('.login-field');
+            fields.forEach((field, i) => {
+                field.classList.remove('field-in');
+                field.style.animationDelay = `${i * 0.07}s`;
+                void field.offsetWidth;
+                field.classList.add('field-in');
+            });
+        });
+
+        /* ── OTP Flow ── */
+        const phoneInput = document.getElementById('phoneNumber');
+        const sendBtn = document.getElementById('sendOtpBtn');
+        const otpGroup = document.getElementById('otpGroup');
+        const otpInfo = document.getElementById('otpInfo');
+        const otpDigits = document.querySelectorAll('.login-otp-digit');
+        const otpHidden = document.getElementById('otpHidden');
+        const resendBtn = document.getElementById('resendBtn');
+        const resendTimer = document.getElementById('resendTimer');
+        let resendInterval = null;
+
+        function startResendTimer() {
+            let seconds = 30;
+            resendBtn.disabled = true;
+            resendBtn.classList.add('disabled');
+            resendTimer.textContent = `(${seconds}s)`;
+            resendInterval = setInterval(() => {
+                seconds--;
+                resendTimer.textContent = `(${seconds}s)`;
+                if (seconds <= 0) {
+                    clearInterval(resendInterval);
+                    resendBtn.disabled = false;
+                    resendBtn.classList.remove('disabled');
+                    resendTimer.textContent = '';
+                }
+            }, 1000);
+        }
+
+        function normalizePhone(raw) {
+            let digits = raw.replace(/[^\d]/g, '');
+            if (digits.startsWith('91') && digits.length === 12) digits = digits.slice(2);
+            if (digits.startsWith('0')) digits = digits.slice(1);
+            return digits;  // should be exactly 10
+        }
+
+        async function requestOtp() {
+            const raw = phoneInput.value.trim();
+            const digits = normalizePhone(raw);
+            if (digits.length !== 10) {
+                phoneInput.focus();
+                phoneInput.parentElement.classList.add('shake');
+                setTimeout(() => phoneInput.parentElement.classList.remove('shake'), 500);
+                return;
+            }
+            const phone = '+91' + digits;
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Sending...</span>';
+
+            try {
+                const csrfEl = document.querySelector('[name=csrfmiddlewaretoken]');
+                const csrfCookie = document.cookie.split('; ').find(c => c.startsWith('csrftoken='));
+                const csrfToken = csrfEl ? csrfEl.value : (csrfCookie ? csrfCookie.split('=')[1] : '');
+                const resp = await fetch('/account/send-otp/', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfToken },
+                    body: JSON.stringify({ phone })
+                });
+                const contentType = resp.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    otpInfo.textContent = resp.status === 403
+                        ? 'Session expired. Please refresh the page.'
+                        : 'Something went wrong. Please refresh and try again.';
+                    otpInfo.classList.add('error');
+                } else {
+                    const data = await resp.json();
+                    if (data.ok) {
+                        otpGroup.style.display = 'block';
+                        otpGroup.classList.add('otp-reveal');
+                        otpInfo.textContent = data.message;
+                        if (data.demo_otp) otpInfo.textContent += ` (Demo OTP: ${data.demo_otp})`;
+                        otpDigits[0].focus();
+                        startResendTimer();
+                        sendBtn.style.display = 'none';
+                    } else {
+                        otpInfo.textContent = data.error || 'Failed to send OTP.';
+                        otpInfo.classList.add('error');
+                    }
+                }
+            } catch (e) {
+                otpInfo.textContent = 'Network error. Please try again.';
+            }
+            sendBtn.disabled = false;
+            sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> <span>Send OTP</span>';
+        }
+
+        sendBtn.addEventListener('click', requestOtp);
+        resendBtn.addEventListener('click', requestOtp);
+
+        // OTP digit auto-advance
+        otpDigits.forEach((dig, idx) => {
+            dig.addEventListener('input', (e) => {
+                const v = e.target.value.replace(/\D/g, '');
+                e.target.value = v.slice(-1);
+                if (v && idx < otpDigits.length - 1) otpDigits[idx + 1].focus();
+                // Collect full OTP
+                otpHidden.value = Array.from(otpDigits).map(d => d.value).join('');
+            });
+            dig.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && !dig.value && idx > 0) {
+                    otpDigits[idx - 1].focus();
+                }
+            });
+            // Allow paste of full OTP
+            dig.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '');
+                text.split('').forEach((ch, i) => {
+                    if (otpDigits[idx + i]) otpDigits[idx + i].value = ch;
+                });
+                otpHidden.value = Array.from(otpDigits).map(d => d.value).join('');
+                const next = Math.min(idx + text.length, otpDigits.length - 1);
+                otpDigits[next].focus();
+            });
+        });
+
+        /* ── Canvas particles ── */
+        const canvas = document.getElementById('loginParticles');
+        if (canvas) {
+            const ctx = canvas.getContext('2d');
+            const particles = [];
+            const COUNT = 45;
+
+            function resize() { canvas.width = innerWidth; canvas.height = innerHeight; }
+            resize();
+            window.addEventListener('resize', resize);
+
+            class P {
+                constructor() { this.reset(); }
+                reset() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.r = Math.random() * 1.8 + 0.5;
+                    this.vx = (Math.random() - 0.5) * 0.25;
+                    this.vy = (Math.random() - 0.5) * 0.25;
+                    this.o = Math.random() * 0.25 + 0.08;
+                    this.phase = Math.random() * Math.PI * 2;
+                }
+                update() {
+                    this.x += this.vx; this.y += this.vy; this.phase += 0.012;
+                    if (this.x < 0 || this.x > canvas.width)  this.vx *= -1;
+                    if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                }
+                draw() {
+                    const g = Math.sin(this.phase) * 0.15 + 0.85;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(196,165,123,${this.o * g})`;
+                    ctx.fill();
+                }
+            }
+
+            for (let i = 0; i < COUNT; i++) particles.push(new P());
+
+            (function loop() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach(p => { p.update(); p.draw(); });
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const d = Math.sqrt(dx * dx + dy * dy);
+                        if (d < 110) {
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = `rgba(196,165,123,${0.05 * (1 - d / 110)})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.stroke();
+                        }
+                    }
+                }
+                requestAnimationFrame(loop);
+            })();
+        }
+
+        /* ── Auto-dismiss messages ── */
+        document.querySelectorAll('.login-msg').forEach((m, i) => {
+            m.style.animationDelay = `${i * 0.1}s`;
+            setTimeout(() => {
+                m.style.opacity = '0';
+                m.style.transform = 'translateY(-8px)';
+                setTimeout(() => m.remove(), 400);
+            }, 4500 + i * 500);
+        });
+
+        /* ══════════════════════════════════════
+           DOODLE COUPLE — Interactive Eyes
+           ══════════════════════════════════════ */
+        const doodle = document.getElementById('doodleCouple');
+        if (doodle) {
+            const allPupils = doodle.querySelectorAll('.doodle-pupil');
+            const himPupils = doodle.querySelectorAll('.doodle-him-eyes .doodle-pupil');
+            const hearts = doodle.querySelector('.doodle-hearts');
+
+            // Default pupil positions
+            const defaultPos = [];
+            allPupils.forEach(p => {
+                defaultPos.push({ cx: parseFloat(p.getAttribute('cx')), cy: parseFloat(p.getAttribute('cy')) });
+            });
+
+            let currentState = 'idle';
+            let blinkInterval = null;
+            let peekTimeout = null;
+            let isTypingPw = false;
+
+            // ── Helper: move pupils ──
+            function movePupils(pupils, dx, dy, duration) {
+                pupils.forEach((p, i) => {
+                    const idx = Array.from(allPupils).indexOf(p);
+                    const def = defaultPos[idx] || { cx: parseFloat(p.getAttribute('cx')), cy: parseFloat(p.getAttribute('cy')) };
+                    const maxShift = 2.5;
+                    const nx = def.cx + Math.max(-maxShift, Math.min(maxShift, dx));
+                    const ny = def.cy + Math.max(-maxShift, Math.min(maxShift, dy));
+                    p.style.transition = `cx ${duration}s cubic-bezier(.16,1,.3,1), cy ${duration}s cubic-bezier(.16,1,.3,1)`;
+                    p.setAttribute('cx', nx);
+                    p.setAttribute('cy', ny);
+                });
+            }
+
+            function resetPupils(duration = 0.5) {
+                allPupils.forEach((p, i) => {
+                    p.style.transition = `cx ${duration}s cubic-bezier(.16,1,.3,1), cy ${duration}s cubic-bezier(.16,1,.3,1)`;
+                    p.setAttribute('cx', defaultPos[i].cx);
+                    p.setAttribute('cy', defaultPos[i].cy);
+                });
+            }
+
+            // ── Helper: blink ──
+            function triggerBlink() {
+                const lids = doodle.querySelectorAll('.doodle-lid');
+                lids.forEach(lid => {
+                    lid.style.transition = 'ry .1s cubic-bezier(.4,0,1,1)';
+                    lid.setAttribute('ry', '5');
+                });
+                setTimeout(() => {
+                    lids.forEach(lid => {
+                        lid.style.transition = 'ry .18s cubic-bezier(0,0,.2,1)';
+                        lid.setAttribute('ry', '0');
+                    });
+                }, 100);
+            }
+
+            // Random blinking
+            function startBlink() {
+                if (blinkInterval) clearInterval(blinkInterval);
+                blinkInterval = setInterval(() => {
+                    triggerBlink();
+                }, 2800 + Math.random() * 2000);
+            }
+            startBlink();
+
+            // ── State: Look at input (username / phone) ──
+            function lookAtField() {
+                currentState = 'looking-down';
+                doodle.classList.remove('eyes-covered', 'peeking', 'squint');
+                doodle.classList.add('looking-down');
+                // Eyes look right and down toward the form inputs
+                movePupils(allPupils, 2, 2.2, 0.5);
+                // Eyes wide open
+                doodle.querySelectorAll('.doodle-lid').forEach(l => {
+                    l.style.transition = 'ry .3s cubic-bezier(.16,1,.3,1)';
+                    l.setAttribute('ry', '0');
+                });
+            }
+
+            // ── Facial expression helpers ──
+            const mouth = doodle.querySelector('.doodle-mouth');
+            const tongue = doodle.querySelector('.doodle-tongue');
+            const browL = doodle.querySelector('.doodle-brow-l');
+            const browR = doodle.querySelector('.doodle-brow-r');
+            const head = doodle.querySelector('.doodle-head');
+
+            function turnHeadAway() {
+                if (head) {
+                    head.style.transition = 'transform .7s cubic-bezier(.16,1,.3,1)';
+                    head.style.transformOrigin = '80px 55px';
+                    head.style.transform = 'scaleX(0.82) translateX(-4px)';
+                }
+            }
+            function turnHeadBack() {
+                if (head) {
+                    head.style.transition = 'transform .6s cubic-bezier(.16,1,.3,1)';
+                    head.style.transformOrigin = '80px 55px';
+                    head.style.transform = 'scaleX(1.03) translateX(1px)';
+                }
+            }
+            function turnHeadNeutral() {
+                if (head) {
+                    head.style.transition = 'transform .6s cubic-bezier(.16,1,.3,1)';
+                    head.style.transformOrigin = '80px 55px';
+                    head.style.transform = 'scaleX(1) translateX(0)';
+                }
+            }
+
+            function setHappyFace() {
+                // Big open smile
+                if (mouth) {
+                    mouth.setAttribute('d', 'M70,68 Q80,78 90,68');
+                    mouth.setAttribute('fill', '#2c1810');
+                }
+                if (tongue) tongue.style.opacity = '.6';
+                // Brows relaxed
+                if (browL) { browL.style.transition = 'transform .55s cubic-bezier(.16,1,.3,1)'; browL.style.transform = 'translateY(0)'; }
+                if (browR) { browR.style.transition = 'transform .55s cubic-bezier(.16,1,.3,1)'; browR.style.transform = 'translateY(0)'; }
+            }
+
+            function setNervousFace() {
+                // Small worried/tense line mouth
+                if (mouth) {
+                    mouth.setAttribute('d', 'M72,70 Q80,67 88,70');
+                    mouth.setAttribute('fill', 'none');
+                }
+                if (tongue) tongue.style.opacity = '0';
+                // Brows furrowed/worried — pushed down
+                if (browL) { browL.style.transition = 'transform .5s var(--ease-fluid)'; browL.style.transform = 'translateY(3px)'; }
+                if (browR) { browR.style.transition = 'transform .5s var(--ease-fluid)'; browR.style.transform = 'translateY(3px)'; }
+            }
+
+            function setGuiltyPeekFace() {
+                // Slight grimace / teeth-clench
+                if (mouth) {
+                    mouth.setAttribute('d', 'M73,71 Q80,68 87,71');
+                    mouth.setAttribute('fill', 'none');
+                }
+                if (tongue) tongue.style.opacity = '0';
+                // One brow raised (suspicious)
+                if (browL) { browL.style.transition = 'transform .5s var(--ease-fluid)'; browL.style.transform = 'translateY(-3px)'; }
+                if (browR) { browR.style.transition = 'transform .5s var(--ease-fluid)'; browR.style.transform = 'translateY(1px)'; }
+            }
+
+            // ── State: Look away (password focus — averts gaze, eyes stay OPEN) ──
+            function lookAway() {
+                doodle.classList.remove('looking-down', 'peeking', 'squint');
+                doodle.classList.add('eyes-covered');
+                // Turn head away + pupils far left
+                turnHeadAway();
+                movePupils(allPupils, -2.5, -1.5, 0.6);
+                doodle.querySelectorAll('.doodle-lid').forEach(l => {
+                    l.style.transition = 'ry .3s cubic-bezier(.16,1,.3,1)';
+                    l.setAttribute('ry', '0');
+                });
+                setNervousFace();
+            }
+
+            // ── State: Hesitant peek (glances back toward form, eyes OPEN) ──
+            function hesitantPeek() {
+                doodle.classList.remove('eyes-covered', 'looking-down');
+                doodle.classList.add('peeking');
+                // Turn head back toward form
+                turnHeadBack();
+                // Eyes stay fully open — just pupils drift right hesitantly
+                doodle.querySelectorAll('.doodle-lid').forEach(l => {
+                    l.style.transition = 'ry .25s cubic-bezier(.16,1,.3,1)';
+                    l.setAttribute('ry', '0');
+                });
+                // Slowly glance right toward the password field
+                movePupils(allPupils, 1.8, 1.2, 0.9);
+                setGuiltyPeekFace();
+            }
+
+            // ── Password focus handler — look away only while typing ──
+            let pwLoopInterval = null;
+            let pwTypingTimer = null;
+            let pwPeeking = false;
+
+            function startPwLoop() {
+                currentState = 'eyes-covered';
+                isTypingPw = true;
+                pwPeeking = false;
+                // Immediately look away
+                lookAway();
+                // Clear any existing loop
+                if (pwLoopInterval) clearInterval(pwLoopInterval);
+
+                // Peek/look-away cycle while typing
+                pwLoopInterval = setInterval(() => {
+                    if (currentState === 'idle') { clearInterval(pwLoopInterval); return; }
+                    if (!pwPeeking) {
+                        pwPeeking = true;
+                        currentState = 'peeking';
+                        hesitantPeek();
+                    } else {
+                        pwPeeking = false;
+                        currentState = 'eyes-covered';
+                        lookAway();
+                    }
+                }, 900);
+            }
+            function stopPwLoop() {
+                if (pwLoopInterval) { clearInterval(pwLoopInterval); pwLoopInterval = null; }
+                if (pwTypingTimer) { clearTimeout(pwTypingTimer); pwTypingTimer = null; }
+                if (peekTimeout) { clearTimeout(peekTimeout); peekTimeout = null; }
+                isTypingPw = false;
+            }
+
+            // ── State: Idle ──
+            function goIdle() {
+                currentState = 'idle';
+                stopPwLoop();
+                doodle.classList.remove('looking-down', 'eyes-covered', 'peeking', 'squint');
+                resetPupils(0.5);
+                turnHeadNeutral();
+                // Eyes fully open
+                doodle.querySelectorAll('.doodle-lid').forEach(l => {
+                    l.style.transition = 'ry .35s cubic-bezier(.16,1,.3,1)';
+                    l.setAttribute('ry', '0');
+                });
+                setHappyFace();
+            }
+
+            // ── State: Hearts (success) ──
+            function showHearts() {
+                hearts.classList.add('show');
+                setTimeout(() => hearts.classList.remove('show'), 2500);
+            }
+
+            // ── Bind to form fields ──
+            // Username field
+            const usernameField = document.getElementById('loginUsername');
+            const passwordField = document.getElementById('loginPassword');
+            const phoneField = document.getElementById('phoneNumber');
+
+            // Focus handlers
+            if (usernameField) {
+                usernameField.addEventListener('focus', lookAtField);
+                usernameField.addEventListener('blur', () => {
+                    if (document.activeElement !== passwordField) goIdle();
+                });
+            }
+
+            if (phoneField) {
+                phoneField.addEventListener('focus', lookAtField);
+                phoneField.addEventListener('blur', () => {
+                    if (document.activeElement !== passwordField) goIdle();
+                });
+            }
+
+            if (passwordField) {
+                passwordField.addEventListener('focus', () => {
+                    // Just look at the field normally on focus (no animation yet)
+                    lookAtField();
+                });
+
+                passwordField.addEventListener('input', () => {
+                    // Start the look-away animation on first keystroke
+                    if (!isTypingPw) {
+                        startPwLoop();
+                    }
+                    // Reset the stop timer on each keystroke
+                    if (pwTypingTimer) clearTimeout(pwTypingTimer);
+                    pwTypingTimer = setTimeout(() => {
+                        // Stop animation 1s after user stops typing
+                        stopPwLoop();
+                        // Stay looking away (don’t go idle, still focused)
+                        lookAway();
+                    }, 1000);
+                });
+
+                passwordField.addEventListener('blur', () => {
+                    stopPwLoop();
+                    goIdle();
+                });
+            }
+
+            // Signup form fields — also track
+            const signupFields = document.querySelectorAll('#signupForm input:not([type="hidden"])');
+            signupFields.forEach(field => {
+                if (field.type === 'password') {
+                    field.addEventListener('focus', lookAtField);
+                    field.addEventListener('input', () => {
+                        if (!isTypingPw) startPwLoop();
+                        if (pwTypingTimer) clearTimeout(pwTypingTimer);
+                        pwTypingTimer = setTimeout(() => {
+                            stopPwLoop();
+                            lookAway();
+                        }, 1000);
+                    });
+                    field.addEventListener('blur', () => { stopPwLoop(); goIdle(); });
+                } else {
+                    field.addEventListener('focus', lookAtField);
+                    field.addEventListener('blur', (e) => {
+                        const next = e.relatedTarget;
+                        if (!next || next.type !== 'password') goIdle();
+                    });
+                }
+            });
+
+            // OTP digits — look at them
+            const otpDigitsAll = document.querySelectorAll('.login-otp-digit');
+            otpDigitsAll.forEach(d => {
+                d.addEventListener('focus', lookAtField);
+                d.addEventListener('blur', goIdle);
+            });
+
+            // ── Speech bubbles ──
+            const speechBubble = document.getElementById('doodleSpeech');
+            const speechPermanent = document.getElementById('doodleSpeechPermanent');
+            let speechTimeout = null;
+            let permanentShown = false;
+
+            function showPermanentSpeech() {
+                if (!speechPermanent || permanentShown) return;
+                permanentShown = true;
+                speechPermanent.classList.add('show');
+            }
+
+            function showSpeech() {
+                if (!speechBubble) return;
+                // Hide permanent bubble while welcome is showing
+                if (speechPermanent) speechPermanent.classList.remove('show');
+                permanentShown = false;
+                speechBubble.classList.add('show');
+                if (speechTimeout) clearTimeout(speechTimeout);
+                speechTimeout = setTimeout(hideSpeech, 3500);
+            }
+
+            function hideSpeech() {
+                if (!speechBubble) return;
+                speechBubble.classList.remove('show');
+                // After welcome disappears, show "Happy Shopping!" permanently
+                setTimeout(showPermanentSpeech, 600);
+            }
+
+            // Show speech on sign in tab click
+            document.querySelectorAll('.login-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    if (tab.dataset.tab === 'login') {
+                        setTimeout(showSpeech, 300);
+                    } else {
+                        hideSpeech();
+                    }
+                });
+            });
+
+            // Show speech on username focus (first interaction)
+            let speechShownOnce = false;
+            if (usernameField) {
+                usernameField.addEventListener('focus', () => {
+                    if (!speechShownOnce) {
+                        speechShownOnce = true;
+                        showSpeech();
+                    }
+                });
+            }
+
+            // Show hearts on form submit
+            document.querySelectorAll('.login-form').forEach(form => {
+                form.addEventListener('submit', (e) => {
+                    // Hearts are shown by the AJAX handler on success
+                });
+            });
+
+            /* ══════════════════════════════════════
+               AJAX FORM SUBMISSION
+               ══════════════════════════════════════ */
+
+            // ── Helper: clear all inline errors ──
+            function clearErrors(form) {
+                form.querySelectorAll('.login-field-error').forEach(el => el.remove());
+                form.querySelectorAll('.login-input-wrap.has-error').forEach(el => el.classList.remove('has-error'));
+                form.querySelectorAll('.login-form-error').forEach(el => el.remove());
+            }
+
+            // ── Helper: show inline field error ──
+            function showFieldError(form, fieldName, message) {
+                const input = form.querySelector(`[name="${fieldName}"]`);
+                if (input) {
+                    const wrap = input.closest('.login-input-wrap');
+                    if (wrap) {
+                        wrap.classList.add('has-error');
+                        wrap.classList.add('shake');
+                        setTimeout(() => wrap.classList.remove('shake'), 600);
+                    }
+                    // Add error text below the field
+                    const field = input.closest('.login-field') || wrap;
+                    if (field && !field.querySelector('.login-field-error')) {
+                        const errEl = document.createElement('div');
+                        errEl.className = 'login-field-error';
+                        errEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+                        field.appendChild(errEl);
+                    }
+                }
+            }
+
+            // ── Helper: show form-level error ──
+            function showFormError(form, message) {
+                const container = form.closest('.login-form-container') || form.parentElement;
+                // Remove existing form errors
+                container.querySelectorAll('.login-form-error').forEach(el => el.remove());
+                const errEl = document.createElement('div');
+                errEl.className = 'login-form-error';
+                errEl.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+                form.insertBefore(errEl, form.firstChild);
+                // Auto-dismiss after 5s
+                setTimeout(() => {
+                    errEl.style.opacity = '0';
+                    errEl.style.transform = 'translateY(-8px)';
+                    setTimeout(() => errEl.remove(), 400);
+                }, 5000);
+            }
+
+            // ── Helper: show success toast ──
+            function showSuccessToast(message) {
+                const container = document.querySelector('.login-form-container');
+                if (!container) return;
+                const toast = document.createElement('div');
+                toast.className = 'login-success-toast';
+                toast.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+                container.appendChild(toast);
+                requestAnimationFrame(() => toast.classList.add('show'));
+            }
+
+            // ── Helper: set button loading state ──
+            function setButtonLoading(btn, loading) {
+                if (loading) {
+                    btn.disabled = true;
+                    btn.classList.add('loading');
+                    btn.dataset.originalHtml = btn.innerHTML;
+                    const text = btn.querySelector('span');
+                    if (text) text.textContent = 'Please wait...';
+                    const icon = btn.querySelector('i.fas');
+                    if (icon) { icon.className = 'fas fa-spinner fa-spin'; }
+                } else {
+                    btn.disabled = false;
+                    btn.classList.remove('loading');
+                    if (btn.dataset.originalHtml) {
+                        btn.innerHTML = btn.dataset.originalHtml;
+                        delete btn.dataset.originalHtml;
+                    }
+                }
+            }
+
+            // ── Client-side validation ──
+            function validateLogin(form) {
+                const errors = {};
+                const username = form.querySelector('[name="username"]').value.trim();
+                const password = form.querySelector('[name="password"]').value;
+                if (!username) errors.username = 'Username is required.';
+                if (!password) errors.password = 'Password is required.';
+                return errors;
+            }
+
+            function validateSignup(form) {
+                const errors = {};
+                const username = form.querySelector('[name="username"]').value.trim();
+                const email = form.querySelector('[name="email"]').value.trim();
+                const password = form.querySelector('[name="password"]').value;
+                const confirm = form.querySelector('[name="confirm_password"]').value;
+                const firstName = form.querySelector('[name="first_name"]').value.trim();
+
+                if (!firstName) errors.first_name = 'First name is required.';
+                if (!username) errors.username = 'Username is required.';
+                else if (username.length < 3) errors.username = 'Username must be at least 3 characters.';
+                if (!email) errors.email = 'Email is required.';
+                else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.email = 'Enter a valid email address.';
+                if (!password) errors.password = 'Password is required.';
+                else if (password.length < 6) errors.password = 'Password must be at least 6 characters.';
+                if (!confirm) errors.confirm_password = 'Please confirm your password.';
+                else if (password && password !== confirm) errors.confirm_password = 'Passwords do not match.';
+                return errors;
+            }
+
+            function validatePhone(form) {
+                const errors = {};
+                const raw = form.querySelector('[name="phone"]').value.trim();
+                const otp = form.querySelector('[name="otp"]').value.trim();
+                if (!raw) errors.phone = 'Phone number is required.';
+                else {
+                    const digits = raw.replace(/[^\d]/g, '');
+                    const clean = digits.startsWith('91') && digits.length === 12 ? digits.slice(2) : (digits.startsWith('0') ? digits.slice(1) : digits);
+                    if (clean.length !== 10) errors.phone = 'Enter a valid 10-digit phone number.';
+                }
+                if (!otp || otp.length < 6) errors.otp = 'Enter the 6-digit OTP.';
+                return errors;
+            }
+
+            // ── AJAX submit handler ──
+            async function handleFormSubmit(e) {
+                e.preventDefault();
+                const form = e.target;
+                let submitBtn = null;
+
+                try {
+                    const action = form.querySelector('[name="action"]').value;
+                    submitBtn = form.querySelector('.login-method.active .login-submit-btn') || form.querySelector('.login-submit-btn');
+
+                    console.log('[Login] action:', action, '| url:', form.action);
+
+                    // Clear previous errors
+                    clearErrors(form);
+
+                    // Client-side validation
+                    let clientErrors = {};
+                    if (action === 'login') clientErrors = validateLogin(form);
+                    else if (action === 'signup') clientErrors = validateSignup(form);
+                    else if (action === 'phone_login') clientErrors = validatePhone(form);
+
+                    if (Object.keys(clientErrors).length > 0) {
+                        Object.entries(clientErrors).forEach(([field, msg]) => showFieldError(form, field, msg));
+                        const firstErrorField = Object.keys(clientErrors)[0];
+                        const firstInput = form.querySelector(`[name="${firstErrorField}"]`);
+                        if (firstInput) firstInput.focus();
+                        return;
+                    }
+
+                    // Set loading state
+                    if (submitBtn) setButtonLoading(submitBtn, true);
+
+                    // Build form data
+                    const formData = new FormData(form);
+                    formData.append('_ajax', '1');
+
+                    // Debug: log all form data keys
+                    console.log('[Login] FormData keys:', [...formData.keys()]);
+                    console.log('[Login] phone:', formData.get('phone'), '| otp:', formData.get('otp'));
+
+                    // Read CSRF token from cookie
+                    let csrfToken = '';
+                    try {
+                        const csrfCookie = document.cookie.split('; ').find(c => c.startsWith('csrftoken='));
+                        csrfToken = csrfCookie ? csrfCookie.split('=')[1] : '';
+                    } catch(e) {}
+                    // Fallback: also try the form's hidden input
+                    if (!csrfToken) {
+                        const csrfInput = form.querySelector('[name="csrfmiddlewaretoken"]');
+                        if (csrfInput) csrfToken = csrfInput.value;
+                    }
+                    console.log('[Login] CSRF token present:', !!csrfToken);
+
+                    // Ensure trailing slash (Django rejects POST without it)
+                    // NOTE: form.action is shadowed by <input name="action">, so use getAttribute
+                    let url = form.getAttribute('action') || window.location.href;
+                    if (!url.endsWith('/')) url += '/';
+
+                    console.log('[Login] Sending fetch to:', url);
+
+                    let resp;
+                    try {
+                        resp = await fetch(url, {
+                            method: 'POST',
+                            body: formData,
+                            credentials: 'same-origin',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRFToken': csrfToken,
+                                'Accept': 'application/json',
+                            },
+                        });
+                    } catch (fetchErr) {
+                        console.error('[Login] Fetch failed:', fetchErr);
+                        if (submitBtn) setButtonLoading(submitBtn, false);
+                        showFormError(form, 'Cannot reach the server. Please check your connection.');
+                        return;
+                    }
+
+                    console.log('[Login] Response status:', resp.status, '| content-type:', resp.headers.get('content-type'));
+
+                    // Handle non-JSON responses (e.g. 403 CSRF page, 500 error)
+                    const contentType = resp.headers.get('content-type') || '';
+                    if (!contentType.includes('application/json')) {
+                        if (submitBtn) setButtonLoading(submitBtn, false);
+                        const body = await resp.text();
+                        console.error('[Login] Non-JSON response body:', body.substring(0, 500));
+                        if (resp.status === 403) {
+                            showFormError(form, 'Session expired. Please refresh the page and try again.');
+                        } else {
+                            showFormError(form, `Server error (${resp.status}). Please refresh the page and try again.`);
+                        }
+                        return;
+                    }
+
+                    const data = await resp.json();
+                    console.log('[Login] Response data:', data);
+
+                    if (data.ok) {
+                        // Success!
+                        try { showHearts(); } catch(e) { console.warn('showHearts error:', e); }
+                        try { showSpeech(); } catch(e) { console.warn('showSpeech error:', e); }
+                        try { showSuccessToast(data.message || 'Success!'); } catch(e) { console.warn('toast error:', e); }
+
+                        // Change button to success state
+                        if (submitBtn) {
+                            try {
+                                submitBtn.disabled = true;
+                                submitBtn.classList.remove('loading');
+                                submitBtn.classList.add('success');
+                                submitBtn.innerHTML = '<i class="fas fa-check"></i> <span>Success!</span> <div class="login-btn-shimmer active"></div>';
+                            } catch(e) { console.warn('button update error:', e); }
+                        }
+
+                        // Redirect after animation — guaranteed to run
+                        const redirectUrl = data.redirect || '/';
+                        console.log('[Login] Will redirect to:', redirectUrl, 'in 1.5s');
+                        setTimeout(() => {
+                            console.log('[Login] Redirecting now to:', redirectUrl);
+                            window.location.href = redirectUrl;
+                        }, 1500);
+                    } else {
+                        // Errors from server
+                        if (submitBtn) setButtonLoading(submitBtn, false);
+                        if (data.errors) {
+                            if (data.errors.__all__) {
+                                showFormError(form, data.errors.__all__);
+                            }
+                            Object.entries(data.errors).forEach(([field, msg]) => {
+                                if (field !== '__all__') showFieldError(form, field, msg);
+                            });
+                            const firstField = Object.keys(data.errors).find(k => k !== '__all__');
+                            if (firstField) {
+                                const inp = form.querySelector(`[name="${firstField}"]`);
+                                if (inp) inp.focus();
+                            }
+                        } else {
+                            showFormError(form, 'Login failed. Please try again.');
+                        }
+                    }
+
+                } catch (err) {
+                    console.error('[Login] Unexpected error in handleFormSubmit:', err);
+                    if (submitBtn) setButtonLoading(submitBtn, false);
+                    showFormError(form, 'Something went wrong: ' + (err.message || err));
+                }
+            }
+
+            // Bind AJAX handler to both forms
+            const loginForm = document.getElementById('loginForm');
+            const signupForm = document.getElementById('signupForm');
+            if (loginForm) loginForm.addEventListener('submit', handleFormSubmit);
+            if (signupForm) signupForm.addEventListener('submit', handleFormSubmit);
+
+            // ── Clear field errors on input ──
+            document.querySelectorAll('.login-form input:not([type="hidden"])').forEach(input => {
+                input.addEventListener('input', () => {
+                    const wrap = input.closest('.login-input-wrap');
+                    if (wrap) wrap.classList.remove('has-error');
+                    const field = input.closest('.login-field');
+                    if (field) {
+                        const err = field.querySelector('.login-field-error');
+                        if (err) err.remove();
+                    }
+                });
+            });
+
+            // Initial welcome on page load
+            setTimeout(showSpeech, 1800);
+            setTimeout(showHearts, 2000);
+        }
+    });
+    </script>
+
+    <!-- Splash Cursor -->
+    <script>
+    (function() {
+        const _canvas = document.getElementById('cursor-canvas');
+        if (!_canvas) return;
+        const _ctx = _canvas.getContext('2d');
+        let _cw, _ch;
+
+        function resizeCanvas() {
+            _cw = window.innerWidth;
+            _ch = window.innerHeight;
+            _canvas.width = _cw;
+            _canvas.height = _ch;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas, { passive: true });
+
+        const SPLASH_COLORS = [
+            [196, 165, 123], [232, 213, 196], [180, 140, 100], [255, 200, 140],
+            [160, 120, 80],  [220, 180, 140], [255, 220, 180], [200, 160, 120],
+        ];
+
+        const POOL_SIZE = 300;
+        let _mx = -100, _my = -100, _prevMx = -100, _prevMy = -100;
+        let _isHovering = false;
+        let _lastTime = performance.now();
+
+        class Particle {
+            constructor() { this.alive = false; }
+            init(x, y, vx, vy, peakSize, cr, cg, cb, life) {
+                this.x = x; this.y = y; this.vx = vx; this.vy = vy;
+                this.peakSize = peakSize;
+                this.cr = cr; this.cg = cg; this.cb = cb;
+                this.life = life; this.maxLife = life;
+                this.alive = true;
+                return this;
+            }
+            update(dt) {
+                const f = dt * 60;
+                this.life -= dt;
+                const friction = Math.pow(0.96, f);
+                this.vx *= friction; this.vy *= friction;
+                this.vy += 0.008 * f;
+                this.x += this.vx * f; this.y += this.vy * f;
+                if (this.life <= 0) this.alive = false;
+            }
+            draw(ctx) {
+                const age = 1 - Math.max(this.life / this.maxLife, 0);
+                const sizeCurve = Math.pow(Math.sin(Math.PI * age), 0.7);
+                const size = this.peakSize * sizeCurve;
+                if (size < 0.2) return;
+                let alpha;
+                if (age < 0.15) { const t = age / 0.15; alpha = t * t * 0.6; }
+                else { const t = Math.max(this.life / this.maxLife, 0); alpha = t * t * 0.6; }
+                ctx.globalAlpha = alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgb(${this.cr},${this.cg},${this.cb})`;
+                ctx.fill();
+            }
+        }
+
+        const pool = [];
+        for (let i = 0; i < POOL_SIZE; i++) pool.push(new Particle());
+
+        function getParticle() {
+            for (let i = 0; i < POOL_SIZE; i++) { if (!pool[i].alive) return pool[i]; }
+            let oldest = pool[0];
+            for (let i = 1; i < POOL_SIZE; i++) { if (pool[i].life < oldest.life) oldest = pool[i]; }
+            return oldest;
+        }
+
+        function spawnTrail(x, y, speed) {
+            const count = _isHovering ? Math.floor(speed * 0.4 + 2) : Math.floor(speed * 0.2 + 1);
+            const peakSize = _isHovering ? 7 : 5;
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const force = (Math.random() * 0.6 + 0.15) * Math.min(speed * 0.08, 1.8);
+                const [cr, cg, cb] = SPLASH_COLORS[Math.floor(Math.random() * SPLASH_COLORS.length)];
+                getParticle().init(
+                    x + (Math.random() - 0.5) * 2, y + (Math.random() - 0.5) * 2,
+                    Math.cos(angle) * force, Math.sin(angle) * force,
+                    Math.random() * peakSize + 1.5, cr, cg, cb,
+                    Math.random() * 0.7 + 0.5
+                );
+            }
+        }
+
+        function spawnInterpolated(x0, y0, x1, y1) {
+            const dx = x1 - x0, dy = y1 - y0;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 2) return;
+            const steps = Math.min(Math.floor(dist / 8), 10);
+            for (let s = 0; s <= steps; s++) {
+                const t = s / Math.max(steps, 1);
+                spawnTrail(x0 + dx * t, y0 + dy * t, dist / Math.max(steps, 1));
+            }
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            _mx = e.clientX; _my = e.clientY;
+            spawnInterpolated(_prevMx, _prevMy, _mx, _my);
+            _prevMx = _mx; _prevMy = _my;
+        }, { passive: true });
+
+        document.addEventListener('mouseover', (e) => {
+            if (e.target.closest('a, button, .btn, input, textarea, .login-tab, .login-social-btn'))
+                _isHovering = true;
+        });
+        document.addEventListener('mouseout', (e) => {
+            if (e.target.closest('a, button, .btn, input, textarea, .login-tab, .login-social-btn'))
+                _isHovering = false;
+        });
+
+        document.addEventListener('click', (e) => {
+            for (let i = 0; i < 20; i++) {
+                const angle = (Math.PI * 2 / 20) * i + (Math.random() - 0.5) * 0.25;
+                const force = Math.random() * 3 + 1.5;
+                const [cr, cg, cb] = SPLASH_COLORS[Math.floor(Math.random() * SPLASH_COLORS.length)];
+                getParticle().init(
+                    e.clientX, e.clientY,
+                    Math.cos(angle) * force, Math.sin(angle) * force,
+                    Math.random() * 6 + 3, cr, cg, cb,
+                    Math.random() * 0.5 + 0.4
+                );
+            }
+        });
+
+        function cursorLoop(now) {
+            const dt = Math.min((now - _lastTime) / 1000, 0.05);
+            _lastTime = now;
+            _ctx.clearRect(0, 0, _cw, _ch);
+            _ctx.globalAlpha = 1;
+            for (let i = 0; i < POOL_SIZE; i++) {
+                const p = pool[i];
+                if (!p.alive) continue;
+                p.update(dt);
+                if (p.alive) p.draw(_ctx);
+            }
+            _ctx.globalAlpha = 1;
+            requestAnimationFrame(cursorLoop);
+        }
+        requestAnimationFrame(cursorLoop);
+    })();
+    </script>
+</body>
+</html>

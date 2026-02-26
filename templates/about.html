@@ -1,0 +1,535 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About — House of Ambava</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=7">
+    <link rel="stylesheet" href="{% static 'css/about.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.18/dist/lenis.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        (function() {
+            var t = localStorage.getItem('theme');
+            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        })();
+    </script>
+</head>
+<body class="page-fade-in">
+    <canvas id="cursor-canvas"></canvas>
+
+    <!-- ═══ HEADER ═══ -->
+    <header>
+        <div class="header-content">
+            <a href="{% url 'home' %}" class="logo" style="text-decoration: none;">
+                <svg class="logo-emblem" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+                    <g stroke="currentColor" stroke-width="3" fill="none">
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(22.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(45,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(67.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(90,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(112.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(135,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(157.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(180,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(202.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(225,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(247.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(270,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(292.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(315,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(337.5,100,100)"/>
+                    </g>
+                    <circle cx="100" cy="100" r="78" stroke="currentColor" stroke-width="4.5" fill="none"/>
+                    <circle cx="100" cy="100" r="73" stroke="currentColor" stroke-width="4" fill="none"/>
+                    <g stroke="currentColor" stroke-width="2.5" fill="none">
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(22.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(45,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(67.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(90,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(112.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(135,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(157.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(180,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(202.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(225,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(247.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(270,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(292.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(315,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(337.5,100,100)"/>
+                    </g>
+                    <circle cx="100" cy="100" r="55" stroke="currentColor" stroke-width="3.5" fill="none"/>
+                    <rect x="66" y="66" width="68" height="68" stroke="currentColor" stroke-width="3" fill="none"/>
+                    <rect x="66" y="66" width="68" height="68" stroke="currentColor" stroke-width="3" fill="none" transform="rotate(45,100,100)"/>
+                    <line x1="100" y1="52" x2="100" y2="148" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="52" y1="100" x2="148" y2="100" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="66" y1="66" x2="134" y2="134" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="134" y1="66" x2="66" y2="134" stroke="currentColor" stroke-width="2.5"/>
+                    <rect x="82" y="82" width="36" height="36" stroke="currentColor" stroke-width="2.5" fill="none" transform="rotate(45,100,100)"/>
+                    <rect x="88" y="88" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none"/>
+                    <circle cx="100" cy="100" r="4" fill="currentColor"/>
+                </svg>
+                <span class="logo-text">HOUSE OF AMBAVA</span>
+            </a>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav id="mainNav">
+                <a href="{% url 'home' %}">HOME</a>
+                <a href="{% url 'home' %}#collection">COLLECTION</a>
+                <a href="{% url 'shop' %}">SHOP</a>
+                <a href="{% url 'about' %}" class="about-active">ABOUT</a>
+                <a href="{% url 'home' %}#contact">CONTACT</a>
+            </nav>
+            <div class="header-icons">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+                <a href="#" class="search-toggle" id="searchToggle"><i class="fas fa-search"></i></a>
+                <a href="#" class="cart-toggle" id="cartToggle"><i class="fas fa-shopping-bag"></i><span class="cart-badge" id="cartBadge">0</span></a>
+                {% if user.is_authenticated and not user.is_staff %}
+                <div class="profile-dropdown-wrap">
+                    <a href="#" class="profile-trigger" id="profileTrigger" title="My Profile">
+                        <i class="fas fa-user"></i>
+                        <span class="profile-status-dot"></span>
+                    </a>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-dropdown-header">
+                            <div class="profile-dd-avatar"><i class="fas fa-user"></i></div>
+                            <div class="profile-dropdown-name">{% if user.first_name %}{{ user.first_name }} {{ user.last_name }}{% else %}Welcome!{% endif %}</div>
+                            <div class="profile-dropdown-email">{% if user.email %}{{ user.email }}{% else %}{{ user.username }}{% endif %}</div>
+                        </div>
+                        {% if not user.first_name or not user.email %}
+                        <div class="profile-complete-prompt">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Please add your name & email in Profile</span>
+                        </div>
+                        {% endif %}
+                        <div class="profile-dropdown-menu">
+                            <a href="{% url 'profile' %}" class="profile-dropdown-item">
+                                <i class="fas fa-user-circle"></i> <span>Profile</span>
+                            </a>
+                            <a href="{% url 'profile' %}#addresses" class="profile-dropdown-item">
+                                <i class="fas fa-address-book"></i> <span>Addresses</span>
+                            </a>
+                            <a href="{% url 'order_history' %}" class="profile-dropdown-item">
+                                <i class="fas fa-shopping-bag"></i> <span>Order History</span>
+                            </a>
+                            <a href="{% url 'track_order' %}" class="profile-dropdown-item">
+                                <i class="fas fa-map-marker-alt"></i> <span>Track Order</span>
+                            </a>
+                            <a href="{% url 'returns_exchanges' %}" class="profile-dropdown-item">
+                                <i class="fas fa-exchange-alt"></i> <span>Returns & Exchanges</span>
+                            </a>
+                            <div class="profile-dropdown-divider"></div>
+                            <a href="{% url 'customer_logout' %}" class="profile-dropdown-item logout">
+                                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% elif user.is_authenticated and user.is_staff %}
+                <a href="/admin/" class="user-link admin-badge" title="Admin Panel"><i class="fas fa-user-shield"></i></a>
+                {% else %}
+                <a href="{% url 'customer_login' %}" class="user-link"><i class="fas fa-user"></i></a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-overlay-backdrop"></div>
+        <div class="search-container">
+            <div class="search-header">
+                <div class="search-input-wrap">
+                    <i class="fas fa-search search-input-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Search lehengas, sarees..." autocomplete="off" />
+                    <button class="search-clear" id="searchClear"><i class="fas fa-times"></i></button>
+                </div>
+                <button class="search-close" id="searchClose"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="search-results" id="searchResults">
+                <div class="search-empty">
+                    <i class="fas fa-search"></i>
+                    <p>Start typing to search...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ MAIN CONTENT ═══ -->
+    <main>
+        <!-- Hero Banner -->
+        <section class="about-hero">
+            <div class="about-hero-inner">
+                <div class="about-hero-label anim-reveal" data-delay="0">
+                    <span class="hero-label-line"></span>
+                    <span>Our Story</span>
+                    <span class="hero-label-line"></span>
+                </div>
+                <h1 class="about-hero-title anim-reveal" data-delay="1">
+                    {% if about %}{{ about.heading }}{% else %}The Art of Elegance{% endif %}
+                </h1>
+                <p class="about-hero-sub anim-reveal" data-delay="2">
+                    {% if about %}{{ about.subheading }}{% else %}A legacy woven with passion, perseverance, and timeless beauty{% endif %}
+                </p>
+            </div>
+        </section>
+
+        <!-- Story Section — Image Left, Text Right -->
+        <section class="about-story">
+            <div class="about-story-grid">
+                <!-- Left: Image -->
+                <div class="about-image-col anim-reveal-left" data-delay="0">
+                    <div class="about-image-wrapper">
+                        {% if about and about.main_image %}
+                        <img src="{{ about.main_image.url }}" alt="{{ about.founder_name }}" class="about-main-image">
+                        {% else %}
+                        <div class="about-image-placeholder">
+                            <i class="fas fa-image"></i>
+                            <span>Add image from admin</span>
+                        </div>
+                        {% endif %}
+                        <div class="about-image-frame"></div>
+                    </div>
+                    {% if about and about.secondary_image %}
+                    <div class="about-secondary-wrapper anim-reveal" data-delay="2">
+                        <img src="{{ about.secondary_image.url }}" alt="House of Ambava" class="about-secondary-image">
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Right: Brand + Story Text -->
+                <div class="about-text-col">
+                    <!-- Brand Identity -->
+                    <div class="about-brand anim-reveal-right" data-delay="1">
+                        <svg class="about-brand-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+                            <!-- Outer lotus petals (16) -->
+                            <g stroke="currentColor" stroke-width="1.8" fill="none">
+                                <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z"/>
+                                <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(22.5,100,100)"/>
+                                <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(45,100,100)"/>
+                                <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(67.5,100,100)"/>
+                                <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(90,100,100)"/>
+                                <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(112.5,100,100)"/>
+                                <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(135,100,100)"/>
+                                <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(157.5,100,100)"/>
+                                <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(180,100,100)"/>
+                                <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(202.5,100,100)"/>
+                                <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(225,100,100)"/>
+                                <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(247.5,100,100)"/>
+                                <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(270,100,100)"/>
+                                <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(292.5,100,100)"/>
+                                <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(315,100,100)"/>
+                                <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(337.5,100,100)"/>
+                            </g>
+                            <!-- Double circle band -->
+                            <circle cx="100" cy="100" r="78" stroke="currentColor" stroke-width="3" fill="none"/>
+                            <circle cx="100" cy="100" r="73" stroke="currentColor" stroke-width="2.5" fill="none"/>
+                            <!-- Inner lotus petals (16) -->
+                            <g stroke="currentColor" stroke-width="1.4" fill="none">
+                                <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z"/>
+                                <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(22.5,100,100)"/>
+                                <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(45,100,100)"/>
+                                <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(67.5,100,100)"/>
+                                <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(90,100,100)"/>
+                                <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(112.5,100,100)"/>
+                                <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(135,100,100)"/>
+                                <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(157.5,100,100)"/>
+                                <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(180,100,100)"/>
+                                <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(202.5,100,100)"/>
+                                <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(225,100,100)"/>
+                                <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(247.5,100,100)"/>
+                                <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(270,100,100)"/>
+                                <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(292.5,100,100)"/>
+                                <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(315,100,100)"/>
+                                <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(337.5,100,100)"/>
+                            </g>
+                            <!-- Inner circle -->
+                            <circle cx="100" cy="100" r="55" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <!-- Central octagram star -->
+                            <rect x="66" y="66" width="68" height="68" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <rect x="66" y="66" width="68" height="68" stroke="currentColor" stroke-width="2" fill="none" transform="rotate(45,100,100)"/>
+                            <!-- Cross lines -->
+                            <line x1="100" y1="52" x2="100" y2="148" stroke="currentColor" stroke-width="1.5"/>
+                            <line x1="52" y1="100" x2="148" y2="100" stroke="currentColor" stroke-width="1.5"/>
+                            <line x1="66" y1="66" x2="134" y2="134" stroke="currentColor" stroke-width="1.5"/>
+                            <line x1="134" y1="66" x2="66" y2="134" stroke="currentColor" stroke-width="1.5"/>
+                            <!-- Inner diamond -->
+                            <rect x="82" y="82" width="36" height="36" stroke="currentColor" stroke-width="1.5" fill="none" transform="rotate(45,100,100)"/>
+                            <!-- Inner small square -->
+                            <rect x="88" y="88" width="24" height="24" stroke="currentColor" stroke-width="1.5" fill="none"/>
+                            <!-- Center dot -->
+                            <circle cx="100" cy="100" r="3" fill="currentColor"/>
+                        </svg>
+                        <h2 class="about-brand-name">HOUSE OF AMBAVA</h2>
+                    </div>
+
+                    <!-- Founder Info -->
+                    <div class="about-founder anim-reveal-right" data-delay="2">
+                        <h3 class="founder-name">{% if about %}{{ about.founder_name }}{% else %}Ambava{% endif %}</h3>
+                        <span class="founder-title">{% if about %}{{ about.founder_title }}{% else %}Founder & Creative Director{% endif %}</span>
+                    </div>
+
+                    <!-- Story Text -->
+                    <div class="about-story-text anim-reveal-right" data-delay="3">
+                        {% if about %}
+                        {{ about.story_text|linebreaksbr }}
+                        {% else %}
+                        <p>Born into a family of textile artisans in the heartland of India, Ambava grew up surrounded by the rhythmic clatter of looms and the vibrant hues of handwoven silks. From a young age, she was captivated by the way a single thread could transform into something extraordinary — a garment that carried within it stories of generations.</p>
+                        <p>Life was never easy. Growing up in modest circumstances, Ambava faced challenges that would have deterred many. Financial hardships, societal expectations, and the weight of tradition pressed upon her shoulders. Yet, it was precisely these struggles that kindled an unbreakable fire within her — a determination to create something that would transcend the ordinary.</p>
+                        <p>With nothing but her vision and unwavering resolve, she began her journey as a young designer, working late nights by candlelight, sketching designs that danced between heritage and modernity. Every setback became a stepping stone. Every rejection fueled her passion further.</p>
+                        <p>In 1996, House of Ambava was born — not just as a brand, but as a testament to resilience. Each lehenga, each saree, each creation that bears the Ambava name carries within it the essence of that struggle — the belief that beauty can emerge from adversity, that elegance is not about perfection but about the soul woven into every fabric.</p>
+                        <p>Today, House of Ambava stands as a beacon of Indian craftsmanship, where every piece tells a story — of tradition meeting innovation, of struggle meeting triumph, of a woman who dared to dream and turned those dreams into threads of gold.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quote Section -->
+        {% if about and about.quote_text or not about %}
+        <section class="about-quote">
+            <div class="about-quote-inner anim-scale" data-delay="0">
+                <div class="quote-mark"><i class="fas fa-quote-left"></i></div>
+                <blockquote>
+                    {% if about and about.quote_text %}
+                    {{ about.quote_text }}
+                    {% else %}
+                    Every thread we weave carries a story. Every garment we create is a piece of our soul, shared with the world.
+                    {% endif %}
+                </blockquote>
+                <cite>— {% if about %}{{ about.founder_name }}{% else %}Ambava{% endif %}</cite>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Mission Section -->
+        {% if about and about.mission_text or not about %}
+        <section class="about-mission">
+            <div class="about-mission-inner">
+                <div class="mission-header anim-reveal" data-delay="0">
+                    <span class="mission-label">
+                        <span class="hero-label-line"></span>
+                        <span>{% if about and about.mission_title %}{{ about.mission_title }}{% else %}Our Mission{% endif %}</span>
+                        <span class="hero-label-line"></span>
+                    </span>
+                </div>
+                <div class="mission-text anim-reveal" data-delay="1">
+                    {% if about and about.mission_text %}
+                    {{ about.mission_text|linebreaksbr }}
+                    {% else %}
+                    <p>At House of Ambava, we believe that true luxury lies in craftsmanship. Our mission is to preserve the ancient textile arts of India while creating contemporary pieces that empower women to feel extraordinary. Every stitch, every embroidery, every drape is a celebration of the artisan's skill and the wearer's grace.</p>
+                    <p>We work directly with master craftsmen across India, ensuring fair wages and preserving techniques that have been passed down through centuries. When you wear an Ambava creation, you don't just wear a garment — you wear a legacy.</p>
+                    {% endif %}
+                </div>
+                <!-- Values -->
+                <div class="about-values">
+                    <div class="value-card anim-reveal" data-delay="0">
+                        <div class="value-icon"><i class="fas fa-gem"></i></div>
+                        <h4>Craftsmanship</h4>
+                        <p>Handcrafted with precision by master artisans</p>
+                    </div>
+                    <div class="value-card anim-reveal" data-delay="1">
+                        <div class="value-icon"><i class="fas fa-heart"></i></div>
+                        <h4>Passion</h4>
+                        <p>Every piece is created with love and dedication</p>
+                    </div>
+                    <div class="value-card anim-reveal" data-delay="2">
+                        <div class="value-icon"><i class="fas fa-leaf"></i></div>
+                        <h4>Sustainability</h4>
+                        <p>Ethical practices preserving traditional arts</p>
+                    </div>
+                    <div class="value-card anim-reveal" data-delay="3">
+                        <div class="value-icon"><i class="fas fa-crown"></i></div>
+                        <h4>Elegance</h4>
+                        <p>Timeless designs that transcend seasons</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+    </main>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>HOUSE OF AMBAVA</h4>
+                <p>Crafting elegance since 1996</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'home' %}#collection">Collection</a></li>
+                    <li><a href="{% url 'shop' %}">Shop</a></li>
+                    <li><a href="{% url 'about' %}">About</a></li>
+                    <li><a href="{% url 'home' %}#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    {% if contact and contact.social_links %}
+                        {% for link in contact.social_links %}
+                        <a href="{{ link.url }}" target="_blank" rel="noopener" title="{{ link.name }}"><i class="{{ link.icon }}"></i></a>
+                        {% endfor %}
+                    {% else %}
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-pinterest"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 House Of Ambava. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- ═══ CART DRAWER ═══ -->
+    <div class="cart-overlay" id="cartOverlay">
+        <div class="cart-overlay-backdrop"></div>
+        <div class="cart-drawer">
+            <div class="cart-drawer-header">
+                <h3><i class="fas fa-shopping-bag"></i> Shopping Bag</h3>
+                <button class="cart-drawer-close" id="cartClose"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="cart-drawer-body" id="cartBody" data-lenis-prevent>
+                <div class="cart-empty-state">
+                    <i class="fas fa-shopping-bag"></i>
+                    <p>Your bag is empty</p>
+                    <span>Discover something extraordinary</span>
+                </div>
+            </div>
+            <div class="cart-drawer-footer" id="cartFooter">
+                <div class="cart-subtotal">
+                    <span>Subtotal</span>
+                    <span id="cartSubtotal">₹0</span>
+                </div>
+                {% if user.is_staff %}
+                <div class="cart-admin-notice">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Admin accounts cannot checkout. Please use a customer account.</span>
+                </div>
+                {% else %}
+                <button class="cart-checkout-btn" onclick="window.location.href='/checkout/'">
+                    <span>Checkout</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                {% endif %}
+                <p class="cart-shipping-note"><i class="fas fa-truck"></i> Complimentary shipping above ₹5,000</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+    <script src="{% static 'js/main.js' %}?v=3"></script>
+    <script>
+    /* ═══════════════════════════════════════════════
+       ABOUT PAGE — Ultra-smooth Fluid Animations
+       ═══════════════════════════════════════════════ */
+    (function() {
+        'use strict';
+
+        /* ── Smooth staggered reveal with IntersectionObserver ── */
+        const revealSelectors = '.anim-reveal, .anim-reveal-left, .anim-reveal-right, .anim-scale';
+        const revealElements = document.querySelectorAll(revealSelectors);
+
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const delay = parseInt(entry.target.dataset.delay || 0) * 150;
+                    setTimeout(() => {
+                        entry.target.classList.add('is-revealed');
+                    }, delay);
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -40px 0px'
+        });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        /* ── Section-level visibility (for quote border lines etc.) ── */
+        const sections = document.querySelectorAll('.about-quote, .about-mission');
+        const sectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('section-visible');
+                    sectionObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.2 });
+        sections.forEach(s => sectionObserver.observe(s));
+
+        /* ── Smooth parallax with lerp (buttery float) ── */
+        const mainImage = document.querySelector('.about-image-wrapper');
+        const secondaryImage = document.querySelector('.about-secondary-wrapper');
+        const heroInner = document.querySelector('.about-hero-inner');
+        const cartOverlay = document.getElementById('cartOverlay');
+
+        let currentY = { main: 0, sec: 0, hero: 0 };
+        let targetY  = { main: 0, sec: 0, hero: 0 };
+
+        function lerp(a, b, t) { return a + (b - a) * t; }
+
+        function updateParallax() {
+            // Skip parallax when cart is open
+            const cartOpen = cartOverlay && cartOverlay.classList.contains('active');
+            if (!cartOpen) {
+                const scrollY = window.scrollY;
+                targetY.main = scrollY * 0.025;
+                targetY.sec  = scrollY * -0.018;
+                targetY.hero = scrollY * 0.015;
+
+                currentY.main = lerp(currentY.main, targetY.main, 0.06);
+                currentY.sec  = lerp(currentY.sec,  targetY.sec,  0.06);
+                currentY.hero = lerp(currentY.hero, targetY.hero, 0.06);
+
+                if (mainImage && mainImage.closest('.is-revealed, .anim-reveal-left.is-revealed'))
+                    mainImage.style.transform = `translateY(${currentY.main}px)`;
+                if (secondaryImage && secondaryImage.classList.contains('is-revealed'))
+                    secondaryImage.style.transform = `translateY(${currentY.sec}px)`;
+                if (heroInner)
+                    heroInner.style.transform = `translateY(${currentY.hero}px)`;
+            }
+
+            requestAnimationFrame(updateParallax);
+        }
+        requestAnimationFrame(updateParallax);
+
+        /* ── Magnetic tilt on value cards ── */
+        document.querySelectorAll('.value-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width  - 0.5;
+                const y = (e.clientY - rect.top)  / rect.height - 0.5;
+                card.style.transform = `translateY(-8px) perspective(600px) rotateX(${y * -6}deg) rotateY(${x * 6}deg)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+        });
+
+        /* ── Active nav styling ── */
+        const aboutNav = document.querySelector('nav a.about-active');
+        if (aboutNav) aboutNav.style.color = 'var(--primary)';
+
+    })();
+    </script>
+</body>
+</html>

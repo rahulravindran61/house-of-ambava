@@ -1,0 +1,508 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Of Ambava - Premium Lehangas</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=7">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.18/dist/lenis.css">
+    <script>
+        // Apply saved theme instantly to prevent flash
+        (function() {
+            var t = localStorage.getItem('theme');
+            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        })();
+    </script>
+</head>
+<body class="page-fade-in">
+    <canvas id="cursor-canvas"></canvas>
+    
+    <header>
+        <div class="header-content">
+            <a href="#home" class="logo" style="text-decoration: none;">
+                <svg class="logo-emblem" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+                    <!-- Outer lotus petals (16) -->
+                    <g stroke="currentColor" stroke-width="3" fill="none">
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(22.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(45,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(67.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(90,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(112.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(135,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(157.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(180,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(202.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(225,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(247.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(270,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(292.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(315,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(337.5,100,100)"/>
+                    </g>
+                    <!-- Double circle band -->
+                    <circle cx="100" cy="100" r="78" stroke="currentColor" stroke-width="4.5" fill="none"/>
+                    <circle cx="100" cy="100" r="73" stroke="currentColor" stroke-width="4" fill="none"/>
+                    <!-- Inner lotus petals (16) -->
+                    <g stroke="currentColor" stroke-width="2.5" fill="none">
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(22.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(45,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(67.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(90,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(112.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(135,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(157.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(180,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(202.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(225,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(247.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(270,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(292.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(315,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(337.5,100,100)"/>
+                    </g>
+                    <!-- Inner circle -->
+                    <circle cx="100" cy="100" r="55" stroke="currentColor" stroke-width="3.5" fill="none"/>
+                    <!-- Central octagram star (two overlapping squares) -->
+                    <rect x="66" y="66" width="68" height="68" stroke="currentColor" stroke-width="3" fill="none"/>
+                    <rect x="66" y="66" width="68" height="68" stroke="currentColor" stroke-width="3" fill="none" transform="rotate(45,100,100)"/>
+                    <!-- Diagonal cross lines through center -->
+                    <line x1="100" y1="52" x2="100" y2="148" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="52" y1="100" x2="148" y2="100" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="66" y1="66" x2="134" y2="134" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="134" y1="66" x2="66" y2="134" stroke="currentColor" stroke-width="2.5"/>
+                    <!-- Inner diamond -->
+                    <rect x="82" y="82" width="36" height="36" stroke="currentColor" stroke-width="2.5" fill="none" transform="rotate(45,100,100)"/>
+                    <!-- Inner small square -->
+                    <rect x="88" y="88" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none"/>
+                    <!-- Center dot -->
+                    <circle cx="100" cy="100" r="4" fill="currentColor"/>
+                </svg>
+                <span class="logo-text">HOUSE OF AMBAVA</span>
+            </a>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav id="mainNav">
+                <a href="#home">HOME</a>
+                <a href="#collection">COLLECTION</a>
+                <a href="{% url 'shop' %}">SHOP</a>
+                <a href="{% url 'about' %}">ABOUT</a>
+                <a href="#contact">CONTACT</a>
+            </nav>
+            <div class="header-icons">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+                <a href="#" class="search-toggle" id="searchToggle"><i class="fas fa-search"></i></a>
+                <a href="#" class="cart-toggle" id="cartToggle"><i class="fas fa-shopping-bag"></i><span class="cart-badge" id="cartBadge">0</span></a>
+                {% if user.is_authenticated and not user.is_staff %}
+                <div class="profile-dropdown-wrap">
+                    <a href="#" class="profile-trigger" id="profileTrigger" title="My Profile">
+                        <i class="fas fa-user"></i>
+                        <span class="profile-status-dot"></span>
+                    </a>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-dropdown-header">
+                            <div class="profile-dd-avatar"><i class="fas fa-user"></i></div>
+                            <div class="profile-dropdown-name">{% if user.first_name %}{{ user.first_name }} {{ user.last_name }}{% else %}Welcome!{% endif %}</div>
+                            <div class="profile-dropdown-email">{% if user.email %}{{ user.email }}{% else %}{{ user.username }}{% endif %}</div>
+                        </div>
+                        {% if not user.first_name or not user.email %}
+                        <div class="profile-complete-prompt">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Please add your name & email in Profile</span>
+                        </div>
+                        {% endif %}
+                        <div class="profile-dropdown-menu">
+                            <a href="{% url 'profile' %}" class="profile-dropdown-item">
+                                <i class="fas fa-user-circle"></i> <span>Profile</span>
+                            </a>
+                            <a href="{% url 'profile' %}#addresses" class="profile-dropdown-item">
+                                <i class="fas fa-address-book"></i> <span>Addresses</span>
+                            </a>
+                            <a href="{% url 'order_history' %}" class="profile-dropdown-item">
+                                <i class="fas fa-shopping-bag"></i> <span>Order History</span>
+                            </a>
+                            <a href="{% url 'track_order' %}" class="profile-dropdown-item">
+                                <i class="fas fa-map-marker-alt"></i> <span>Track Order</span>
+                            </a>
+                            <a href="{% url 'returns_exchanges' %}" class="profile-dropdown-item">
+                                <i class="fas fa-exchange-alt"></i> <span>Returns & Exchanges</span>
+                            </a>
+                            <div class="profile-dropdown-divider"></div>
+                            <a href="{% url 'customer_logout' %}" class="profile-dropdown-item logout">
+                                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% elif user.is_authenticated and user.is_staff %}
+                <a href="/admin/" class="user-link admin-badge" title="Admin Panel"><i class="fas fa-user-shield"></i></a>
+                {% else %}
+                <a href="{% url 'customer_login' %}" class="user-link"><i class="fas fa-user"></i></a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-overlay-backdrop"></div>
+        <div class="search-container">
+            <div class="search-header">
+                <div class="search-input-wrap">
+                    <i class="fas fa-search search-input-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Search collections, products..." autocomplete="off" />
+                    <button class="search-clear" id="searchClear"><i class="fas fa-times"></i></button>
+                </div>
+                <button class="search-close" id="searchClose"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="search-results" id="searchResults">
+                <div class="search-empty">
+                    <i class="fas fa-search"></i>
+                    <p>Start typing to search...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section with 3D Background -->
+    {% if hero and hero.is_video %}
+    <section class="hero hero-video" id="home">
+        <video class="hero-video-bg" autoplay muted loop playsinline>
+            <source src="{{ hero.background_video.url }}" type="video/mp4">
+        </video>
+    {% elif hero and hero.is_image %}
+    <section class="hero" id="home" style="background-image: url('{{ hero.background_image.url }}'); background-size: cover; background-position: center;">
+    {% else %}
+    <section class="hero" id="home" style="background-image: url('{% static 'images/hero-bg.jpg' %}'); background-size: cover; background-position: center;">
+    {% endif %}
+        <div class="hero-background">
+            <div class="animate-bg-1"></div>
+            <div class="animate-bg-2"></div>
+            <div class="animate-bg-3"></div>
+        </div>
+        <div class="hero-content">
+            <div class="floating-text">
+                <h1 class="hero-title">{{ hero.title|default:"HOUSE OF AMBAVA" }}</h1>
+                <p class="hero-subtitle">{{ hero.subtitle|default:"Exquisite Elegance Redefined" }}</p>
+            </div>
+            <div class="cta-section">
+                <a href="#collection" class="btn btn-primary">Explore Now</a>
+                <a href="{% url 'about' %}" class="btn btn-secondary">Learn More</a>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+    </section>
+
+    <!-- 3D Card Section -->
+    <section class="featured-section" id="featured">
+        <div class="section-header">
+            <h2>Featured Collections</h2>
+            <p>Discover Our Premium Selection</p>
+        </div>
+
+        <!-- Category Filter Tabs -->
+        
+        <div class="featured-grid" id="featuredGrid">
+            {% for item in featured_collections %}
+            <a href="{% if item.product_slug %}{% url 'product_detail' item.product_slug %}{% else %}#{% endif %}" style="text-decoration: none; color: inherit; display: block;">
+            <div class="featured-card {% if forloop.first %}featured-card-large{% endif %}">
+                <div class="card-image-wrapper">
+                    <img src="{{ item.image.url }}" alt="{{ item.name }}" loading="lazy" decoding="async">
+                    <div class="card-overlay"></div>
+                    {% if item.has_discount %}
+                    <span class="discount-tag">{{ item.discount_percent }}% OFF</span>
+                    {% endif %}
+                </div>
+                <div class="card-content">
+                    <h3>{{ item.name }}</h3>
+                    <p>{{ item.description }}</p>
+                    <div class="price-group">
+                        {% if item.has_discount %}
+                        <span class="price-original">{{ item.formatted_price }}</span>
+                        <span class="price">{{ item.formatted_discounted_price }}</span>
+                        {% else %}
+                        <span class="price">{{ item.formatted_price }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            </a>
+            {% empty %}
+            <!-- Fallback if no featured collections in DB -->
+            <div class="featured-card featured-card-large">
+                <div class="card-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=600&h=600&fit=crop" alt="Bridal Collection" loading="lazy" decoding="async">
+                    <div class="card-overlay"></div>
+                </div>
+                <div class="card-content">
+                    <h3>Bridal Collection</h3>
+                    <p>Stunning designs for your special day</p>
+                    <span class="price">₹12,999</span>
+                </div>
+            </div>
+            <div class="featured-card">
+                <div class="card-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1614613535308-eb5fbd8b4fcd?w=800&h=600&fit=crop" alt="Festival Collection" loading="lazy" decoding="async">
+                    <div class="card-overlay"></div>
+                </div>
+                <div class="card-content">
+                    <h3>Festival Collection</h3>
+                    <p>Royal designs for celebrations</p>
+                    <span class="price">₹9,999</span>
+                </div>
+            </div>
+            <div class="featured-card">
+                <div class="card-image-wrapper">
+                    <img src="https://images.unsplash.com/photo-1588824376656-e4bf4b896852?w=600&h=600&fit=crop" alt="Luxury Collection" loading="lazy" decoding="async">
+                    <div class="card-overlay"></div>
+                </div>
+                <div class="card-content">
+                    <h3>Luxury Collection</h3>
+                    <p>Premium lehengas with intricate work</p>
+                    <span class="price">₹14,999</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Parallax Section -->
+    {% if parallax and parallax.background_image %}
+    <section class="parallax-section experience-bg" id="experience" style="background-image: url('{{ parallax.background_image.url }}'); background-size: cover; background-position: center;">
+        <div class="parallax-content">
+            <h2>{{ parallax.title }}</h2>
+            <p>{{ parallax.subtitle }}</p>
+        </div>
+    </section>
+    {% else %}
+    <section class="parallax-section experience-bg" id="experience">
+        <div class="parallax-content">
+            <h2>{{ parallax.title|default:"Experience Elegance" }}</h2>
+            <p>{{ parallax.subtitle|default:"Every piece tells a story of craftsmanship and tradition" }}</p>
+        </div>
+    </section>
+    {% endif %}
+
+    <!-- Collection Section with 3D Cards -->
+    <section class="collection-section" id="collection">
+        <div class="section-header">
+            <h2>Our Collections</h2>
+            <p>Curated for the Modern Woman</p>
+        </div>
+
+        <div class="collection-cards">
+            {% for card in collection_cards %}
+            <a href="{% if card.product_slug %}{% url 'product_detail' card.product_slug %}{% else %}#{% endif %}" style="text-decoration: none; color: inherit; display: block;">
+                <div class="collection-card flip-card">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <img src="{{ card.image.url }}" alt="{{ card.name }}" loading="lazy" decoding="async">
+                            <h2>{{ card.name }}</h2>
+                        </div>
+                        <div class="flip-card-back">
+                            <p>{{ card.description }}</p>
+                        </div>
+                    </div>
+                </div>
+            </a>
+            {% empty %}
+            <!-- Fallback if no collection cards in DB -->
+            <div class="collection-card flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <img src="https://images.unsplash.com/photo-1610882646886-4fa6c6be5ffc?w=400&h=400&fit=crop" alt="Casual" loading="lazy" decoding="async">
+                        <h2>Casual Wear</h2>
+                    </div>
+                    <div class="flip-card-back">
+                        <p>Comfortable and stylish designs for everyday elegance</p>
+                    </div>
+                </div>
+            </div>
+            <div class="collection-card flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <img src="https://images.unsplash.com/photo-1612336307429-8a88e8d08dbb?w=400&h=400&fit=crop" alt="Formal" loading="lazy" decoding="async">
+                        <h2>Formal Attire</h2>
+                    </div>
+                    <div class="flip-card-back">
+                        <p>Sophisticated pieces for your most important moments</p>
+                    </div>
+                </div>
+            </div>
+            <div class="collection-card flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <img src="https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=400&h=400&fit=crop" alt="Festive" loading="lazy" decoding="async">
+                        <h2>Festive</h2>
+                    </div>
+                    <div class="flip-card-back">
+                        <p>Vibrant and ornate designs for celebrations</p>
+                    </div>
+                </div>
+            </div>
+            <div class="collection-card flip-card">
+                <div class="flip-card-inner">
+                    <div class="flip-card-front">
+                        <img src="https://images.unsplash.com/photo-1535035307051-0e20dd00c367?w=400&h=400&fit=crop" alt="Premium" loading="lazy" decoding="async">
+                        <h2>Premium</h2>
+                    </div>
+                    <div class="flip-card-back">
+                        <p>Luxury collection with exquisite craftsmanship</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        {% for stat in stats %}
+        <div class="stat-card">
+            {% if stat.icon %}<i class="{{ stat.icon }} stat-icon"></i>{% endif %}
+            <div class="stat-number">{{ stat.number }}</div>
+            <p>{{ stat.label }}</p>
+        </div>
+        {% empty %}
+        <div class="stat-card">
+            <div class="stat-number">10K+</div>
+            <p>Happy Customers</p>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">500+</div>
+            <p>Designs</p>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">25+</div>
+            <p>Years Experience</p>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">100%</div>
+            <p>Quality Assured</p>
+        </div>
+        {% endfor %}
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact-section" id="contact">
+        <div class="section-header">
+            <h2>Get In Touch</h2>
+            <p>We'd Love to Hear From You</p>
+        </div>
+
+        <div class="contact-content">
+            <form class="contact-form">
+                <input type="text" placeholder="Your Name" required>
+                <input type="email" placeholder="Your Email" required>
+                <textarea placeholder="Your Message" rows="5"></textarea>
+                <button type="submit" class="btn btn-primary">Send Message</button>
+            </form>
+
+            <div class="contact-info">
+                <div class="info-box">
+                    <i class="fas fa-phone"></i>
+                    <p>{{ contact.phone|default:"+91 (123) 456-7890" }}</p>
+                </div>
+                <div class="info-box">
+                    <i class="fas fa-envelope"></i>
+                    <p>{{ contact.email|default:"info@houseofambava.com" }}</p>
+                </div>
+                <div class="info-box">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <p>{{ contact.address|default:"New Delhi, India" }}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>HOUSE OF AMBAVA</h4>
+                <p>Crafting elegance since 1996</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#collection">Collection</a></li>
+                    <li><a href="{% url 'shop' %}">Shop</a></li>
+                    <li><a href="{% url 'about' %}">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    {% if contact and contact.social_links %}
+                        {% for link in contact.social_links %}
+                        <a href="{{ link.url }}" target="_blank" rel="noopener" title="{{ link.name }}"><i class="{{ link.icon }}"></i></a>
+                        {% endfor %}
+                    {% else %}
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-pinterest"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 House Of Ambava. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Cart Drawer -->
+    <div class="cart-overlay" id="cartOverlay">
+        <div class="cart-overlay-backdrop"></div>
+        <div class="cart-drawer">
+            <div class="cart-drawer-header">
+                <h3><i class="fas fa-shopping-bag"></i> Shopping Bag</h3>
+                <button class="cart-drawer-close" id="cartClose"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="cart-drawer-body" id="cartBody">
+                <div class="cart-empty-state">
+                    <i class="fas fa-shopping-bag"></i>
+                    <p>Your bag is empty</p>
+                    <span>Discover something extraordinary</span>
+                </div>
+            </div>
+            <div class="cart-drawer-footer" id="cartFooter">
+                <div class="cart-subtotal">
+                    <span>Subtotal</span>
+                    <span id="cartSubtotal">₹0</span>
+                </div>
+                {% if user.is_staff %}
+                <div class="cart-admin-notice">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Admin accounts cannot checkout. Please use a customer account.</span>
+                </div>
+                {% else %}
+                <button class="cart-checkout-btn" onclick="window.location.href='/checkout/'">
+                    <span>Checkout</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                {% endif %}
+                <p class="cart-shipping-note"><i class="fas fa-truck"></i> Complimentary shipping above ₹5,000</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+    <script src="{% static 'js/main.js' %}?v=3"></script>
+</body>
+</html>

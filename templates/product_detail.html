@@ -1,0 +1,1114 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} — House of Ambava</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=7">
+    <link rel="stylesheet" href="{% static 'css/product_detail.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.18/dist/lenis.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        (function() {
+            var t = localStorage.getItem('theme');
+            if (t === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        })();
+    </script>
+</head>
+<body>
+    <canvas id="cursor-canvas"></canvas>
+
+    <!-- ═══ HEADER ═══ -->
+    <header>
+        <div class="header-content">
+            <a href="{% url 'home' %}" class="logo" style="text-decoration: none;">
+                <svg class="logo-emblem" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+                    <g stroke="currentColor" stroke-width="3" fill="none">
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(22.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(45,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(67.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(90,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(112.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(135,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(157.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(180,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(202.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(225,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(247.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(270,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(292.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(315,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(337.5,100,100)"/>
+                    </g>
+                    <circle cx="100" cy="100" r="78" stroke="currentColor" stroke-width="4.5" fill="none"/>
+                    <circle cx="100" cy="100" r="73" stroke="currentColor" stroke-width="4" fill="none"/>
+                    <g stroke="currentColor" stroke-width="2.5" fill="none">
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(22.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(45,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(67.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(90,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(112.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(135,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(157.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(180,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(202.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(225,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(247.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(270,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(292.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(315,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(337.5,100,100)"/>
+                    </g>
+                    <circle cx="100" cy="100" r="55" stroke="currentColor" stroke-width="3.5" fill="none"/>
+                    <rect x="66" y="66" width="68" height="68" stroke="currentColor" stroke-width="3" fill="none"/>
+                    <rect x="66" y="66" width="68" height="68" stroke="currentColor" stroke-width="3" fill="none" transform="rotate(45,100,100)"/>
+                    <line x1="100" y1="52" x2="100" y2="148" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="52" y1="100" x2="148" y2="100" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="66" y1="66" x2="134" y2="134" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="134" y1="66" x2="66" y2="134" stroke="currentColor" stroke-width="2.5"/>
+                    <rect x="82" y="82" width="36" height="36" stroke="currentColor" stroke-width="2.5" fill="none" transform="rotate(45,100,100)"/>
+                    <rect x="88" y="88" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none"/>
+                    <circle cx="100" cy="100" r="4" fill="currentColor"/>
+                </svg>
+                <span class="logo-text">HOUSE OF AMBAVA</span>
+            </a>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav id="mainNav">
+                <a href="{% url 'home' %}">HOME</a>
+                <a href="{% url 'home' %}#collection">COLLECTION</a>
+                <a href="{% url 'shop' %}" class="shop-active">SHOP</a>
+                <a href="{% url 'about' %}">ABOUT</a>
+                <a href="{% url 'home' %}#contact">CONTACT</a>
+            </nav>
+            <div class="header-icons">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+                <a href="#" class="search-toggle" id="searchToggle"><i class="fas fa-search"></i></a>
+                <a href="#" class="cart-toggle" id="cartToggle"><i class="fas fa-shopping-bag"></i><span class="cart-badge" id="cartBadge">0</span></a>
+                {% if user.is_authenticated and not user.is_staff %}
+                <div class="profile-dropdown-wrap">
+                    <a href="#" class="profile-trigger" id="profileTrigger" title="My Profile">
+                        <i class="fas fa-user"></i>
+                        <span class="profile-status-dot"></span>
+                    </a>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-dropdown-header">
+                            <div class="profile-dd-avatar"><i class="fas fa-user"></i></div>
+                            <div class="profile-dropdown-name">{% if user.first_name %}{{ user.first_name }} {{ user.last_name }}{% else %}Welcome!{% endif %}</div>
+                            <div class="profile-dropdown-email">{% if user.email %}{{ user.email }}{% else %}{{ user.username }}{% endif %}</div>
+                        </div>
+                        {% if not user.first_name or not user.email %}
+                        <div class="profile-complete-prompt">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Please add your name & email in Profile</span>
+                        </div>
+                        {% endif %}
+                        <div class="profile-dropdown-menu">
+                            <a href="{% url 'profile' %}" class="profile-dropdown-item">
+                                <i class="fas fa-user-circle"></i> <span>Profile</span>
+                            </a>
+                            <a href="{% url 'profile' %}#addresses" class="profile-dropdown-item">
+                                <i class="fas fa-address-book"></i> <span>Addresses</span>
+                            </a>
+                            <a href="{% url 'order_history' %}" class="profile-dropdown-item">
+                                <i class="fas fa-shopping-bag"></i> <span>Order History</span>
+                            </a>
+                            <a href="{% url 'track_order' %}" class="profile-dropdown-item">
+                                <i class="fas fa-map-marker-alt"></i> <span>Track Order</span>
+                            </a>
+                            <a href="{% url 'returns_exchanges' %}" class="profile-dropdown-item">
+                                <i class="fas fa-exchange-alt"></i> <span>Returns & Exchanges</span>
+                            </a>
+                            <div class="profile-dropdown-divider"></div>
+                            <a href="{% url 'customer_logout' %}" class="profile-dropdown-item logout">
+                                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% elif user.is_authenticated and user.is_staff %}
+                <a href="/admin/" class="user-link admin-badge" title="Admin Panel"><i class="fas fa-user-shield"></i></a>
+                {% else %}
+                <a href="{% url 'customer_login' %}" class="user-link"><i class="fas fa-user"></i></a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="search-overlay-backdrop"></div>
+        <div class="search-container">
+            <div class="search-header">
+                <div class="search-input-wrap">
+                    <i class="fas fa-search search-input-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Search collections, products..." autocomplete="off" />
+                    <button class="search-clear" id="searchClear"><i class="fas fa-times"></i></button>
+                </div>
+                <button class="search-close" id="searchClose"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="search-results" id="searchResults">
+                <div class="search-empty">
+                    <i class="fas fa-search"></i>
+                    <p>Start typing to search...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ PRODUCT DETAIL ═══ -->
+    <main class="pdp-page">
+
+        <!-- Breadcrumb -->
+        <div class="pdp-breadcrumb">
+            <div class="pdp-container">
+                <a href="{% url 'home' %}">Home</a>
+                <span class="bc-sep"><i class="fas fa-chevron-right"></i></span>
+                <a href="{% url 'shop' %}">Shop</a>
+                <span class="bc-sep"><i class="fas fa-chevron-right"></i></span>
+                <a href="{% url 'shop' %}?category={{ product.category }}">{{ product.get_category_display }}</a>
+                <span class="bc-sep"><i class="fas fa-chevron-right"></i></span>
+                <span class="bc-current">{{ product.name }}</span>
+            </div>
+        </div>
+
+        <!-- Product Main -->
+        <section class="pdp-main">
+            <div class="pdp-container pdp-grid">
+
+                <!-- Image Gallery -->
+                <div class="pdp-gallery">
+                    <!-- Thumbnail Strip -->
+                    <div class="pdp-thumbnails" id="pdpThumbnails">
+                        <button class="pdp-thumb is-active" data-src="{{ product.image.url }}" data-alt="{{ product.name }}">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" />
+                        </button>
+                        {% for img in gallery_images %}
+                        <button class="pdp-thumb" data-src="{{ img.image.url }}" data-alt="{{ img.alt_text|default:product.name }}">
+                            <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:product.name }}" loading="lazy" />
+                        </button>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Main Image -->
+                    <div class="pdp-image-wrap">
+                        {% if product.has_discount %}
+                        <div class="pdp-badge">-{{ product.discount_percent }}%</div>
+                        {% endif %}
+                        <div class="pdp-image-container" id="pdpImageContainer">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="pdp-main-image" id="pdpMainImage" />
+                        </div>
+                        <div class="pdp-image-zoom-hint">
+                            <i class="fas fa-search-plus"></i> Hover to zoom
+                        </div>
+                        <!-- Image counter -->
+                        <div class="pdp-image-counter" id="pdpImageCounter">
+                            <span id="pdpCurrentIndex">1</span> / <span id="pdpTotalImages">{{ gallery_images.count|add:1 }}</span>
+                        </div>
+                        <!-- Nav arrows (only if multiple images) -->
+                        {% if gallery_images %}
+                        <button class="pdp-img-nav pdp-img-prev" id="pdpPrev" aria-label="Previous image">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                        <button class="pdp-img-nav pdp-img-next" id="pdpNext" aria-label="Next image">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Product Info -->
+                <div class="pdp-info">
+                    <div class="pdp-info-inner">
+
+                        <!-- Category & Name -->
+                        <div class="pdp-meta anim-item" style="--delay: 0.1s">
+                            <span class="pdp-category-tag">{{ product.get_category_display }}</span>
+                        </div>
+
+                        <h1 class="pdp-title anim-item" style="--delay: 0.15s">{{ product.name }}</h1>
+
+                        <!-- Pricing -->
+                        <div class="pdp-pricing anim-item" style="--delay: 0.2s">
+                            {% if product.has_discount %}
+                            <div class="pdp-price-row">
+                                <span class="pdp-price-current">{{ product.formatted_discounted_price }}</span>
+                                <span class="pdp-price-original">{{ product.formatted_price }}</span>
+                                <span class="pdp-discount-badge">{{ product.discount_percent }}% OFF</span>
+                            </div>
+                            <p class="pdp-savings">You save {{ product.formatted_savings }}</p>
+                            {% else %}
+                            <div class="pdp-price-row">
+                                <span class="pdp-price-current">{{ product.formatted_price }}</span>
+                            </div>
+                            {% endif %}
+                            <p class="pdp-tax-note">MRP incl. of all taxes</p>
+                        </div>
+
+                        <div class="pdp-divider anim-item" style="--delay: 0.25s"></div>
+
+                        <!-- Description -->
+                        {% if product.description %}
+                        <div class="pdp-description anim-item" style="--delay: 0.3s">
+                            <h3>Description</h3>
+                            <p>{{ product.description }}</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Product Details -->
+                        <div class="pdp-details anim-item" style="--delay: 0.35s">
+                            <h3>Product Details</h3>
+                            <div class="pdp-detail-grid">
+                                {% if product.fabric %}
+                                <div class="pdp-detail-item">
+                                    <span class="pdp-detail-icon"><i class="fas fa-scroll"></i></span>
+                                    <div>
+                                        <span class="pdp-detail-label">Fabric</span>
+                                        <span class="pdp-detail-value">{{ product.fabric }}</span>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                <div class="pdp-detail-item">
+                                    <span class="pdp-detail-icon"><i class="fas fa-tags"></i></span>
+                                    <div>
+                                        <span class="pdp-detail-label">Category</span>
+                                        <span class="pdp-detail-value">{{ product.get_category_display }}</span>
+                                    </div>
+                                </div>
+                                {% if product.care_instructions %}
+                                <div class="pdp-detail-item">
+                                    <span class="pdp-detail-icon"><i class="fas fa-hand-sparkles"></i></span>
+                                    <div>
+                                        <span class="pdp-detail-label">Care</span>
+                                        <span class="pdp-detail-value">{{ product.care_instructions }}</span>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Size Selection -->
+                        {% if product.size_list %}
+                        <div class="pdp-sizes anim-item" style="--delay: 0.4s">
+                            <div class="pdp-sizes-header">
+                                <h3>Select Size</h3>
+                                <button class="pdp-size-guide-btn" id="sizeGuideBtn"><i class="fas fa-ruler-horizontal"></i> Size Guide</button>
+                            </div>
+                            <div class="pdp-size-options" id="sizeOptions">
+                                {% for size in product.size_list %}
+                                <button class="pdp-size-btn" data-size="{{ size }}">{{ size }}</button>
+                                {% endfor %}
+                            </div>
+                            <p class="pdp-size-error" id="sizeError" style="display:none;">Please select a size</p>
+                        </div>
+                        {% endif %}
+
+                        <!-- Quantity -->
+                        <div class="pdp-quantity anim-item" style="--delay: 0.45s">
+                            <h3>Quantity</h3>
+                            <div class="pdp-qty-control">
+                                <button class="pdp-qty-btn" id="qtyMinus"><i class="fas fa-minus"></i></button>
+                                <span class="pdp-qty-value" id="qtyValue">1</span>
+                                <button class="pdp-qty-btn" id="qtyPlus"><i class="fas fa-plus"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Pincode Availability Checker -->
+                        <div class="pdp-pincode anim-item" style="--delay: 0.47s">
+                            <div class="pdp-pincode-header">
+                                <h3><i class="fas fa-location-check"></i> Check Delivery</h3>
+                                <span class="pdp-pincode-hint">Enter your pincode</span>
+                            </div>
+                            <div class="pdp-pincode-input-wrap">
+                                <input 
+                                    type="text" 
+                                    id="pincodeInput" 
+                                    class="pdp-pincode-input" 
+                                    placeholder="Enter 6-digit pincode"
+                                    maxlength="6"
+                                    inputmode="numeric"
+                                    data-product-id="{{ product.id }}"
+                                />
+                                <button class="pdp-pincode-btn" id="pincodeBtnCheck">
+                                    <span class="check-icon"><i class="fas fa-check"></i></span>
+                                    <span class="loader-icon">
+                                        <i class="fas fa-spinner"></i>
+                                    </span>
+                                </button>
+                            </div>
+                            <div class="pdp-pincode-result" id="pincodeResult">
+                                <div class="pincode-result-content">
+                                    <div class="result-icon"><i class="fas fa-check-circle"></i></div>
+                                    <div class="result-text">
+                                        <p class="result-status">Delivery Available</p>
+                                        <p class="result-info"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add to Cart -->
+                        <div class="pdp-actions anim-item" style="--delay: 0.5s">
+                            <button class="pdp-add-to-cart" id="pdpAddToCart"
+                                    data-product="{{ product.name }}"
+                                    data-price="{{ product.cart_price|floatformat:0 }}"
+                                    data-image="{{ product.image.url }}">
+                                <span class="btn-text">
+                                    <i class="fas fa-shopping-bag"></i>
+                                    Add to Bag
+                                </span>
+                                <span class="btn-success">
+                                    <i class="fas fa-check"></i>
+                                    Added!
+                                </span>
+                            </button>
+                            <button class="pdp-wishlist-btn" id="pdpWishlist" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+
+                        <!-- Trust badges -->
+                        <div class="pdp-trust anim-item" style="--delay: 0.55s">
+                            <div class="pdp-trust-item">
+                                <i class="fas fa-truck"></i>
+                                <span>Free Shipping above ₹5,000</span>
+                            </div>
+                            <div class="pdp-trust-item">
+                                <i class="fas fa-sync-alt"></i>
+                                <span>Easy 15-Day Returns</span>
+                            </div>
+                            <div class="pdp-trust-item">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Authentic Handcrafted</span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Related Products -->
+        {% if related_products %}
+        <section class="pdp-related">
+            <div class="pdp-container">
+                <div class="pdp-related-header">
+                    <h2>You May Also Like</h2>
+                    <div class="pdp-related-line"></div>
+                </div>
+                <div class="pdp-related-grid">
+                    {% for rp in related_products %}
+                    <a href="{% url 'product_detail' slug=rp.slug %}" class="pdp-related-card" style="--i: {{ forloop.counter0 }}">
+                        <div class="pdp-related-img">
+                            <img src="{{ rp.image.url }}" alt="{{ rp.name }}" loading="lazy">
+                            {% if rp.has_discount %}
+                            <span class="pdp-related-badge">-{{ rp.discount_percent }}%</span>
+                            {% endif %}
+                        </div>
+                        <div class="pdp-related-body">
+                            <span class="pdp-related-cat">{{ rp.get_category_display }}</span>
+                            <h4>{{ rp.name }}</h4>
+                            <div class="pdp-related-pricing">
+                                {% if rp.has_discount %}
+                                <span class="rp-price">{{ rp.formatted_discounted_price }}</span>
+                                <span class="rp-old">{{ rp.formatted_price }}</span>
+                                {% else %}
+                                <span class="rp-price">{{ rp.formatted_price }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+    </main>
+
+    <!-- ═══ SIZE GUIDE MODAL ═══ -->
+    <div class="sg-overlay" id="sizeGuideOverlay">
+        <div class="sg-overlay-backdrop"></div>
+        <div class="sg-modal" data-lenis-prevent>
+            <!-- Header -->
+            <div class="sg-header">
+                <div class="sg-header-left">
+                    <i class="fas fa-ruler-combined"></i>
+                    <div>
+                        <h2>Size Guide</h2>
+                        <p>Indian Women's Standard Sizing</p>
+                    </div>
+                </div>
+                <button class="sg-close" id="sizeGuideClose"><i class="fas fa-times"></i></button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="sg-tabs">
+                <button class="sg-tab is-active" data-tab="lehenga"><i class="fas fa-vest"></i> Lehenga</button>
+                <button class="sg-tab" data-tab="blouse"><i class="fas fa-tshirt"></i> Blouse</button>
+                <button class="sg-tab" data-tab="dupatta"><i class="fas fa-scroll"></i> Dupatta</button>
+                <button class="sg-tab" data-tab="howto"><i class="fas fa-tape"></i> How to Measure</button>
+            </div>
+
+            <!-- Tab Content: Lehenga -->
+            <div class="sg-panel is-active" data-panel="lehenga">
+                <div class="sg-unit-toggle">
+                    <span class="sg-unit-label">Unit:</span>
+                    <button class="sg-unit-btn is-active" data-unit="in">Inches</button>
+                    <button class="sg-unit-btn" data-unit="cm">CM</button>
+                </div>
+                <div class="sg-table-wrap">
+                    <table class="sg-table">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th>Indian Size</th>
+                                <th>Waist <span class="sg-th-sub">(Kamar)</span></th>
+                                <th>Hip <span class="sg-th-sub">(Koolha)</span></th>
+                                <th>Length <span class="sg-th-sub">(Lambai)</span></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="sg-size-tag">XS</span></td><td>28</td><td data-in="24" data-cm="61">24"</td><td data-in="34" data-cm="86">34"</td><td data-in="40" data-cm="102">40"</td></tr>
+                            <tr><td><span class="sg-size-tag">S</span></td><td>30</td><td data-in="26" data-cm="66">26"</td><td data-in="36" data-cm="91">36"</td><td data-in="40" data-cm="102">40"</td></tr>
+                            <tr><td><span class="sg-size-tag">M</span></td><td>32</td><td data-in="28" data-cm="71">28"</td><td data-in="38" data-cm="97">38"</td><td data-in="41" data-cm="104">41"</td></tr>
+                            <tr><td><span class="sg-size-tag">L</span></td><td>34</td><td data-in="30" data-cm="76">30"</td><td data-in="40" data-cm="102">40"</td><td data-in="41" data-cm="104">41"</td></tr>
+                            <tr><td><span class="sg-size-tag">XL</span></td><td>36</td><td data-in="32" data-cm="81">32"</td><td data-in="42" data-cm="107">42"</td><td data-in="42" data-cm="107">42"</td></tr>
+                            <tr><td><span class="sg-size-tag">XXL</span></td><td>38</td><td data-in="34" data-cm="86">34"</td><td data-in="44" data-cm="112">44"</td><td data-in="42" data-cm="107">42"</td></tr>
+                            <tr><td><span class="sg-size-tag">3XL</span></td><td>40</td><td data-in="36" data-cm="91">36"</td><td data-in="46" data-cm="117">46"</td><td data-in="42" data-cm="107">42"</td></tr>
+                            <tr><td><span class="sg-size-tag">4XL</span></td><td>42</td><td data-in="38" data-cm="97">38"</td><td data-in="48" data-cm="122">48"</td><td data-in="43" data-cm="109">43"</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="sg-note">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Lehenga sizes are based on waist measurement. Our lehengas come with a drawstring &amp; cancan for a comfortable fit. We recommend ordering your exact waist size or one size up for ease.</p>
+                </div>
+            </div>
+
+            <!-- Tab Content: Blouse -->
+            <div class="sg-panel" data-panel="blouse">
+                <div class="sg-unit-toggle">
+                    <span class="sg-unit-label">Unit:</span>
+                    <button class="sg-unit-btn is-active" data-unit="in">Inches</button>
+                    <button class="sg-unit-btn" data-unit="cm">CM</button>
+                </div>
+                <div class="sg-table-wrap">
+                    <table class="sg-table">
+                        <thead>
+                            <tr>
+                                <th>Size</th>
+                                <th>Indian Size</th>
+                                <th>Bust <span class="sg-th-sub">(Chhati)</span></th>
+                                <th>Waist <span class="sg-th-sub">(Kamar)</span></th>
+                                <th>Shoulder</th>
+                                <th>Sleeve Length</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="sg-size-tag">XS</span></td><td>28</td><td data-in="30" data-cm="76">30"</td><td data-in="24" data-cm="61">24"</td><td data-in="12" data-cm="30">12"</td><td data-in="6" data-cm="15">6"</td></tr>
+                            <tr><td><span class="sg-size-tag">S</span></td><td>30</td><td data-in="32" data-cm="81">32"</td><td data-in="26" data-cm="66">26"</td><td data-in="12.5" data-cm="32">12.5"</td><td data-in="6" data-cm="15">6"</td></tr>
+                            <tr><td><span class="sg-size-tag">M</span></td><td>32</td><td data-in="34" data-cm="86">34"</td><td data-in="28" data-cm="71">28"</td><td data-in="13" data-cm="33">13"</td><td data-in="6.5" data-cm="17">6.5"</td></tr>
+                            <tr><td><span class="sg-size-tag">L</span></td><td>34</td><td data-in="36" data-cm="91">36"</td><td data-in="30" data-cm="76">30"</td><td data-in="13.5" data-cm="34">13.5"</td><td data-in="7" data-cm="18">7"</td></tr>
+                            <tr><td><span class="sg-size-tag">XL</span></td><td>36</td><td data-in="38" data-cm="97">38"</td><td data-in="32" data-cm="81">32"</td><td data-in="14" data-cm="36">14"</td><td data-in="7" data-cm="18">7"</td></tr>
+                            <tr><td><span class="sg-size-tag">XXL</span></td><td>38</td><td data-in="40" data-cm="102">40"</td><td data-in="34" data-cm="86">34"</td><td data-in="14.5" data-cm="37">14.5"</td><td data-in="7.5" data-cm="19">7.5"</td></tr>
+                            <tr><td><span class="sg-size-tag">3XL</span></td><td>40</td><td data-in="42" data-cm="107">42"</td><td data-in="36" data-cm="91">36"</td><td data-in="15" data-cm="38">15"</td><td data-in="7.5" data-cm="19">7.5"</td></tr>
+                            <tr><td><span class="sg-size-tag">4XL</span></td><td>42</td><td data-in="44" data-cm="112">44"</td><td data-in="38" data-cm="97">38"</td><td data-in="15.5" data-cm="39">15.5"</td><td data-in="8" data-cm="20">8"</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="sg-note">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Blouse measurements are for the stitched garment. We provide 2" extra margin for alteration on unstitched blouse pieces. For a perfect fit, we recommend getting your blouse custom-tailored by your local darzi (tailor).</p>
+                </div>
+            </div>
+
+            <!-- Tab Content: Dupatta -->
+            <div class="sg-panel" data-panel="dupatta">
+                <div class="sg-table-wrap">
+                    <table class="sg-table">
+                        <thead>
+                            <tr>
+                                <th>Type</th>
+                                <th>Length</th>
+                                <th>Width</th>
+                                <th>Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>Standard</td><td>2.25 metres</td><td>1 metre</td><td>Regular draping</td></tr>
+                            <tr><td>Bridal Heavy</td><td>2.5 metres</td><td>1.15 metres</td><td>Wedding &amp; reception</td></tr>
+                            <tr><td>Double (Do-Patta)</td><td>3 metres</td><td>1.25 metres</td><td>Seedha pallu style</td></tr>
+                            <tr><td>Lehenga Dupatta</td><td>2.5 metres</td><td>1 metre</td><td>Lehenga draping</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="sg-note">
+                    <i class="fas fa-info-circle"></i>
+                    <p>Dupatta dimensions may vary by ±2 inches due to the handcrafted nature of our products. Length is measured along the longer edge (lambai), width along the shorter edge (chaudai).</p>
+                </div>
+            </div>
+
+            <!-- Tab Content: How to Measure -->
+            <div class="sg-panel" data-panel="howto">
+                <div class="sg-howto">
+                    <div class="sg-howto-card">
+                        <div class="sg-howto-icon"><i class="fas fa-circle-dot"></i></div>
+                        <h4>Bust / Chhati</h4>
+                        <p>Measure around the fullest part of your bust, keeping the tape (fita) level across the back. Keep the tape snug but not tight — you should be able to slip one finger underneath.</p>
+                    </div>
+                    <div class="sg-howto-card">
+                        <div class="sg-howto-icon"><i class="fas fa-circle-dot"></i></div>
+                        <h4>Waist / Kamar</h4>
+                        <p>Measure around the narrowest part of your natural waistline, usually 1 inch above the navel (naabhi). This is where the lehenga drawstring (naada) sits. Keep the tape comfortably snug.</p>
+                    </div>
+                    <div class="sg-howto-card">
+                        <div class="sg-howto-icon"><i class="fas fa-circle-dot"></i></div>
+                        <h4>Hip / Koolha</h4>
+                        <p>Measure at the widest part of your hips, approximately 7–9 inches below the waist. Stand with your feet together. This ensures the lehenga flares beautifully from the hips.</p>
+                    </div>
+                    <div class="sg-howto-card">
+                        <div class="sg-howto-icon"><i class="fas fa-circle-dot"></i></div>
+                        <h4>Lehenga Length / Lambai</h4>
+                        <p>Measure from your natural waistline (where you tie the naada) straight down to the floor. If wearing heels (sandal), wear them while measuring. Subtract ½ inch so the lehenga doesn't drag.</p>
+                    </div>
+                    <div class="sg-howto-card">
+                        <div class="sg-howto-icon"><i class="fas fa-circle-dot"></i></div>
+                        <h4>Shoulder / Kandha</h4>
+                        <p>For blouse fitting, measure from the edge of one shoulder bone to the other across the back. Ask someone to help — this is difficult to do alone accurately.</p>
+                    </div>
+                </div>
+                <div class="sg-tips">
+                    <h4><i class="fas fa-lightbulb"></i> Pro Tips from our Master Tailor</h4>
+                    <ul>
+                        <li>Always measure over light clothes (a thin kurti or slip), not over heavy garments.</li>
+                        <li>Use a fabric tape measure (fita), not a metal one.</li>
+                        <li>Stand straight and relaxed — don't hold your breath!</li>
+                        <li>Measure twice (do baar naapein) for accuracy before placing the order.</li>
+                        <li>If you're between two sizes, go one size up for Indian ethnic wear — alterations are easier to take in.</li>
+                        <li>For bridal lehengas, account for weight changes — order 4–6 weeks before the event to allow time for alterations.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="sg-footer">
+                <p><i class="fas fa-phone-alt"></i> Need help? Call us at <strong>+91 98765 43210</strong> for size consultation</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ FOOTER ═══ -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>HOUSE OF AMBAVA</h4>
+                <p>Crafting elegance since 1996</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'home' %}#collection">Collection</a></li>
+                    <li><a href="{% url 'shop' %}">Shop</a></li>
+                    <li><a href="{% url 'about' %}">About</a></li>
+                    <li><a href="{% url 'home' %}#contact">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    {% if contact and contact.social_links %}
+                        {% for link in contact.social_links %}
+                        <a href="{{ link.url }}" target="_blank" rel="noopener" title="{{ link.name }}"><i class="{{ link.icon }}"></i></a>
+                        {% endfor %}
+                    {% else %}
+                    <a href="#"><i class="fab fa-facebook"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-pinterest"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 House Of Ambava. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- ═══ CART DRAWER ═══ -->
+    <div class="cart-overlay" id="cartOverlay">
+        <div class="cart-overlay-backdrop"></div>
+        <div class="cart-drawer">
+            <div class="cart-drawer-header">
+                <h3><i class="fas fa-shopping-bag"></i> Shopping Bag</h3>
+                <button class="cart-drawer-close" id="cartClose"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="cart-drawer-body" id="cartBody">
+                <div class="cart-empty-state">
+                    <i class="fas fa-shopping-bag"></i>
+                    <p>Your bag is empty</p>
+                    <span>Discover something extraordinary</span>
+                </div>
+            </div>
+            <div class="cart-drawer-footer" id="cartFooter">
+                <div class="cart-subtotal">
+                    <span>Subtotal</span>
+                    <span id="cartSubtotal">₹0</span>
+                </div>
+                {% if user.is_staff %}
+                <div class="cart-admin-notice">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Admin accounts cannot checkout. Please use a customer account.</span>
+                </div>
+                {% else %}
+                <button class="cart-checkout-btn" onclick="window.location.href='/checkout/'">
+                    <span>Checkout</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                {% endif %}
+                <p class="cart-shipping-note"><i class="fas fa-truck"></i> Complimentary shipping above ₹5,000</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+    <script src="{% static 'js/main.js' %}?v=3"></script>
+    <script>
+    /* ═══════════════════════════════════════════════
+       PRODUCT DETAIL PAGE — Interactions
+       ═══════════════════════════════════════════════ */
+    (function() {
+        'use strict';
+
+        /* ── Staggered entrance animations ── */
+        const animItems = document.querySelectorAll('.anim-item');
+        const animObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    animObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -20px 0px' });
+        animItems.forEach(item => animObserver.observe(item));
+
+        /* ── Image Gallery — thumbnail switching, arrows, keyboard ── */
+        const thumbs = document.querySelectorAll('.pdp-thumb');
+        const mainImage = document.getElementById('pdpMainImage');
+        const imgContainer = document.getElementById('pdpImageContainer');
+        const prevBtn = document.getElementById('pdpPrev');
+        const nextBtn = document.getElementById('pdpNext');
+        const counterCurrent = document.getElementById('pdpCurrentIndex');
+        let currentIndex = 0;
+        const totalImages = thumbs.length;
+
+        function switchImage(index, direction) {
+            if (index < 0 || index >= totalImages || index === currentIndex) return;
+
+            // Update active thumb
+            thumbs.forEach(t => t.classList.remove('is-active'));
+            thumbs[index].classList.add('is-active');
+
+            // Scroll thumb into view
+            thumbs[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+
+            // Crossfade the main image
+            const slideDir = (direction || (index > currentIndex ? 'next' : 'prev'));
+            const outClass = slideDir === 'next' ? 'slide-out-left' : 'slide-out-right';
+            const inClass  = slideDir === 'next' ? 'slide-in-right' : 'slide-in-left';
+
+            mainImage.classList.add(outClass);
+
+            setTimeout(() => {
+                mainImage.src = thumbs[index].dataset.src;
+                mainImage.alt = thumbs[index].dataset.alt;
+                mainImage.classList.remove(outClass);
+                mainImage.classList.add(inClass);
+                // Remove animation class after it finishes
+                setTimeout(() => mainImage.classList.remove(inClass), 400);
+            }, 200);
+
+            currentIndex = index;
+            if (counterCurrent) counterCurrent.textContent = index + 1;
+        }
+
+        // Thumbnail click
+        thumbs.forEach((thumb, i) => {
+            thumb.addEventListener('click', () => switchImage(i));
+        });
+
+        // Arrow buttons
+        if (prevBtn) prevBtn.addEventListener('click', () => switchImage(currentIndex - 1, 'prev'));
+        if (nextBtn) nextBtn.addEventListener('click', () => switchImage(currentIndex + 1, 'next'));
+
+        // Keyboard left/right arrows
+        document.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (e.key === 'ArrowLeft')  switchImage(currentIndex - 1, 'prev');
+            if (e.key === 'ArrowRight') switchImage(currentIndex + 1, 'next');
+        });
+
+        /* ── Image Zoom on Hover ── */
+        if (imgContainer && mainImage) {
+            imgContainer.addEventListener('mousemove', function(e) {
+                const rect = imgContainer.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / rect.width) * 100;
+                const y = ((e.clientY - rect.top) / rect.height) * 100;
+                mainImage.style.transformOrigin = `${x}% ${y}%`;
+                mainImage.style.transform = 'scale(1.8)';
+            });
+            imgContainer.addEventListener('mouseleave', function() {
+                mainImage.style.transform = 'scale(1)';
+                mainImage.style.transformOrigin = 'center center';
+            });
+        }
+
+        /* ── Size Selection ── */
+        const sizeOptions = document.getElementById('sizeOptions');
+        const sizeError = document.getElementById('sizeError');
+        let selectedSize = null;
+
+        if (sizeOptions) {
+            sizeOptions.querySelectorAll('.pdp-size-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    sizeOptions.querySelectorAll('.pdp-size-btn').forEach(b => b.classList.remove('is-selected'));
+                    this.classList.add('is-selected');
+                    selectedSize = this.dataset.size;
+                    if (sizeError) sizeError.style.display = 'none';
+
+                    // Ripple effect
+                    const ripple = document.createElement('span');
+                    ripple.classList.add('size-ripple');
+                    this.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 600);
+                });
+            });
+        }
+
+        /* ── Quantity Control ── */
+        const qtyMinus = document.getElementById('qtyMinus');
+        const qtyPlus = document.getElementById('qtyPlus');
+        const qtyValue = document.getElementById('qtyValue');
+        let quantity = 1;
+
+        if (qtyMinus && qtyPlus && qtyValue) {
+            qtyMinus.addEventListener('click', function() {
+                if (quantity > 1) {
+                    quantity--;
+                    qtyValue.textContent = quantity;
+                    qtyValue.classList.add('qty-bounce');
+                    setTimeout(() => qtyValue.classList.remove('qty-bounce'), 300);
+                }
+            });
+            qtyPlus.addEventListener('click', function() {
+                if (quantity < 10) {
+                    quantity++;
+                    qtyValue.textContent = quantity;
+                    qtyValue.classList.add('qty-bounce');
+                    setTimeout(() => qtyValue.classList.remove('qty-bounce'), 300);
+                }
+            });
+        }
+
+        /* ── Add to Cart ── */
+        const addBtn = document.getElementById('pdpAddToCart');
+        if (addBtn) {
+            addBtn.addEventListener('click', function() {
+                // Check if size is required and selected
+                if (sizeOptions && !selectedSize) {
+                    if (sizeError) {
+                        sizeError.style.display = 'block';
+                        sizeError.classList.add('shake');
+                        setTimeout(() => sizeError.classList.remove('shake'), 500);
+                    }
+                    // Scroll to sizes
+                    document.querySelector('.pdp-sizes')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+
+                const name = this.dataset.product;
+                const price = this.dataset.price;
+                const image = this.dataset.image;
+
+                // Add multiple based on quantity
+                for (let i = 0; i < quantity; i++) {
+                    if (typeof window.addToCart === 'function') {
+                        window.addToCart(name, price, image);
+                    }
+                }
+
+                // Button success animation
+                this.classList.add('is-added');
+                setTimeout(() => this.classList.remove('is-added'), 2000);
+            });
+        }
+
+        /* ── Wishlist Toggle ── */
+        const wishBtn = document.getElementById('pdpWishlist');
+        if (wishBtn) {
+            wishBtn.addEventListener('click', function() {
+                this.classList.toggle('is-active');
+                const icon = this.querySelector('i');
+                if (this.classList.contains('is-active')) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    // Heart pop animation
+                    this.classList.add('heart-pop');
+                    setTimeout(() => this.classList.remove('heart-pop'), 400);
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                }
+            });
+        }
+
+        /* ── Related Products reveal ── */
+        const relatedCards = document.querySelectorAll('.pdp-related-card');
+        const relatedObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    relatedObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+        relatedCards.forEach(card => relatedObserver.observe(card));
+
+        /* ─ Pincode Availability Checker ─ */
+        const pincodeInput = document.getElementById('pincodeInput');
+        const pincodeBtnCheck = document.getElementById('pincodeBtnCheck');
+        const pincodeResult = document.getElementById('pincodeResult');
+        const productId = pincodeInput?.dataset.productId;
+
+        if (pincodeInput && pincodeBtnCheck) {
+            console.log('✓ Pincode checker initialized');
+            
+            // Allow only digits
+            pincodeInput.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '').slice(0, 6);
+            });
+
+            // Add smooth button hover effect
+            pincodeBtnCheck.addEventListener('mouseenter', function() {
+                this.classList.add('btn-hover');
+            });
+
+            pincodeBtnCheck.addEventListener('mouseleave', function() {
+                this.classList.remove('btn-hover');
+            });
+
+            // Ripple effect on click
+            pincodeBtnCheck.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                ripple.style.position = 'absolute';
+                ripple.style.width = '20px';
+                ripple.style.height = '20px';
+                ripple.style.background = 'rgba(255,255,255,0.5)';
+                ripple.style.borderRadius = '50%';
+                ripple.style.pointerEvents = 'none';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.style.transform = 'translate(-50%, -50%)';
+                ripple.style.animation = 'ripple 0.6s ease-out';
+                
+                this.appendChild(ripple);
+                setTimeout(() => ripple.remove(), 600);
+                
+                checkPincode();
+            });
+
+            // Check pincode on Enter key
+            pincodeInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    checkPincode();
+                }
+            });
+
+            function checkPincode() {
+                const pincode = pincodeInput.value.trim();
+
+                // Validate
+                if (!pincode || pincode.length !== 6) {
+                    animateError();
+                    return;
+                }
+
+                // Show loading state
+                pincodeBtnCheck.classList.add('is-loading');
+
+                // Fetch API
+                fetch(`/api/check-pincode/?product_id=${productId}&pincode=${pincode}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        pincodeBtnCheck.classList.remove('is-loading');
+
+                        if (data.available) {
+                            showPincodeSuccess(data.message, data.delivery_days);
+                        } else {
+                            showPincodeError(data.message);
+                        }
+                    })
+                    .catch(error => {
+                        pincodeBtnCheck.classList.remove('is-loading');
+                        showPincodeError('Unable to check. Please try again.');
+                        console.error('Pincode check error:', error);
+                    });
+            }
+
+            function animateError() {
+                console.log('🔴 Error animation triggered');
+                pincodeInput.classList.remove('error-shake');
+                
+                // Force reflow
+                void pincodeInput.offsetWidth;
+                
+                // Add shake class
+                pincodeInput.classList.add('error-shake');
+                console.log('Added error-shake class');
+                
+                // Show error message
+                showPincodeError('Please enter a valid 6-digit pincode');
+                
+                // Remove after animation
+                setTimeout(() => {
+                    pincodeInput.classList.remove('error-shake');
+                    console.log('Removed error-shake class');
+                }, 600);
+            }
+
+            function showPincodeSuccess(message, deliveryDays) {
+                // Hide previous result
+                pincodeResult.classList.remove('show');
+                
+                setTimeout(() => {
+                    pincodeResult.className = 'pdp-pincode-result is-available';
+                    pincodeResult.innerHTML = `
+                        <div class="pincode-result-content">
+                            <div class="result-icon"><i class="fas fa-check-circle"></i></div>
+                            <div class="result-text">
+                                <p class="result-status">✓ Delivery Available</p>
+                                <p class="result-info">${message}</p>
+                            </div>
+                        </div>
+                    `;
+                    // Trigger animation
+                    setTimeout(() => pincodeResult.classList.add('show'), 10);
+                }, 150);
+            }
+
+            function showPincodeError(message) {
+                // Hide previous result
+                pincodeResult.classList.remove('show');
+                
+                setTimeout(() => {
+                    pincodeResult.className = 'pdp-pincode-result is-unavailable';
+                    pincodeResult.innerHTML = `
+                        <div class="pincode-result-content">
+                            <div class="result-icon"><i class="fas fa-times-circle"></i></div>
+                            <div class="result-text">
+                                <p class="result-status">✗ Not Available</p>
+                                <p class="result-info">${message}</p>
+                            </div>
+                        </div>
+                    `;
+                    // Trigger animation
+                    setTimeout(() => pincodeResult.classList.add('show'), 10);
+                }, 150);
+            }
+        }
+
+        /* ── Gallery image entrance ── */
+        const gallery = document.querySelector('.pdp-gallery');
+        if (gallery) {
+            gallery.classList.add('is-visible');
+        }
+
+        /* ── Active nav ── */
+        const shopNav = document.querySelector('nav a.shop-active');
+        if (shopNav) shopNav.style.color = 'var(--primary)';
+
+        /* ═══════════════════════════════════════════════
+           SIZE GUIDE — Modal Interactions
+           ═══════════════════════════════════════════════ */
+        const sgOverlay  = document.getElementById('sizeGuideOverlay');
+        const sgCloseBtn = document.getElementById('sizeGuideClose');
+        const sgOpenBtn  = document.getElementById('sizeGuideBtn');
+        const sgBackdrop = sgOverlay?.querySelector('.sg-overlay-backdrop');
+
+        if (sgOverlay && sgOpenBtn) {
+            // Open
+            sgOpenBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                sgOverlay.classList.add('is-active');
+                document.body.style.overflow = 'hidden';
+                if (typeof lenis !== 'undefined' && lenis) lenis.stop();
+            });
+
+            // Close
+            function closeSizeGuide() {
+                sgOverlay.classList.remove('is-active');
+                document.body.style.overflow = '';
+                if (typeof lenis !== 'undefined' && lenis) lenis.start();
+            }
+            if (sgCloseBtn) sgCloseBtn.addEventListener('click', closeSizeGuide);
+            if (sgBackdrop) sgBackdrop.addEventListener('click', closeSizeGuide);
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && sgOverlay.classList.contains('is-active')) closeSizeGuide();
+            });
+
+            // Tabs
+            const sgTabs   = sgOverlay.querySelectorAll('.sg-tab');
+            const sgPanels = sgOverlay.querySelectorAll('.sg-panel');
+            sgTabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    sgTabs.forEach(t => t.classList.remove('is-active'));
+                    sgPanels.forEach(p => p.classList.remove('is-active'));
+                    this.classList.add('is-active');
+                    const target = sgOverlay.querySelector('.sg-panel[data-panel="' + this.dataset.tab + '"]');
+                    if (target) target.classList.add('is-active');
+                });
+            });
+
+            // Unit toggle (inches ↔ cm) — per panel
+            sgOverlay.querySelectorAll('.sg-unit-toggle').forEach(toggle => {
+                const panel = toggle.closest('.sg-panel');
+                toggle.querySelectorAll('.sg-unit-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        toggle.querySelectorAll('.sg-unit-btn').forEach(b => b.classList.remove('is-active'));
+                        this.classList.add('is-active');
+                        const unit = this.dataset.unit;
+                        // Update all data cells in this panel's table
+                        panel.querySelectorAll('.sg-table td[data-in]').forEach(td => {
+                            if (unit === 'cm') {
+                                td.textContent = td.dataset.cm + ' cm';
+                            } else {
+                                td.textContent = td.dataset.in + '"';
+                            }
+                        });
+                    });
+                });
+            });
+        }
+
+    })();
+    </script>
+</body>
+</html>

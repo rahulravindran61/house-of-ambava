@@ -1,0 +1,368 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Returns & Exchanges — House Of Ambava</title>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=7">
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'css/orders.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script>
+        (function(){ var t=localStorage.getItem('theme'); if(t==='dark') document.documentElement.setAttribute('data-theme','dark'); })();
+    </script>
+</head>
+<body class="profile-page">
+    <canvas id="cursor-canvas"></canvas>
+
+    <!-- Header -->
+    <header id="header">
+        <div class="header-content">
+            <a href="{% url 'home' %}" class="logo" style="text-decoration: none;">
+                <svg class="logo-emblem" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+                    <g stroke="currentColor" stroke-width="3" fill="none">
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(22.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(45,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(67.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(90,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(112.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(135,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(157.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(180,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(202.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(225,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(247.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(270,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(292.5,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(315,100,100)"/>
+                        <path d="M100,3 C87,9 87,17 100,22 C113,17 113,9 100,3Z" transform="rotate(337.5,100,100)"/>
+                    </g>
+                    <circle cx="100" cy="100" r="78" stroke="currentColor" stroke-width="4.5" fill="none"/>
+                    <circle cx="100" cy="100" r="73" stroke="currentColor" stroke-width="4" fill="none"/>
+                    <g stroke="currentColor" stroke-width="2.5" fill="none">
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(22.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(45,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(67.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(90,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(112.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(135,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(157.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(180,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(202.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(225,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(247.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(270,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(292.5,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(315,100,100)"/>
+                        <path d="M100,28 C91,33 91,39 100,44 C109,39 109,33 100,28Z" transform="rotate(337.5,100,100)"/>
+                    </g>
+                    <circle cx="100" cy="100" r="55" stroke="currentColor" stroke-width="3.5" fill="none"/>
+                    <rect x="66" y="66" width="68" height="68" stroke="currentColor" stroke-width="3" fill="none"/>
+                    <rect x="66" y="66" width="68" height="68" stroke="currentColor" stroke-width="3" fill="none" transform="rotate(45,100,100)"/>
+                    <line x1="100" y1="52" x2="100" y2="148" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="52" y1="100" x2="148" y2="100" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="66" y1="66" x2="134" y2="134" stroke="currentColor" stroke-width="2.5"/>
+                    <line x1="134" y1="66" x2="66" y2="134" stroke="currentColor" stroke-width="2.5"/>
+                    <rect x="82" y="82" width="36" height="36" stroke="currentColor" stroke-width="2.5" fill="none" transform="rotate(45,100,100)"/>
+                    <rect x="88" y="88" width="24" height="24" stroke="currentColor" stroke-width="2.5" fill="none"/>
+                    <circle cx="100" cy="100" r="4" fill="currentColor"/>
+                </svg>
+                <span class="logo-text">HOUSE OF AMBAVA</span>
+            </a>
+            <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                <span></span><span></span><span></span>
+            </button>
+            <nav id="mainNav">
+                <a href="{% url 'home' %}">HOME</a>
+                <a href="{% url 'shop' %}">SHOP</a>
+                <a href="{% url 'about' %}">ABOUT</a>
+            </nav>
+            <div class="header-icons">
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                </button>
+                {% if user.is_authenticated and not user.is_staff %}
+                <div class="profile-dropdown-wrap">
+                    <a href="#" class="profile-trigger" id="profileTrigger" title="My Profile">
+                        <i class="fas fa-user"></i>
+                        <span class="profile-status-dot"></span>
+                    </a>
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-dropdown-header">
+                            <div class="profile-dd-avatar"><i class="fas fa-user"></i></div>
+                            <div class="profile-dropdown-name">{% if user.first_name %}{{ user.first_name }} {{ user.last_name }}{% else %}Welcome!{% endif %}</div>
+                            <div class="profile-dropdown-email">{% if user.email %}{{ user.email }}{% else %}{{ user.username }}{% endif %}</div>
+                        </div>
+                        {% if not user.first_name or not user.email %}
+                        <div class="profile-complete-prompt">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Please add your name & email in Profile</span>
+                        </div>
+                        {% endif %}
+                        <div class="profile-dropdown-menu">
+                            <a href="{% url 'profile' %}" class="profile-dropdown-item">
+                                <i class="fas fa-user-circle"></i> <span>Profile</span>
+                            </a>
+                            <a href="{% url 'profile' %}#addresses" class="profile-dropdown-item">
+                                <i class="fas fa-address-book"></i> <span>Addresses</span>
+                            </a>
+                            <a href="{% url 'order_history' %}" class="profile-dropdown-item">
+                                <i class="fas fa-shopping-bag"></i> <span>Order History</span>
+                            </a>
+                            <a href="{% url 'track_order' %}" class="profile-dropdown-item">
+                                <i class="fas fa-map-marker-alt"></i> <span>Track Order</span>
+                            </a>
+                            <a href="{% url 'returns_exchanges' %}" class="profile-dropdown-item">
+                                <i class="fas fa-exchange-alt"></i> <span>Returns & Exchanges</span>
+                            </a>
+                            <div class="profile-dropdown-divider"></div>
+                            <a href="{% url 'customer_logout' %}" class="profile-dropdown-item logout">
+                                <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{% url 'customer_login' %}" class="user-link"><i class="fas fa-user"></i></a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Toast -->
+    <div class="profile-toast" id="profileToast"></div>
+
+    <!-- Main content -->
+    <div class="profile-container">
+
+        <!-- Back button -->
+        <a href="{% url 'home' %}" class="profile-back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back to Home</span>
+        </a>
+
+        <!-- Page title -->
+        <div class="page-title-section">
+            <div class="page-title-icon"><i class="fas fa-exchange-alt"></i></div>
+            <h1 class="page-title">Returns & Exchanges</h1>
+            <p class="page-subtitle">Manage your return and exchange requests</p>
+        </div>
+
+        <!-- New request section -->
+        {% if eligible_orders %}
+        <div class="profile-section">
+            <h2 class="profile-section-title">
+                <i class="fas fa-plus-circle"></i> New Request
+                <button type="button" class="profile-btn profile-btn-outline profile-btn-sm" id="newRequestBtn" style="margin-left:auto">
+                    <i class="fas fa-plus"></i> Create Request
+                </button>
+            </h2>
+            <div id="newRequestForm" style="display:none">
+                <form id="returnForm">
+                    {% csrf_token %}
+                    <div class="profile-form-row">
+                        <div class="profile-field">
+                            <label>Request Type</label>
+                            <div class="return-type-pills">
+                                <button type="button" class="return-type-pill active" data-type="return">
+                                    <i class="fas fa-undo"></i> Return
+                                </button>
+                                <button type="button" class="return-type-pill" data-type="exchange">
+                                    <i class="fas fa-exchange-alt"></i> Exchange
+                                </button>
+                            </div>
+                            <input type="hidden" name="request_type" id="requestType" value="return">
+                        </div>
+                    </div>
+                    <div class="profile-form-row">
+                        <div class="profile-field">
+                            <label>Select Order</label>
+                            <select name="order_id" id="returnOrderId" required>
+                                <option value="">Choose an order...</option>
+                                {% for order in eligible_orders %}
+                                <option value="{{ order.pk }}">{{ order.order_number }} — {{ order.created_at|date:"M d, Y" }} ({{ order.formatted_total }})</option>
+                                {% endfor %}
+                            </select>
+                            <span class="field-error"></span>
+                        </div>
+                        <div class="profile-field">
+                            <label>Reason</label>
+                            <select name="reason" id="returnReason" required>
+                                <option value="">Select reason...</option>
+                                {% for val, label in reason_choices %}
+                                <option value="{{ val }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <span class="field-error"></span>
+                        </div>
+                    </div>
+                    <div class="profile-form-row full">
+                        <div class="profile-field">
+                            <label>Additional Details</label>
+                            <textarea name="details" id="returnDetails" rows="3" placeholder="Please describe the issue..." style="padding:11px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-size:14px;font-family:inherit;resize:vertical;outline:none;transition:border-color 0.35s,box-shadow 0.35s;"></textarea>
+                        </div>
+                    </div>
+                    <div class="profile-form-actions">
+                        <button type="submit" class="profile-btn profile-btn-primary">
+                            <i class="fas fa-paper-plane"></i> Submit Request
+                        </button>
+                        <button type="button" class="profile-btn profile-btn-outline" id="cancelRequest">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Existing requests -->
+        {% if returns %}
+        <div class="profile-section">
+            <h2 class="profile-section-title"><i class="fas fa-history"></i> Your Requests</h2>
+            <div class="returns-list">
+                {% for ret in returns %}
+                <div class="return-card">
+                    <div class="return-card-header">
+                        <div class="return-type-badge type-{{ ret.request_type }}">
+                            <i class="fas fa-{% if ret.request_type == 'return' %}undo{% else %}exchange-alt{% endif %}"></i>
+                            {{ ret.get_request_type_display }}
+                        </div>
+                        <span class="return-status-badge status-{{ ret.status }}">
+                            {{ ret.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="return-card-body">
+                        <div class="return-detail-row">
+                            <span class="return-label">Order</span>
+                            <span class="return-value">{{ ret.order.order_number }}</span>
+                        </div>
+                        <div class="return-detail-row">
+                            <span class="return-label">Reason</span>
+                            <span class="return-value">{{ ret.get_reason_display }}</span>
+                        </div>
+                        {% if ret.details %}
+                        <div class="return-detail-row">
+                            <span class="return-label">Details</span>
+                            <span class="return-value">{{ ret.details }}</span>
+                        </div>
+                        {% endif %}
+                        {% if ret.refund_amount > 0 %}
+                        <div class="return-detail-row">
+                            <span class="return-label">Refund</span>
+                            <span class="return-value refund-amount">{{ ret.formatted_refund }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="return-detail-row">
+                            <span class="return-label">Submitted</span>
+                            <span class="return-value">{{ ret.created_at|date:"M d, Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% elif not eligible_orders %}
+        <div class="empty-state">
+            <div class="empty-state-icon"><i class="fas fa-exchange-alt"></i></div>
+            <h3>No returns or exchanges</h3>
+            <p>You don't have any delivered orders eligible for returns or exchanges yet.</p>
+            <a href="{% url 'order_history' %}" class="profile-btn profile-btn-primary">
+                <i class="fas fa-shopping-bag"></i> View Orders
+            </a>
+        </div>
+        {% endif %}
+
+    </div>
+
+    <script src="{% static 'js/main.js' %}?v=3"></script>
+    <script>
+    (function() {
+        /* CSRF helper */
+        function getCSRF() {
+            const el = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (el) return el.value;
+            const c = document.cookie.split('; ').find(c => c.startsWith('csrftoken='));
+            return c ? c.split('=')[1] : '';
+        }
+
+        /* Toast */
+        const toast = document.getElementById('profileToast');
+        function showToast(msg, type) {
+            toast.textContent = msg;
+            toast.className = 'profile-toast ' + type + ' show';
+            setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        /* Toggle new request form */
+        const newBtn = document.getElementById('newRequestBtn');
+        const formWrap = document.getElementById('newRequestForm');
+        const cancelBtn = document.getElementById('cancelRequest');
+
+        if (newBtn && formWrap) {
+            newBtn.addEventListener('click', () => {
+                formWrap.style.display = formWrap.style.display === 'none' ? 'block' : 'none';
+                newBtn.innerHTML = formWrap.style.display === 'none'
+                    ? '<i class="fas fa-plus"></i> Create Request'
+                    : '<i class="fas fa-minus"></i> Hide Form';
+            });
+        }
+        if (cancelBtn && formWrap) {
+            cancelBtn.addEventListener('click', () => {
+                formWrap.style.display = 'none';
+                if (newBtn) newBtn.innerHTML = '<i class="fas fa-plus"></i> Create Request';
+            });
+        }
+
+        /* Type pills */
+        document.querySelectorAll('.return-type-pill').forEach(pill => {
+            pill.addEventListener('click', () => {
+                document.querySelectorAll('.return-type-pill').forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+                document.getElementById('requestType').value = pill.dataset.type;
+            });
+        });
+
+        /* Submit return request */
+        const returnForm = document.getElementById('returnForm');
+        if (returnForm) {
+            returnForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                returnForm.querySelectorAll('.profile-field').forEach(f => f.classList.remove('has-error'));
+                const fd = new FormData(returnForm);
+                try {
+                    const resp = await fetch('{% url "return_request_create" %}', {
+                        method: 'POST',
+                        body: fd,
+                        credentials: 'same-origin',
+                        headers: { 'X-CSRFToken': getCSRF(), 'X-Requested-With': 'XMLHttpRequest' },
+                    });
+                    const data = await resp.json();
+                    if (data.ok) {
+                        showToast(data.message, 'success');
+                        setTimeout(() => location.reload(), 800);
+                    } else if (data.errors) {
+                        Object.entries(data.errors).forEach(([field, msg]) => {
+                            const inp = returnForm.querySelector(`[name="${field}"]`);
+                            if (inp) {
+                                const wrap = inp.closest('.profile-field');
+                                if (wrap) {
+                                    wrap.classList.add('has-error');
+                                    const err = wrap.querySelector('.field-error');
+                                    if (err) err.textContent = msg;
+                                }
+                            }
+                        });
+                    } else {
+                        showToast(data.error || 'Something went wrong.', 'error');
+                    }
+                } catch {
+                    showToast('Network error. Please try again.', 'error');
+                }
+            });
+        }
+    })();
+    </script>
+</body>
+</html>
