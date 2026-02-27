@@ -2,6 +2,7 @@
 
 import re
 import json
+import logging
 import urllib.request
 import urllib.parse
 from django.shortcuts import redirect
@@ -11,7 +12,11 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.conf import settings as django_settings
 from store.models import UserProfile
-from .helpers import normalize_phone, get_otp, clear_otp
+from .helpers import (normalize_phone, get_otp, clear_otp,
+                      check_login_rate_limit, record_login_failure,
+                      clear_login_failures)
+
+logger = logging.getLogger(__name__)
 
 
 def customer_login(request):
@@ -33,6 +38,15 @@ def customer_login(request):
         action = request.POST.get('action', 'login')
 
         if action == 'login':
+            # ── Brute-force protection ──
+            blocked, wait = check_login_rate_limit(request)
+            if blocked:
+                err = f'Too many failed attempts. Try again in {wait // 60} minutes.'
+                if is_ajax:
+                    return JsonResponse({'ok': False, 'errors': {'__all__': err}})
+                messages.error(request, err)
+                return render(request, 'login.html')
+
             username = request.POST.get('username', '').strip()
             password = request.POST.get('password', '')
 
@@ -56,6 +70,7 @@ def customer_login(request):
                         messages.error(request, err)
                     else:
                         login(request, user)
+                        clear_login_failures(request)
                         next_url = request.GET.get('next', '/')
                         if is_ajax:
                             return JsonResponse({
@@ -65,6 +80,7 @@ def customer_login(request):
                             })
                         return redirect(next_url)
                 else:
+                    record_login_failure(request)
                     err = 'Invalid username or password.'
                     if is_ajax:
                         return JsonResponse({'ok': False, 'errors': {'__all__': err}})
@@ -133,7 +149,7 @@ def customer_login(request):
                 errors['otp'] = 'OTP is required.'
 
             stored_otp = get_otp(phone, raw_phone)
-            print(f"[PHONE_LOGIN] raw={raw_phone!r} normalized={phone!r} otp={otp!r} stored={stored_otp!r}")
+            logger.debug("[PHONE_LOGIN] normalized=%s", phone)
 
             if errors:
                 if is_ajax:
@@ -180,7 +196,7 @@ def customer_login(request):
                     messages.error(request, err)
                 else:
                     login(request, user)
-                    print(f"[PHONE_LOGIN] Login SUCCESS for user={user.username}")
+                    logger.debug("[PHONE_LOGIN] Login SUCCESS for user=%s", user.username)
                     if is_ajax:
                         return JsonResponse({'ok': True, 'redirect': '/', 'message': 'Signed in successfully!'})
                     return redirect('home')

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Order History — House Of Ambava</title>
     <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
-    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=10">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=12">
     <link rel="stylesheet" href="{% static 'css/profile.css' %}">
     <link rel="stylesheet" href="{% static 'css/orders.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -196,10 +196,25 @@
                         <a href="{% url 'track_order' %}?order_number={{ order.order_number }}" class="order-action-btn">
                             <i class="fas fa-map-marker-alt"></i> Track
                         </a>
-                        {% if order.status == 'delivered' %}
+                        {% if order.can_cancel %}
+                        <button type="button" class="order-action-btn danger cancel-order-btn"
+                                data-order-id="{{ order.pk }}"
+                                data-order-number="{{ order.order_number }}">
+                            <i class="fas fa-times-circle"></i> Cancel
+                        </button>
+                        {% endif %}
+                        {% if order.can_return %}
                         <a href="{% url 'returns_exchanges' %}" class="order-action-btn outline">
                             <i class="fas fa-exchange-alt"></i> Return
                         </a>
+                        {% endif %}
+                        {% if order.status == 'shipped' or order.status == 'out_for_delivery' %}
+                        <span class="order-shipped-hint">
+                            <i class="fas fa-info-circle"></i> To cancel, refuse delivery at your doorstep
+                        </span>
+                        {% endif %}
+                        {% if order.status == 'cancelled' %}
+                        <span class="order-cancelled-label"><i class="fas fa-ban"></i> Cancelled</span>
                         {% endif %}
                     </div>
                 </div>
@@ -217,8 +232,193 @@
         </div>
         {% endif %}
 
+        {% if page_obj and page_obj.paginator.num_pages > 1 %}
+        <nav class="orders-pagination" style="display:flex;justify-content:center;align-items:center;gap:0.5rem;padding:2rem 0;flex-wrap:wrap;">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}"
+               style="padding:0.5rem 1rem;border:1px solid rgba(196,165,123,0.3);border-radius:8px;color:var(--primary,#C4A57B);text-decoration:none;transition:all 0.3s ease;">&laquo; Prev</a>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span style="padding:0.5rem 1rem;background:var(--primary,#C4A57B);color:#fff;border-radius:8px;font-weight:600;">{{ num }}</span>
+                {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"4" %}
+                <a href="?page={{ num }}"
+                   style="padding:0.5rem 1rem;border:1px solid rgba(196,165,123,0.3);border-radius:8px;color:var(--primary,#C4A57B);text-decoration:none;">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}"
+               style="padding:0.5rem 1rem;border:1px solid rgba(196,165,123,0.3);border-radius:8px;color:var(--primary,#C4A57B);text-decoration:none;">Next &raquo;</a>
+            {% endif %}
+        </nav>
+        {% endif %}
+
     </div>
 
-    <script src="{% static 'js/main.js' %}?v=5"></script>
+    <script src="{% static 'js/main.js' %}?v=11"></script>
+
+    <!-- Cancel Order Modal -->
+    <div class="cancel-overlay" id="cancelOverlay">
+        <div class="cancel-modal">
+            <button class="cancel-modal-close" id="cancelClose">&times;</button>
+            <div class="cancel-modal-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <h3>Cancel Order</h3>
+            <p class="cancel-modal-desc">Are you sure you want to cancel order <strong id="cancelOrderNum"></strong>?</p>
+            <form id="cancelForm">
+                {% csrf_token %}
+                <input type="hidden" name="order_id" id="cancelOrderId">
+                <div class="cancel-field">
+                    <label>Reason for cancellation</label>
+                    <select name="reason" id="cancelReason">
+                        <option value="Changed my mind">Changed my mind</option>
+                        <option value="Found a better price">Found a better price</option>
+                        <option value="Ordered by mistake">Ordered by mistake</option>
+                        <option value="Delivery too slow">Delivery too slow</option>
+                        <option value="Want to change address">Want to change address</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="cancel-field" id="cancelOtherWrap" style="display:none">
+                    <textarea name="other_reason" placeholder="Please specify..." rows="2"></textarea>
+                </div>
+                <div class="cancel-actions">
+                    <button type="button" class="cancel-btn cancel-btn-secondary" id="cancelDismiss">Keep Order</button>
+                    <button type="submit" class="cancel-btn cancel-btn-danger">
+                        <i class="fas fa-times-circle"></i> Cancel Order
+                    </button>
+                </div>
+                <p class="cancel-msg" id="cancelMsg"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="order-toast" id="orderToast"></div>
+
+    <style>
+    .order-action-btn.danger { color: #e74c3c; border-color: #e74c3c; }
+    .order-action-btn.danger:hover { background: #e74c3c; color: #fff; }
+    .order-cancelled-label { font-size: 0.82rem; color: #e74c3c; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+    .order-shipped-hint { font-size: 0.78rem; color: #f39c12; font-weight: 500; display: flex; align-items: center; gap: 5px; background: rgba(243,156,18,0.08); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(243,156,18,0.2); line-height: 1.4; }
+    .cancel-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 9999; display: none; align-items: center; justify-content: center; }
+    .cancel-overlay.active { display: flex; }
+    .cancel-modal { background: var(--card-bg, #fff); border-radius: 16px; padding: 32px; max-width: 420px; width: 90%; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.2); text-align: center; }
+    .cancel-modal-close { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 1.6rem; cursor: pointer; color: var(--text-muted, #999); }
+    .cancel-modal-icon { font-size: 2.5rem; color: #f39c12; margin-bottom: 12px; }
+    .cancel-modal h3 { font-size: 1.3rem; margin-bottom: 8px; }
+    .cancel-modal-desc { font-size: 0.9rem; color: var(--text-muted, #666); margin-bottom: 20px; }
+    .cancel-field { text-align: left; margin-bottom: 12px; }
+    .cancel-field label { display: block; font-size: 0.85rem; color: var(--text-muted, #666); margin-bottom: 6px; }
+    .cancel-field select, .cancel-field textarea { width: 100%; padding: 10px 12px; border: 1px solid var(--border, #ddd); border-radius: 8px; font-size: 0.9rem; background: var(--bg, #fff); color: var(--text, #333); font-family: inherit; resize: vertical; }
+    .cancel-field select:focus, .cancel-field textarea:focus { outline: none; border-color: var(--primary, #b8860b); }
+    .cancel-actions { display: flex; gap: 10px; margin-top: 16px; }
+    .cancel-btn { flex: 1; padding: 10px 16px; border-radius: 8px; font-size: 0.9rem; cursor: pointer; border: none; transition: filter 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .cancel-btn-secondary { background: var(--border, #eee); color: var(--text, #333); }
+    .cancel-btn-danger { background: #e74c3c; color: #fff; }
+    .cancel-btn-danger:hover { filter: brightness(1.1); }
+    .cancel-msg { font-size: 0.82rem; margin-top: 10px; min-height: 18px; }
+    .order-toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px); background: #333; color: #fff; padding: 12px 24px; border-radius: 10px; font-size: 0.9rem; z-index: 10000; transition: transform 0.3s, opacity 0.3s; opacity: 0; pointer-events: none; }
+    .order-toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .order-toast.success { background: #27ae60; }
+    .order-toast.error { background: #e74c3c; }
+    </style>
+
+    <script>
+    (function() {
+        function getCSRF() {
+            const el = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (el) return el.value;
+            const c = document.cookie.split('; ').find(c => c.startsWith('csrftoken='));
+            return c ? c.split('=')[1] : '';
+        }
+
+        const toast = document.getElementById('orderToast');
+        function showToast(msg, type) {
+            toast.textContent = msg;
+            toast.className = 'order-toast ' + type + ' show';
+            setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        // Cancel modal
+        const overlay = document.getElementById('cancelOverlay');
+        const closeBtn = document.getElementById('cancelClose');
+        const dismissBtn = document.getElementById('cancelDismiss');
+        const cancelForm = document.getElementById('cancelForm');
+        const cancelReason = document.getElementById('cancelReason');
+        const otherWrap = document.getElementById('cancelOtherWrap');
+        const cancelMsg = document.getElementById('cancelMsg');
+
+        // Open cancel modal
+        document.querySelectorAll('.cancel-order-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.getElementById('cancelOrderId').value = this.dataset.orderId;
+                document.getElementById('cancelOrderNum').textContent = this.dataset.orderNumber;
+                cancelMsg.textContent = '';
+                overlay.classList.add('active');
+            });
+        });
+
+        // Close cancel modal
+        function closeModal() { overlay.classList.remove('active'); }
+        if (closeBtn) closeBtn.addEventListener('click', closeModal);
+        if (dismissBtn) dismissBtn.addEventListener('click', closeModal);
+        if (overlay) overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+
+        // Show/hide other reason field
+        if (cancelReason) {
+            cancelReason.addEventListener('change', function() {
+                otherWrap.style.display = this.value === 'Other' ? '' : 'none';
+            });
+        }
+
+        // Submit cancel
+        if (cancelForm) {
+            cancelForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const fd = new FormData(this);
+                // Use "other_reason" if "Other" was selected
+                let reason = fd.get('reason');
+                if (reason === 'Other') {
+                    const other = fd.get('other_reason') || 'Other';
+                    fd.set('reason', other);
+                }
+
+                const btn = this.querySelector('.cancel-btn-danger');
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
+                cancelMsg.textContent = '';
+
+                try {
+                    const resp = await fetch('{% url "cancel_order" %}', {
+                        method: 'POST',
+                        body: fd,
+                        credentials: 'same-origin',
+                        headers: { 'X-CSRFToken': getCSRF(), 'X-Requested-With': 'XMLHttpRequest' },
+                    });
+                    const data = await resp.json();
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-times-circle"></i> Cancel Order';
+
+                    if (data.ok) {
+                        closeModal();
+                        showToast(data.message, 'success');
+                        if (data.refund) {
+                            setTimeout(() => showToast('Refund will be processed within 5-7 business days.', 'success'), 1500);
+                        }
+                        setTimeout(() => location.reload(), 2000);
+                    } else {
+                        cancelMsg.textContent = data.error || 'Something went wrong.';
+                        cancelMsg.style.color = '#e74c3c';
+                    }
+                } catch {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fas fa-times-circle"></i> Cancel Order';
+                    cancelMsg.textContent = 'Network error. Please try again.';
+                    cancelMsg.style.color = '#e74c3c';
+                }
+            });
+        }
+    })();
+    </script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 """Public page views — home, about, shop, product detail."""
 
 from django.shortcuts import render, get_object_or_404
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from store.models import (
     HeroSection, FeaturedCollection, ShowcaseProduct, CollectionCard,
     ParallaxSection, ShopBanner, StatItem, ContactInfo, AboutPage,
@@ -53,8 +54,20 @@ def shop(request):
     )
     if category and category != 'all':
         products = products.filter(category=category)
+
+    # Paginate — 12 products per page
+    paginator = Paginator(products, 12)
+    page_num = request.GET.get('page', 1)
+    try:
+        page_obj = paginator.page(page_num)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
     context = {
-        'products': products,
+        'products': page_obj,
+        'page_obj': page_obj,
         'categories': ShowcaseProduct.CATEGORY_CHOICES,
         'active_category': category,
         'shop_banner': ShopBanner.objects.filter(is_active=True).first(),

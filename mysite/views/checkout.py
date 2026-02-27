@@ -9,6 +9,7 @@ from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt, ensure_csrf_cookie
+from django.views.decorators.http import require_POST
 from store.models import (
     Address, Order, OrderItem, ShowcaseProduct, UserProfile,
 )
@@ -50,7 +51,7 @@ def checkout(request):
 
 # ── Checkout profile update ──
 
-@csrf_exempt
+@require_POST
 def checkout_update_profile(request):
     """AJAX: update user profile fields from checkout shipping step."""
     if request.method != 'POST':
@@ -93,7 +94,7 @@ def checkout_update_profile(request):
 
 # ── Checkout inline login ──
 
-@csrf_exempt
+@csrf_exempt  # checkout login uses form-encoded data from non-CSRF-aware context
 def checkout_login(request):
     """AJAX: login from checkout page without losing cart."""
     if request.method != 'POST':
@@ -260,7 +261,7 @@ def checkout_login(request):
 
 # ── Place order ──
 
-@csrf_exempt
+@require_POST
 def place_order(request):
     """AJAX: create an order from cart JSON payload.
     For COD — order is confirmed immediately.
@@ -343,23 +344,61 @@ def place_order(request):
             is_default=not Address.objects.filter(user=user).exists(),
         )
 
-    # Calculate totals
+    # Calculate totals — validate prices server-side
     subtotal = 0
     order_items_data = []
+    out_of_stock = []
     for it in items:
-        price = int(it.get('price', 0))
-        qty = int(it.get('quantity', 1))
+        product_name = it.get('name', 'Unknown')
+        qty = max(1, int(it.get('quantity', 1)))
+        size = it.get('size', '')
+
+        # Lookup product from DB to validate price
+        product = ShowcaseProduct.objects.filter(name=product_name, is_active=True).first()
+        if product:
+            # Use server-side price (discounted if available)
+            price = int(product.discounted_price if product.discounted_price else product.price)
+            # Check stock
+            if product.stock_quantity < qty:
+                out_of_stock.append(f'{product_name} (only {product.stock_quantity} left)')
+                continue
+        else:
+            # Product not found — reject
+            return JsonResponse({'ok': False, 'error': f'Product "{product_name}" not found or unavailable.'})
+
         subtotal += price * qty
         order_items_data.append({
-            'product_name': it.get('name', 'Unknown'),
+            'product': product,
+            'product_name': product_name,
             'price': price,
             'quantity': qty,
             'total': price * qty,
             'image': it.get('image', ''),
+            'size': size,
         })
 
+    if out_of_stock:
+        return JsonResponse({'ok': False, 'error': f'Insufficient stock: {", ".join(out_of_stock)}'})
+    if not order_items_data:
+        return JsonResponse({'ok': False, 'error': 'No valid items in cart.'})
+
     shipping_charge = 0 if subtotal >= 5000 else 199
-    total = subtotal + shipping_charge
+
+    # ── Apply coupon if provided ──
+    coupon_code = body.get('coupon_code', '').strip()
+    discount_amount = 0
+    if coupon_code:
+        from store.models import Coupon
+        try:
+            coupon = Coupon.objects.get(code__iexact=coupon_code)
+            if coupon.is_valid(order_total=subtotal, user=request.user)[0]:
+                discount_amount = coupon.calculate_discount(subtotal)
+                coupon.used_count += 1
+                coupon.save(update_fields=['used_count'])
+        except Coupon.DoesNotExist:
+            pass
+
+    total = max(0, subtotal + shipping_charge - discount_amount)
 
     # Determine payment status based on method
     is_online = payment_method in ('razorpay', 'upi', 'card', 'netbanking')
@@ -378,10 +417,12 @@ def place_order(request):
         subtotal=subtotal,
         shipping_charge=shipping_charge,
         total=total,
+        coupon_code=coupon_code if discount_amount else '',
+        discount_amount=discount_amount,
     )
 
     for oi in order_items_data:
-        product = ShowcaseProduct.objects.filter(name=oi['product_name']).first()
+        product = oi.get('product')
         OrderItem.objects.create(
             order=order,
             product=product,
@@ -389,7 +430,12 @@ def place_order(request):
             price=oi['price'],
             quantity=oi['quantity'],
             total=oi['total'],
+            size=oi.get('size', ''),
         )
+        # Decrement stock
+        if product and product.stock_quantity >= oi['quantity']:
+            product.stock_quantity -= oi['quantity']
+            product.save(update_fields=['stock_quantity'])
 
     # For online payment methods — create a Razorpay order
     if is_online:
@@ -457,6 +503,7 @@ def place_order(request):
             })
 
     # COD — order is already confirmed
+    _send_order_email_safe(order)
     return JsonResponse({
         'ok': True,
         'order_number': order.order_number,
@@ -466,7 +513,17 @@ def place_order(request):
     })
 
 
-@csrf_exempt
+# Send order confirmation email (COD & Razorpay)
+def _send_order_email_safe(order):
+    """Send confirmation email, swallowing errors."""
+    try:
+        from store.emails import send_order_confirmation
+        send_order_confirmation(order)
+    except Exception as e:
+        logger.error(f'Order email error: {e}')
+
+
+@require_POST
 def verify_razorpay_payment(request):
     """AJAX: verify Razorpay payment signature after successful checkout."""
     if request.method != 'POST':
@@ -525,6 +582,8 @@ def verify_razorpay_payment(request):
     order.status = 'confirmed'
     order.save(update_fields=['razorpay_payment_id', 'razorpay_signature', 'payment_status', 'status'])
 
+    _send_order_email_safe(order)
+
     return JsonResponse({
         'ok': True,
         'order_number': order.order_number,
@@ -532,7 +591,7 @@ def verify_razorpay_payment(request):
     })
 
 
-@csrf_exempt
+@require_POST
 def razorpay_payment_failed(request):
     """AJAX: handle failed Razorpay payment — mark order as failed."""
     if request.method != 'POST':

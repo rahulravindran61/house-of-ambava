@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>House Of Ambava — My Account</title>
     <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
-    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=10">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=12">
     <link rel="stylesheet" href="{% static 'css/login.css' %}?v=3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script>
@@ -280,6 +280,10 @@
                                 <button type="button" class="login-eye" tabindex="-1"><i class="fas fa-eye"></i></button>
                                 <div class="login-input-line"></div>
                             </div>
+                        </div>
+
+                        <div class="login-forgot-link">
+                            <a href="#" id="forgotPasswordLink">Forgot Password?</a>
                         </div>
 
                         <button type="submit" class="login-submit-btn">
@@ -596,8 +600,16 @@
                     if (data.ok) {
                         otpGroup.style.display = 'block';
                         otpGroup.classList.add('otp-reveal');
-                        otpInfo.textContent = data.message;
-                        if (data.demo_otp) otpInfo.textContent += ` (Demo OTP: ${data.demo_otp})`;
+                        // Demo mode: auto-fill OTP if returned by server
+                        if (data.demo_otp) {
+                            const demoDigits = String(data.demo_otp).split('');
+                            demoDigits.forEach((ch, i) => { if (otpDigits[i]) otpDigits[i].value = ch; });
+                            otpHidden.value = data.demo_otp;
+                            otpInfo.textContent = `Demo OTP ${data.demo_otp} auto-filled`;
+                            otpInfo.style.color = '#4caf50';
+                        } else {
+                            otpInfo.textContent = data.message;
+                        }
                         otpDigits[0].focus();
                         startResendTimer();
                         sendBtn.style.display = 'none';
@@ -1214,8 +1226,6 @@
                     const action = form.querySelector('[name="action"]').value;
                     submitBtn = form.querySelector('.login-method.active .login-submit-btn') || form.querySelector('.login-submit-btn');
 
-                    console.log('[Login] action:', action, '| url:', form.action);
-
                     // Clear previous errors
                     clearErrors(form);
 
@@ -1240,10 +1250,6 @@
                     const formData = new FormData(form);
                     formData.append('_ajax', '1');
 
-                    // Debug: log all form data keys
-                    console.log('[Login] FormData keys:', [...formData.keys()]);
-                    console.log('[Login] phone:', formData.get('phone'), '| otp:', formData.get('otp'));
-
                     // Read CSRF token from cookie
                     let csrfToken = '';
                     try {
@@ -1255,14 +1261,11 @@
                         const csrfInput = form.querySelector('[name="csrfmiddlewaretoken"]');
                         if (csrfInput) csrfToken = csrfInput.value;
                     }
-                    console.log('[Login] CSRF token present:', !!csrfToken);
 
                     // Ensure trailing slash (Django rejects POST without it)
                     // NOTE: form.action is shadowed by <input name="action">, so use getAttribute
                     let url = form.getAttribute('action') || window.location.href;
                     if (!url.endsWith('/')) url += '/';
-
-                    console.log('[Login] Sending fetch to:', url);
 
                     let resp;
                     try {
@@ -1283,8 +1286,6 @@
                         return;
                     }
 
-                    console.log('[Login] Response status:', resp.status, '| content-type:', resp.headers.get('content-type'));
-
                     // Handle non-JSON responses (e.g. 403 CSRF page, 500 error)
                     const contentType = resp.headers.get('content-type') || '';
                     if (!contentType.includes('application/json')) {
@@ -1300,7 +1301,6 @@
                     }
 
                     const data = await resp.json();
-                    console.log('[Login] Response data:', data);
 
                     if (data.ok) {
                         // Success!
@@ -1320,9 +1320,7 @@
 
                         // Redirect after animation — guaranteed to run
                         const redirectUrl = data.redirect || '/';
-                        console.log('[Login] Will redirect to:', redirectUrl, 'in 1.5s');
                         setTimeout(() => {
-                            console.log('[Login] Redirecting now to:', redirectUrl);
                             window.location.href = redirectUrl;
                         }, 1500);
                     } else {
@@ -1521,6 +1519,102 @@
             requestAnimationFrame(cursorLoop);
         }
         requestAnimationFrame(cursorLoop);
+    })();
+    </script>
+
+    <!-- Forgot Password Modal -->
+    <div class="forgot-pw-overlay" id="forgotPwOverlay">
+        <div class="forgot-pw-modal">
+            <button class="forgot-pw-close" id="forgotPwClose">&times;</button>
+            <h3>Reset Password</h3>
+            <p class="forgot-pw-desc">Enter your email address and we'll send you a reset link.</p>
+            <form id="forgotPwForm">
+                {% csrf_token %}
+                <div class="forgot-pw-field">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" name="email" placeholder="Your email address" required>
+                </div>
+                <button type="submit" class="forgot-pw-btn">
+                    <span>Send Reset Link</span>
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+                <p class="forgot-pw-msg" id="forgotPwMsg"></p>
+            </form>
+        </div>
+    </div>
+
+    <style>
+    .login-forgot-link { text-align: right; margin: -6px 0 12px; }
+    .login-forgot-link a { font-size: 0.82rem; color: var(--accent, #b8860b); text-decoration: none; opacity: 0.8; transition: opacity 0.2s; }
+    .login-forgot-link a:hover { opacity: 1; text-decoration: underline; }
+    .forgot-pw-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 9999; display: none; align-items: center; justify-content: center; }
+    .forgot-pw-overlay.active { display: flex; }
+    .forgot-pw-modal { background: var(--card-bg, #fff); border-radius: 16px; padding: 32px; max-width: 400px; width: 90%; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+    .forgot-pw-close { position: absolute; top: 12px; right: 16px; background: none; border: none; font-size: 1.6rem; cursor: pointer; color: var(--text-muted, #999); }
+    .forgot-pw-modal h3 { font-size: 1.3rem; margin-bottom: 8px; }
+    .forgot-pw-desc { font-size: 0.88rem; color: var(--text-muted, #888); margin-bottom: 20px; }
+    .forgot-pw-field { display: flex; align-items: center; gap: 10px; border: 1px solid var(--border, #ddd); border-radius: 10px; padding: 10px 14px; margin-bottom: 16px; }
+    .forgot-pw-field i { color: var(--text-muted, #aaa); }
+    .forgot-pw-field input { border: none; outline: none; flex: 1; font-size: 0.95rem; background: transparent; color: var(--text, #333); }
+    .forgot-pw-btn { width: 100%; display: flex; justify-content: center; align-items: center; gap: 8px; background: var(--accent, #b8860b); color: #fff; border: none; padding: 12px; border-radius: 10px; font-size: 0.95rem; cursor: pointer; transition: filter 0.2s; }
+    .forgot-pw-btn:hover { filter: brightness(1.1); }
+    .forgot-pw-msg { text-align: center; font-size: 0.85rem; margin-top: 12px; min-height: 20px; }
+    </style>
+
+    <script>
+    (function() {
+        const link = document.getElementById('forgotPasswordLink');
+        const overlay = document.getElementById('forgotPwOverlay');
+        const closeBtn = document.getElementById('forgotPwClose');
+        const form = document.getElementById('forgotPwForm');
+        const msg = document.getElementById('forgotPwMsg');
+
+        if (link && overlay) {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                overlay.classList.add('active');
+            });
+            closeBtn?.addEventListener('click', () => overlay.classList.remove('active'));
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) overlay.classList.remove('active');
+            });
+        }
+
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const btn = form.querySelector('.forgot-pw-btn');
+                const email = form.querySelector('input[name="email"]').value;
+                const csrf = form.querySelector('[name="csrfmiddlewaretoken"]').value;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
+                msg.textContent = '';
+                msg.style.color = '';
+
+                fetch('/account/forgot-password/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': csrf,
+                    },
+                    body: 'email=' + encodeURIComponent(email),
+                })
+                .then(r => r.json())
+                .then(data => {
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Send Reset Link</span><i class="fas fa-paper-plane"></i>';
+                    msg.textContent = data.message || data.error || 'Done.';
+                    msg.style.color = data.ok ? '#27ae60' : '#e74c3c';
+                    if (data.ok) form.reset();
+                })
+                .catch(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = '<span>Send Reset Link</span><i class="fas fa-paper-plane"></i>';
+                    msg.textContent = 'Network error. Try again.';
+                    msg.style.color = '#e74c3c';
+                });
+            });
+        }
     })();
     </script>
 </body>

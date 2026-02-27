@@ -136,7 +136,17 @@ def send_otp(request):
     if is_rate_limited(phone):
         return JsonResponse({'ok': False, 'error': 'Please wait before requesting another OTP.'}, status=429)
 
-    otp = str(random.randint(100000, 999999))
+    from django.conf import settings as django_settings
+    if getattr(django_settings, 'DEBUG', False):
+        # ── DEMO MODE: fixed OTP for development ──
+        # TODO: Replace with real SMS API (e.g. MSG91) before deploying
+        otp = '123456'
+    else:
+        otp = str(random.randint(100000, 999999))
+
     store_otp(phone, otp, raw_phone)
 
-    return JsonResponse({'ok': True, 'message': f'OTP sent to {phone}', 'demo_otp': otp})
+    response = {'ok': True, 'message': f'OTP sent to {phone}'}
+    if getattr(django_settings, 'DEBUG', False):
+        response['demo_otp'] = otp
+    return JsonResponse(response)

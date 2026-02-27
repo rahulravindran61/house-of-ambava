@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop — House of Ambava</title>
     <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
-    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=10">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=12">
     <link rel="stylesheet" href="{% static 'css/shop.css' %}?v=5">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.18/dist/lenis.css">
@@ -322,6 +322,30 @@
                 </div>
             </div>
         </section>
+
+        {% if page_obj and page_obj.paginator.num_pages > 1 %}
+        <nav class="shop-pagination" aria-label="Shop pages" style="display:flex;justify-content:center;align-items:center;gap:0.5rem;padding:2rem 0 3rem;flex-wrap:wrap;">
+            {% if page_obj.has_previous %}
+            <a href="?{% if active_category != 'all' %}category={{ active_category }}&{% endif %}page={{ page_obj.previous_page_number }}"
+               style="padding:0.5rem 1rem;border:1px solid rgba(196,165,123,0.3);border-radius:8px;color:var(--primary);text-decoration:none;transition:all 0.3s ease;"
+               onmouseover="this.style.background='var(--primary)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='var(--primary)'">&laquo; Prev</a>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span style="padding:0.5rem 1rem;background:var(--primary);color:#fff;border-radius:8px;font-weight:600;">{{ num }}</span>
+                {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"4" %}
+                <a href="?{% if active_category != 'all' %}category={{ active_category }}&{% endif %}page={{ num }}"
+                   style="padding:0.5rem 1rem;border:1px solid rgba(196,165,123,0.3);border-radius:8px;color:var(--primary);text-decoration:none;transition:all 0.3s ease;"
+                   onmouseover="this.style.background='var(--primary)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='var(--primary)'">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <a href="?{% if active_category != 'all' %}category={{ active_category }}&{% endif %}page={{ page_obj.next_page_number }}"
+               style="padding:0.5rem 1rem;border:1px solid rgba(196,165,123,0.3);border-radius:8px;color:var(--primary);text-decoration:none;transition:all 0.3s ease;"
+               onmouseover="this.style.background='var(--primary)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='var(--primary)'">Next &raquo;</a>
+            {% endif %}
+        </nav>
+        {% endif %}
     </main>
 
     <!-- ═══ FOOTER — same as home ═══ -->
@@ -358,7 +382,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            <p>&copy; 2023 House Of Ambava. All rights reserved.</p>
+            <p>&copy; 2025 House Of Ambava. All rights reserved.</p>
         </div>
     </footer>
 
@@ -399,7 +423,7 @@
     </div>
 
     <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
-    <script src="{% static 'js/main.js' %}?v=5"></script>
+    <script src="{% static 'js/main.js' %}?v=11"></script>
     <script>
     /* ═══════════════════════════════════════════════
        SHOP PAGE — Ultra-smooth Interactions
@@ -516,7 +540,7 @@
                     const name  = this.dataset.product;
                     const price = this.dataset.price;
                     const image = this.dataset.image || '';
-                    if (typeof window.addToCart === 'function') window.addToCart(name, price, image);
+                    if (typeof window.addToCart === 'function') window.addToCart(name, price, image, '');
                 });
             });
         }

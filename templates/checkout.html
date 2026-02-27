@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout — House of Ambava</title>
     <link rel="icon" type="image/svg+xml" href="{% static 'images/favicon.svg' %}">
-    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=10">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=12">
     <link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=5">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Razorpay Checkout SDK -->
@@ -410,6 +410,25 @@
                             <span>Shipping</span>
                             <span id="sidebarShipping">Free</span>
                         </div>
+
+                        <!-- Coupon Code -->
+                        <div class="sidebar-coupon" id="couponSection">
+                            <div class="coupon-input-wrap" id="couponInputWrap">
+                                <input type="text" id="couponInput" placeholder="Coupon code" maxlength="30" autocomplete="off">
+                                <button type="button" id="couponApplyBtn" class="coupon-apply-btn">Apply</button>
+                            </div>
+                            <div class="coupon-applied" id="couponApplied" style="display:none;">
+                                <span><i class="fas fa-tag"></i> <span id="couponCodeDisplay"></span></span>
+                                <button type="button" id="couponRemoveBtn" class="coupon-remove-btn">&times;</button>
+                            </div>
+                            <p class="coupon-msg" id="couponMsg"></p>
+                        </div>
+
+                        <div class="sidebar-row coupon-discount-row" id="couponDiscountRow" style="display:none;">
+                            <span>Discount</span>
+                            <span id="couponDiscountAmount" style="color:#27ae60;">-₹0</span>
+                        </div>
+
                         <div class="sidebar-divider"></div>
                         <div class="sidebar-row sidebar-total-row">
                             <span>Total</span>
@@ -475,7 +494,8 @@
 
             const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
             const shipping = subtotal >= 5000 ? 0 : 199;
-            const total = subtotal + shipping;
+            const couponDiscount = window._couponDiscount || 0;
+            const total = Math.max(0, subtotal + shipping - couponDiscount);
             gid('sidebarSubtotal').textContent = `₹${subtotal.toLocaleString('en-IN')}`;
             gid('sidebarShipping').textContent = shipping === 0 ? 'Free' : `₹${shipping}`;
             gid('sidebarTotal').textContent = `₹${total.toLocaleString('en-IN')}`;
@@ -483,6 +503,78 @@
             if (mobileAmt) mobileAmt.textContent = `₹${total.toLocaleString('en-IN')}`;
         }
         renderSidebar();
+
+        // ── Coupon code handling ──
+        window._couponDiscount = 0;
+        window._couponCode = '';
+        const couponApplyBtn = gid('couponApplyBtn');
+        const couponRemoveBtn = gid('couponRemoveBtn');
+        const couponInput = gid('couponInput');
+        const couponMsg = gid('couponMsg');
+        const couponApplied = gid('couponApplied');
+        const couponInputWrap = gid('couponInputWrap');
+        const couponDiscountRow = gid('couponDiscountRow');
+        const couponDiscountAmount = gid('couponDiscountAmount');
+        const couponCodeDisplay = gid('couponCodeDisplay');
+
+        if (couponApplyBtn) {
+            couponApplyBtn.addEventListener('click', function() {
+                const code = couponInput.value.trim();
+                if (!code) return;
+                const subtotal = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+                this.disabled = true;
+                this.textContent = '...';
+                couponMsg.textContent = '';
+
+                fetch('/api/coupon/apply/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRF(),
+                    },
+                    body: JSON.stringify({ code: code, order_total: subtotal }),
+                })
+                .then(r => r.json())
+                .then(data => {
+                    couponApplyBtn.disabled = false;
+                    couponApplyBtn.textContent = 'Apply';
+                    if (data.ok) {
+                        window._couponDiscount = data.discount;
+                        window._couponCode = code;
+                        couponCodeDisplay.textContent = code.toUpperCase();
+                        couponInputWrap.style.display = 'none';
+                        couponApplied.style.display = 'flex';
+                        couponDiscountRow.style.display = '';
+                        couponDiscountAmount.textContent = `-₹${data.discount.toLocaleString('en-IN')}`;
+                        couponMsg.textContent = data.message || 'Coupon applied!';
+                        couponMsg.style.color = '#27ae60';
+                        renderSidebar();
+                    } else {
+                        couponMsg.textContent = data.error || 'Invalid coupon.';
+                        couponMsg.style.color = '#e74c3c';
+                    }
+                })
+                .catch(() => {
+                    couponApplyBtn.disabled = false;
+                    couponApplyBtn.textContent = 'Apply';
+                    couponMsg.textContent = 'Network error.';
+                    couponMsg.style.color = '#e74c3c';
+                });
+            });
+        }
+
+        if (couponRemoveBtn) {
+            couponRemoveBtn.addEventListener('click', function() {
+                window._couponDiscount = 0;
+                window._couponCode = '';
+                couponInputWrap.style.display = '';
+                couponApplied.style.display = 'none';
+                couponDiscountRow.style.display = 'none';
+                couponInput.value = '';
+                couponMsg.textContent = '';
+                renderSidebar();
+            });
+        }
 
         // ── Mobile sidebar toggle ──
         const sidebarToggle = gid('sidebarToggle');
@@ -684,7 +776,7 @@
             try {
                 const r = await fetch('/account/send-otp/', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
                     body: JSON.stringify({ phone }),
                 });
                 const d = await r.json();
@@ -692,13 +784,18 @@
                     otpSentPhone = phone;
                     gid('otpSentMsg').style.display = '';
                     gid('otpSentMsg').style.animation = 'checkoutSlideIn 0.4s ease forwards';
-                    if (d.demo_otp) gid('otpDemo').textContent = `(Demo: ${d.demo_otp})`;
                     gid('otpInputRow').style.display = '';
                     gid('otpInputRow').style.animation = 'checkoutSlideIn 0.4s 0.1s ease both';
                     gid('phoneLoginBtn').style.display = '';
                     gid('phoneLoginBtn').style.animation = 'checkoutSlideIn 0.4s 0.15s ease both';
                     gid('resendOtpBtn').style.display = '';
                     gid('resendOtpBtn').style.animation = 'checkoutSlideIn 0.3s 0.2s ease both';
+                    // Demo mode: auto-fill OTP if returned by server
+                    if (d.demo_otp) {
+                        gid('otpCode').value = d.demo_otp;
+                        const demoSpan = gid('otpDemo');
+                        if (demoSpan) demoSpan.textContent = ` Demo OTP: ${d.demo_otp}`;
+                    }
                     gid('otpCode').focus();
                     btn.querySelector('span').textContent = 'Resend';
                 } else {
@@ -936,7 +1033,7 @@
                 try {
                     const r = await fetch('/checkout/update-profile/', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
                         body: JSON.stringify({ full_name: fields.full_name }),
                     });
                     const d = await r.json();
@@ -1019,10 +1116,12 @@
             const selectedPayment = document.querySelector('input[name="payment"]:checked').value;
 
             const payload = {
-                items: cart.map(i => ({ name: i.name, price: i.price, quantity: i.quantity, image: i.image || '' })),
+                items: cart.map(i => ({ name: i.name, price: i.price, quantity: i.quantity, image: i.image || '', size: i.size || '' })),
                 email: gid('shipEmail').value.trim(),
                 save_address: false,
                 payment_method: selectedPayment,
+                coupon_code: window._couponCode || '',
+                discount_amount: window._couponDiscount || 0,
                 shipping: {
                     full_name: gid('shipName').value.trim(),
                     phone: gid('shipPhone').value.trim(),
@@ -1037,7 +1136,7 @@
             try {
                 const r = await fetch('/checkout/place-order/', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
                     body: JSON.stringify(payload),
                 });
                 const d = await r.json();
@@ -1058,7 +1157,7 @@
                                     try {
                                         await fetch('/checkout/payment-failed/', {
                                             method: 'POST',
-                                            headers: { 'Content-Type': 'application/json' },
+                                            headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
                                             body: JSON.stringify({
                                                 order_number: d.order_number,
                                                 error_description: 'Payment popup closed by user',
@@ -1077,7 +1176,7 @@
                                 try {
                                     const vr = await fetch('/checkout/verify-payment/', {
                                         method: 'POST',
-                                        headers: { 'Content-Type': 'application/json' },
+                                        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
                                         body: JSON.stringify({
                                             razorpay_order_id: response.razorpay_order_id,
                                             razorpay_payment_id: response.razorpay_payment_id,
@@ -1109,7 +1208,7 @@
                             try {
                                 await fetch('/checkout/payment-failed/', {
                                     method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
+                                    headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
                                     body: JSON.stringify({
                                         order_number: d.order_number,
                                         error_description: response.error.description || 'Payment failed',
@@ -1175,6 +1274,19 @@
     })();
     </script>
 
-    <script src="{% static 'js/main.js' %}?v=5"></script>
+    <script src="{% static 'js/main.js' %}?v=11"></script>
+
+    <style>
+    .sidebar-coupon { padding: 12px 0; border-top: 1px dashed var(--border, #eee); }
+    .coupon-input-wrap { display: flex; gap: 8px; }
+    .coupon-input-wrap input { flex: 1; padding: 8px 12px; border: 1px solid var(--border, #ddd); border-radius: 8px; font-size: 0.88rem; background: var(--bg, #fff); color: var(--text, #333); text-transform: uppercase; }
+    .coupon-input-wrap input:focus { outline: none; border-color: var(--primary, #b8860b); }
+    .coupon-apply-btn { padding: 8px 16px; background: var(--primary, #b8860b); color: #fff; border: none; border-radius: 8px; font-size: 0.85rem; cursor: pointer; transition: filter 0.2s; white-space: nowrap; }
+    .coupon-apply-btn:hover { filter: brightness(1.1); }
+    .coupon-applied { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: rgba(39,174,96,0.08); border-radius: 8px; font-size: 0.88rem; color: #27ae60; }
+    .coupon-remove-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #e74c3c; padding: 0 4px; }
+    .coupon-msg { font-size: 0.78rem; margin-top: 6px; min-height: 16px; }
+    .coupon-discount-row span { font-weight: 600; }
+    </style>
 </body>
 </html>

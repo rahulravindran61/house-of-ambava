@@ -18,3 +18,6 @@ class StoreConfig(AppConfig):
                 cursor.execute('PRAGMA busy_timeout=5000;')
 
         connection_created.connect(_set_sqlite_pragmas)
+
+        # Register signals for email notifications
+        import store.signals  # noqa: F401

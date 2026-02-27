@@ -63,9 +63,11 @@ class FeaturedCollection(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        # Auto-calculate discounted price if discount is set but discounted_price is not
-        if self.discount_percent and self.discount_percent > 0 and not self.discounted_price:
+        # Auto-calculate discounted price whenever discount is set
+        if self.discount_percent and self.discount_percent > 0:
             self.discounted_price = round(self.price * (1 - self.discount_percent / 100), 2)
+        elif self.discount_percent == 0:
+            self.discounted_price = None
         super().save(*args, **kwargs)
 
     @property
@@ -113,6 +115,7 @@ class ShowcaseProduct(models.Model):
     available_sizes = models.CharField(max_length=100, blank=True, default='S,M,L,XL', help_text='Comma-separated sizes e.g. S,M,L,XL,XXL')
     fabric = models.CharField(max_length=100, blank=True, default='', help_text='e.g. Pure Silk, Georgette')
     care_instructions = models.CharField(max_length=255, blank=True, default='Dry clean only', help_text='Care instructions')
+    stock_quantity = models.PositiveIntegerField(default=100, help_text='Available stock quantity. Set to 0 when out of stock.')
     display_order = models.PositiveIntegerField(default=0, help_text='Lower number = appears first')
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -134,8 +137,10 @@ class ShowcaseProduct(models.Model):
                 slug = f'{base_slug}-{counter}'
                 counter += 1
             self.slug = slug
-        if self.discount_percent and self.discount_percent > 0 and not self.discounted_price:
+        if self.discount_percent and self.discount_percent > 0:
             self.discounted_price = round(self.price * (1 - self.discount_percent / 100), 2)
+        elif self.discount_percent == 0:
+            self.discounted_price = None
         super().save(*args, **kwargs)
 
     @property
@@ -178,6 +183,23 @@ class ShowcaseProduct(models.Model):
         if self.has_discount:
             return self.discounted_price
         return self.price
+
+    @property
+    def in_stock(self):
+        """Whether this product is currently in stock."""
+        return self.stock_quantity > 0
+
+    @property
+    def average_rating(self):
+        """Average star rating from reviews (0 if none)."""
+        reviews = self.reviews.filter(is_approved=True)
+        if not reviews.exists():
+            return 0
+        return round(reviews.aggregate(avg=models.Avg('rating'))['avg'], 1)
+
+    @property
+    def review_count(self):
+        return self.reviews.filter(is_approved=True).count()
 
 
 class ProductImage(models.Model):
@@ -508,7 +530,11 @@ class Order(models.Model):
     notes = models.TextField(blank=True, help_text='Internal notes')
     subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     shipping_charge = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    coupon_code = models.CharField(max_length=30, blank=True, default='', help_text='Coupon code used for this order')
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text='Discount from coupon')
     total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    cancellation_reason = models.TextField(blank=True, default='', help_text='Reason given by customer when cancelling')
+    cancelled_at = models.DateTimeField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -545,6 +571,16 @@ class Order(models.Model):
             'cancelled': 0,
         }
         return progress_map.get(self.status, 0)
+
+    @property
+    def can_cancel(self):
+        """Order can be cancelled while it's pending or confirmed (not yet shipped)."""
+        return self.status in ('pending', 'confirmed')
+
+    @property
+    def can_return(self):
+        """Order can be returned once delivered."""
+        return self.status == 'delivered'
 
 
 class OrderItem(models.Model):
@@ -624,3 +660,125 @@ class ReturnExchange(models.Model):
     @property
     def formatted_refund(self):
         return f'₹{self.refund_amount:,.0f}'
+
+
+class ContactMessage(models.Model):
+    """Messages submitted via the contact form."""
+    name = models.CharField(max_length=150)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20, blank=True, default='')
+    subject = models.CharField(max_length=255, blank=True, default='')
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Contact Message'
+        verbose_name_plural = 'Contact Messages'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.name} — {self.subject or "No subject"} ({"Read" if self.is_read else "Unread"})'
+
+
+class Wishlist(models.Model):
+    """Server-side wishlist — persists across devices for logged-in users."""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='wishlist')
+    product = models.ForeignKey(ShowcaseProduct, on_delete=models.CASCADE, related_name='wishlisted_by')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Wishlist Item'
+        verbose_name_plural = 'Wishlist'
+        unique_together = ('user', 'product')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.user.username} ♥ {self.product.name}'
+
+
+class Review(models.Model):
+    """Product reviews and ratings."""
+    RATING_CHOICES = [(i, str(i)) for i in range(1, 6)]
+
+    product = models.ForeignKey(ShowcaseProduct, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reviews')
+    rating = models.PositiveIntegerField(choices=RATING_CHOICES, default=5)
+    title = models.CharField(max_length=150, blank=True, default='')
+    comment = models.TextField(blank=True, default='')
+    is_approved = models.BooleanField(default=True, help_text='Uncheck to hide this review')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Review'
+        verbose_name_plural = 'Reviews'
+        unique_together = ('product', 'user')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.user.username} — {self.product.name} ({self.rating}★)'
+
+
+class Coupon(models.Model):
+    """Discount coupon codes for checkout."""
+    DISCOUNT_TYPE_CHOICES = [
+        ('percent', 'Percentage'),
+        ('fixed', 'Fixed Amount'),
+    ]
+
+    code = models.CharField(max_length=30, unique=True, help_text='Coupon code (e.g. WELCOME10)')
+    description = models.CharField(max_length=255, blank=True, default='')
+    discount_type = models.CharField(max_length=10, choices=DISCOUNT_TYPE_CHOICES, default='percent')
+    discount_value = models.DecimalField(max_digits=10, decimal_places=2, help_text='Percentage (0-100) or fixed amount in ₹')
+    min_order_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text='Minimum cart total required')
+    max_discount = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text='Maximum discount cap (0 = no limit). Useful for percentage coupons.')
+    usage_limit = models.PositiveIntegerField(default=0, help_text='Max total uses (0 = unlimited)')
+    used_count = models.PositiveIntegerField(default=0, editable=False)
+    per_user_limit = models.PositiveIntegerField(default=1, help_text='Max uses per user')
+    is_active = models.BooleanField(default=True)
+    valid_from = models.DateTimeField(blank=True, null=True)
+    valid_until = models.DateTimeField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Coupon'
+        verbose_name_plural = 'Coupons'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        if self.discount_type == 'percent':
+            return f'{self.code} — {self.discount_value:.0f}% off'
+        return f'{self.code} — ₹{self.discount_value:.0f} off'
+
+    def is_valid(self, order_total=0, user=None):
+        """Check if coupon can be applied."""
+        from django.utils import timezone
+        now = timezone.now()
+        if not self.is_active:
+            return False, 'This coupon is no longer active.'
+        if self.valid_from and now < self.valid_from:
+            return False, 'This coupon is not yet valid.'
+        if self.valid_until and now > self.valid_until:
+            return False, 'This coupon has expired.'
+        if self.usage_limit and self.used_count >= self.usage_limit:
+            return False, 'This coupon has been fully redeemed.'
+        if order_total < self.min_order_amount:
+            return False, f'Minimum order of ₹{self.min_order_amount:.0f} required.'
+        if user and self.per_user_limit:
+            user_uses = Order.objects.filter(user=user, coupon_code=self.code).exclude(
+                status='cancelled'
+            ).count()
+            if user_uses >= self.per_user_limit:
+                return False, 'You have already used this coupon.'
+        return True, ''
+
+    def calculate_discount(self, order_total):
+        """Return the actual discount amount."""
+        if self.discount_type == 'percent':
+            discount = order_total * (self.discount_value / 100)
+        else:
+            discount = self.discount_value
+        if self.max_discount and discount > self.max_discount:
+            discount = self.max_discount
+        return min(discount, order_total)

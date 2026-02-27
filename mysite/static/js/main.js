@@ -50,49 +50,6 @@
 })();
 
 // ============================================================
-// Profile Dropdown Toggle (header)
-// ============================================================
-(function initProfileDropdown() {
-    const trigger = document.getElementById('profileTrigger');
-    const dropdown = document.getElementById('profileDropdown');
-    const wrap = trigger ? trigger.closest('.profile-dropdown-wrap') : null;
-    if (!trigger || !dropdown) return;
-
-    function openDropdown() {
-        dropdown.classList.add('open');
-        if (wrap) wrap.classList.add('open');
-    }
-
-    function closeDropdown() {
-        dropdown.classList.remove('open');
-        if (wrap) wrap.classList.remove('open');
-    }
-
-    // Close dropdown when navigating back via browser (bfcache)
-    window.addEventListener('pageshow', () => closeDropdown());
-
-    trigger.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (dropdown.classList.contains('open')) {
-            closeDropdown();
-        } else {
-            openDropdown();
-        }
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.profile-dropdown-wrap')) {
-            closeDropdown();
-        }
-    });
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') closeDropdown();
-    });
-})();
-
-// ============================================================
 // Dark / Light Theme Toggle
 // ============================================================
 (function initThemeToggle() {
@@ -163,9 +120,9 @@
     const closeBtn = document.getElementById('searchClose');
     const backdrop = overlay?.querySelector('.search-overlay-backdrop');
 
-    const container = overlay?.querySelector('.search-container');
+    const container = overlay.querySelector('.search-container');
 
-    if (!toggle || !overlay || !container) return;
+    if (!toggle || !overlay) return;
 
     let debounceTimer = null;
     let abortController = null;
@@ -305,49 +262,32 @@
 })();
 
 // ============================================================
-// Prefers Reduced Motion — global flag
-// ============================================================
-const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-// ============================================================
 // Lenis Smooth Scroll — momentum-based inertial scrolling
 // ============================================================
 let lenis = null;
-if (typeof Lenis !== 'undefined' && !prefersReducedMotion) {
+if (typeof Lenis !== 'undefined') {
     lenis = new Lenis({
-        duration: 1.0,
+        duration: 1.2,
         easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
         orientation: 'vertical',
         gestureOrientation: 'vertical',
         smoothWheel: true,
-        smoothTouch: false,
-        wheelMultiplier: 0.9,
-        touchMultiplier: 1.8,
+        wheelMultiplier: 1,
+        touchMultiplier: 2,
         infinite: false,
-        lerp: 0.1,
     });
 }
 
 // ============================================================
 // Splash Cursor — comet-tail: sleek at pointer, swells outward
-// (Disabled on pure-touch devices — laptops with touchscreens still get it)
+// (Disabled on touch devices for performance)
 // ============================================================
-// Only disable on devices with NO fine pointer (phones/tablets).
-// Laptops with touchscreens report both "fine" and "coarse" pointers.
-const _isPureTouchDevice = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-let _canvas = document.getElementById('cursor-canvas');
-
-// Auto-create canvas if missing from the page HTML (skip if reduced motion)
-if (!_canvas && !_isPureTouchDevice && !prefersReducedMotion) {
-    _canvas = document.createElement('canvas');
-    _canvas.id = 'cursor-canvas';
-    document.body.appendChild(_canvas);
-}
-
-if (_canvas && (_isPureTouchDevice || prefersReducedMotion)) {
+const _isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+const _canvas = document.getElementById('cursor-canvas');
+if (_canvas && _isTouchDevice) {
     _canvas.style.display = 'none';
 }
-const _ctx = (_canvas && !_isPureTouchDevice) ? _canvas.getContext('2d') : null;
+const _ctx = (_canvas && !_isTouchDevice) ? _canvas.getContext('2d') : null;
 let _cw, _ch;
 
 function resizeCanvas() {
@@ -541,23 +481,9 @@ if (_canvas) requestAnimationFrame(cursorLoop);
 // Parallax is now handled in the main animation loop below — no separate handler needed
 
 // Scroll Animation for Elements
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
-
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.style.animation = 'fadeInUp 0.6s ease-out forwards';
-        }
-    });
-}, observerOptions);
-
-// Observe featured cards
-document.querySelectorAll('.featured-card, .showcase-item, .flip-card, .stat-card').forEach(el => {
-    observer.observe(el);
-});
+// NOTE: .featured-card, .showcase-item, .flip-card, .stat-card get 3D
+// transform effects from the cylindrical scroll animation (tick()) on the
+// home page. No opacity manipulation — elements stay fully visible.
 
 // Add animation keyframes dynamically
 const style = document.createElement('style');
@@ -600,10 +526,31 @@ document.head.appendChild(style);
 // Form Submission
 const contactForm = document.querySelector('.contact-form');
 if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
+    contactForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        alert('Thank you for your message! We will get back to you soon.');
-        contactForm.reset();
+        const btn = contactForm.querySelector('button[type="submit"]');
+        if (btn) { btn.disabled = true; btn.textContent = 'Sending...'; }
+        try {
+            const formData = new FormData(contactForm);
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value
+                || document.cookie.split('; ').find(c => c.startsWith('csrftoken='))?.split('=')[1] || '';
+            const resp = await fetch('/api/contact/', {
+                method: 'POST',
+                headers: { 'X-CSRFToken': csrfToken },
+                body: formData,
+                credentials: 'same-origin',
+            });
+            const data = await resp.json();
+            if (data.ok) {
+                contactForm.reset();
+                contactForm.innerHTML = '<div style="text-align:center;padding:2rem;"><i class="fas fa-check-circle" style="font-size:2.5rem;color:#4CAF50;margin-bottom:1rem;"></i><p style="font-size:1.1rem;">Thank you! We\'ll get back to you soon.</p></div>';
+            } else {
+                alert(data.error || 'Something went wrong. Please try again.');
+            }
+        } catch (err) {
+            alert('Network error. Please try again.');
+        }
+        if (btn) { btn.disabled = false; btn.textContent = 'Send Message'; }
     });
 }
 
@@ -687,11 +634,8 @@ function lerp(a, b, t) { return a + (b - a) * t; }
 
 const _isHomePage = !!document.querySelector('.hero, #home');
 
-// Skip heavy 3D animations if user prefers reduced motion
-const _enable3D = _isHomePage && !prefersReducedMotion;
-
 // Cache ALL DOM lookups once at startup — only meaningful on home page
-const _sections       = _enable3D ? document.querySelectorAll('section') : [];
+const _sections       = _isHomePage ? document.querySelectorAll('section') : [];
 const _showcaseItems  = document.querySelectorAll('.showcase-item');
 const _featuredCards  = document.querySelectorAll('.featured-card');
 const _flipCards      = document.querySelectorAll('.flip-card');
@@ -767,20 +711,17 @@ function tick(now) {
         const tgtRX = clamped * -12;
         const tgtSc = 1 - absClamped * 0.06;
         const tgtTY = clamped * 30;
-        const tgtOp = 1 - absClamped * 0.5;
 
-        const s = S(sec, { rx: 0, sc: 1, ty: 0, op: 1 });
+        const s = S(sec, { rx: 0, sc: 1, ty: 0 });
         s.rx = lerp(s.rx, tgtRX, L);
         s.sc = lerp(s.sc, tgtSc, L);
         s.ty = lerp(s.ty, tgtTY, L);
-        s.op = lerp(s.op, tgtOp < 0.5 ? 0.5 : tgtOp, L);
 
         // Only write if values changed meaningfully
         const dRX = s.rx - tgtRX, dTY = s.ty - tgtTY;
         if (dRX > DEAD || dRX < -DEAD || dTY > DEAD || dTY < -DEAD) alive = true;
 
         sec.style.transform = `perspective(1200px) rotateX(${s.rx.toFixed(1)}deg) scale(${s.sc.toFixed(3)}) translateY(${s.ty.toFixed(0)}px)`;
-        sec.style.opacity = s.op.toFixed(2);
         sec.style.transformOrigin = clamped > 0 ? 'center top' : 'center bottom';
     }
 
@@ -800,12 +741,10 @@ function tick(now) {
         const tgtRX = inv * 25;
         const tgtTY = inv * 60;
 
-        const s = S(el, { rx: 25, ty: 60, op: 0 });
+        const s = S(el, { rx: tgtRX, ty: tgtTY });
         s.rx = lerp(s.rx, tgtRX, L);
         s.ty = lerp(s.ty, tgtTY, L);
-        s.op = lerp(s.op, progress, L);
         el.style.transform = `perspective(800px) rotateX(${s.rx.toFixed(1)}deg) translateY(${s.ty.toFixed(0)}px)`;
-        el.style.opacity = s.op.toFixed(2);
         el.style.transformOrigin = 'center bottom';
         const d = s.rx - tgtRX;
         if (d > DEAD || d < -DEAD) alive = true;
@@ -825,13 +764,11 @@ function tick(now) {
         const tgtTX = inv * 40 * direction;
         const tgtSc = 0.88 + p * 0.12;
 
-        const s = S(card, { ry: 20 * direction, tx: 40 * direction, sc: 0.88, op: 0 });
+        const s = S(card, { ry: tgtRY, tx: tgtTX, sc: tgtSc });
         s.ry = lerp(s.ry, tgtRY, L);
         s.tx = lerp(s.tx, tgtTX, L);
         s.sc = lerp(s.sc, tgtSc, L);
-        s.op = lerp(s.op, p, L);
         card.style.transform = `perspective(900px) rotateY(${s.ry.toFixed(1)}deg) translateX(${s.tx.toFixed(0)}px) scale(${s.sc.toFixed(3)})`;
-        card.style.opacity = s.op.toFixed(2);
         if (!card.classList.contains('active') && p > 0.15) card.classList.add('active', 'reveal-element');
         const d = s.ry - tgtRY;
         if (d > DEAD || d < -DEAD) alive = true;
@@ -853,12 +790,10 @@ function tick(now) {
         const tgtRX = inv * 35;
         const tgtTY = inv * 50;
 
-        const s = S(card, { rx: 35, ty: 50, op: 0 });
+        const s = S(card, { rx: tgtRX, ty: tgtTY });
         s.rx = lerp(s.rx, tgtRX, L);
         s.ty = lerp(s.ty, tgtTY, L);
-        s.op = lerp(s.op, progress, L);
         card.style.transform = `perspective(800px) rotateX(${s.rx.toFixed(1)}deg) translateY(${s.ty.toFixed(0)}px)`;
-        card.style.opacity = s.op.toFixed(2);
         card.style.transformOrigin = 'center bottom';
         const d = s.rx - tgtRX;
         if (d > DEAD || d < -DEAD) alive = true;
@@ -872,28 +807,23 @@ function tick(now) {
         const raw = (_wh - rect.top) * inv06;
         const progress = raw < 0 ? 0 : raw > 1 ? 1 : raw;
         if (h2) {
-            const s = S(h2, { rx: 20, ty: 25, op: 0 });
             const inv = 1 - progress;
             const tgtRX = inv * 20;
             const tgtTY = inv * 25;
+            const s = S(h2, { rx: tgtRX, ty: tgtTY });
             s.rx = lerp(s.rx, tgtRX, L);
             s.ty = lerp(s.ty, tgtTY, L);
-            s.op = lerp(s.op, progress, L);
             h2.style.transform = `perspective(600px) rotateX(${s.rx.toFixed(1)}deg) translateY(${s.ty.toFixed(0)}px)`;
-            h2.style.opacity = s.op.toFixed(2);
             h2.style.transformOrigin = 'center bottom';
             const d = s.rx - tgtRX;
             if (d > DEAD || d < -DEAD) alive = true;
         }
         if (pEl) {
-            const s = S(pEl, { ty: 18, op: 0 });
             const inv = 1 - progress;
             const tgtTY = inv * 18;
-            const tgtOp = progress - 0.1;
+            const s = S(pEl, { ty: tgtTY });
             s.ty = lerp(s.ty, tgtTY, L);
-            s.op = lerp(s.op, tgtOp < 0 ? 0 : tgtOp, L);
             pEl.style.transform = `translateY(${s.ty.toFixed(0)}px)`;
-            pEl.style.opacity = s.op.toFixed(2);
         }
     }
 
@@ -913,12 +843,10 @@ function tick(now) {
         const tgtRX = inv * 45;
         const tgtSc = 0.8 + progress * 0.2;
 
-        const s = S(card, { rx: 45, sc: 0.8, op: 0 });
+        const s = S(card, { rx: tgtRX, sc: tgtSc });
         s.rx = lerp(s.rx, tgtRX, L);
         s.sc = lerp(s.sc, tgtSc, L);
-        s.op = lerp(s.op, progress, L);
         card.style.transform = `perspective(600px) rotateX(${s.rx.toFixed(1)}deg) scale(${s.sc.toFixed(3)})`;
-        card.style.opacity = s.op.toFixed(2);
         card.style.transformOrigin = 'center bottom';
         if (pCl > 0.8 && !card.hasAttribute('data-animated')) {
             card.setAttribute('data-animated', 'true');
@@ -954,7 +882,6 @@ function tick(now) {
         s.rx = lerp(s.rx, tgtRX, L);
         s.op = lerp(s.op, tgtOp < 0.2 ? 0.2 : tgtOp, L);
         _heroText.style.transform = `perspective(600px) rotateX(${s.rx.toFixed(1)}deg) translateY(${s.ty.toFixed(0)}px)`;
-        _heroText.style.opacity = s.op.toFixed(2);
         const d = s.ty - tgtTY;
         if (d > DEAD || d < -DEAD) alive = true;
     }
@@ -968,7 +895,7 @@ function tick(now) {
     }
 }
 
-function startTick() { if (_enable3D && !_running) { _running = true; _prevTime = 0; requestAnimationFrame(tick); } }
+function startTick() { if (_isHomePage && !_running) { _running = true; _prevTime = 0; requestAnimationFrame(tick); } }
 window.addEventListener('scroll', startTick, { passive: true });
 
 // Unified rAF loop — drives both Lenis smooth scroll and our 3D animations
@@ -999,29 +926,8 @@ if (_heroBackground) {
     }
 }
 
-// Lazy Load Images — smooth fade-in on enter + native lazy loading
-const images = document.querySelectorAll('img');
-const imageObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const img = entry.target;
-            // Add native lazy loading attribute if not present
-            if (!img.hasAttribute('loading')) img.setAttribute('loading', 'lazy');
-            // Smooth fade-in via CSS (.loaded class)
-            if (img.complete) {
-                img.classList.add('loaded');
-            } else {
-                img.addEventListener('load', () => img.classList.add('loaded'), { once: true });
-            }
-            if (!prefersReducedMotion) {
-                img.style.animation = 'fadeInUp 0.6s ease-out';
-            }
-            observer.unobserve(img);
-        }
-    });
-}, { rootMargin: '50px' });
-
-images.forEach(img => imageObserver.observe(img));
+// Images are always visible — native lazy loading handles load timing.
+// No opacity hiding or fadeInUp animation needed.
 
 // Mobile Menu Toggle (if needed)
 const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
@@ -1031,6 +937,46 @@ if (mobileMenuToggle) {
         nav.classList.toggle('active');
     });
 }
+
+// ============================================================
+// Profile Dropdown Toggle
+// ============================================================
+(function initProfileDropdown() {
+    const wrap = document.querySelector('.profile-dropdown-wrap');
+    const trigger = document.getElementById('profileTrigger');
+    const dropdown = document.getElementById('profileDropdown');
+    if (!trigger || !dropdown || !wrap) return;
+
+    trigger.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const isOpen = dropdown.classList.contains('open');
+        if (isOpen) {
+            dropdown.classList.remove('open');
+            wrap.classList.remove('open');
+        } else {
+            dropdown.classList.add('open');
+            wrap.classList.add('open');
+        }
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!wrap.contains(e.target)) {
+            dropdown.classList.remove('open');
+            wrap.classList.remove('open');
+        }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && dropdown.classList.contains('open')) {
+            dropdown.classList.remove('open');
+            wrap.classList.remove('open');
+            trigger.focus();
+        }
+    });
+})();
 
 // ============================================================
 // Shopping Cart — Slide-out Drawer
@@ -1075,24 +1021,6 @@ if (mobileMenuToggle) {
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && overlay.classList.contains('active')) closeCart();
     });
-
-    // Touch swipe-to-close: swipe right on cart drawer to dismiss
-    const drawer = overlay.querySelector('.cart-drawer');
-    if (drawer) {
-        let cartTouchStartX = 0;
-        let cartTouchStartY = 0;
-        drawer.addEventListener('touchstart', (e) => {
-            cartTouchStartX = e.touches[0].clientX;
-            cartTouchStartY = e.touches[0].clientY;
-        }, { passive: true });
-        drawer.addEventListener('touchend', (e) => {
-            const dx = e.changedTouches[0].clientX - cartTouchStartX;
-            const dy = Math.abs(e.changedTouches[0].clientY - cartTouchStartY);
-            if (dx > 80 && dy < dx * 0.5 && overlay.classList.contains('active')) {
-                closeCart();
-            }
-        }, { passive: true });
-    }
 
     // ── Save to localStorage ──
     function saveCart() {
@@ -1141,12 +1069,13 @@ if (mobileMenuToggle) {
 
     // ── Add to cart (exposed globally for shop page) ──
     window.addToCart = addToCart;
-    function addToCart(name, price, image) {
-        const existing = cart.find(i => i.name === name);
+    function addToCart(name, price, image, size) {
+        size = size || '';
+        const existing = cart.find(i => i.name === name && i.size === size);
         if (existing) {
             existing.quantity += 1;
         } else {
-            cart.push({ name, price: parseInt(price), image: image || '', quantity: 1 });
+            cart.push({ name, price: parseInt(price), image: image || '', size, quantity: 1 });
         }
         saveCart();
         updateBadge();
@@ -1157,7 +1086,8 @@ if (mobileMenuToggle) {
     }
 
     // ── Remove from cart ──
-    function removeItem(name, el) {
+    function removeItem(name, size, el) {
+        size = size || '';
         if (el) {
             el.classList.add('removing');
             el.style.maxHeight = el.scrollHeight + 'px';
@@ -1165,13 +1095,13 @@ if (mobileMenuToggle) {
                 el.style.maxHeight = '0';
             });
             setTimeout(() => {
-                cart = cart.filter(i => i.name !== name);
+                cart = cart.filter(i => !(i.name === name && (i.size || '') === size));
                 saveCart();
                 updateBadge();
                 renderCart();
             }, 400);
         } else {
-            cart = cart.filter(i => i.name !== name);
+            cart = cart.filter(i => !(i.name === name && (i.size || '') === size));
             saveCart();
             updateBadge();
             renderCart();
@@ -1179,20 +1109,23 @@ if (mobileMenuToggle) {
     }
 
     // ── Update quantity ──
-    function updateQty(name, delta) {
-        const item = cart.find(i => i.name === name);
+    function updateQty(name, size, delta) {
+        size = size || '';
+        const item = cart.find(i => i.name === name && (i.size || '') === size);
         if (!item) return;
         item.quantity += delta;
         if (item.quantity <= 0) {
-            const el = body.querySelector(`[data-name="${CSS.escape(name)}"]`);
-            removeItem(name, el);
+            const key = name + '||' + size;
+            const el = body.querySelector(`[data-cart-key="${CSS.escape(key)}"]`);
+            removeItem(name, size, el);
             return;
         }
         saveCart();
         updateBadge();
 
         // Animate the quantity display instead of full re-render
-        const el = body.querySelector(`[data-name="${CSS.escape(name)}"]`);
+        const key = name + '||' + size;
+        const el = body.querySelector(`[data-cart-key="${CSS.escape(key)}"]`);
         if (el) {
             const qtyEl = el.querySelector('.cart-qty-display');
             const priceEl = el.querySelector('.cart-item-price');
@@ -1237,11 +1170,14 @@ if (mobileMenuToggle) {
             const imgHTML = item.image
                 ? `<img src="${item.image}" alt="${item.name}" class="cart-item-img">`
                 : `<div class="cart-item-img-placeholder"><i class="fas fa-image"></i></div>`;
+            const sizeHTML = item.size ? `<span class="cart-item-size">Size: ${item.size}</span>` : '';
+            const cartKey = item.name + '||' + (item.size || '');
             return `
-                <div class="cart-item" style="animation-delay:${idx * 0.09}s" data-name="${item.name}">
+                <div class="cart-item" style="animation-delay:${idx * 0.09}s" data-name="${item.name}" data-size="${item.size || ''}" data-cart-key="${cartKey}">
                     ${imgHTML}
                     <div class="cart-item-details">
                         <p class="cart-item-name">${item.name}</p>
+                        ${sizeHTML}
                         <p class="cart-item-price">₹${(item.price * item.quantity).toLocaleString('en-IN')}</p>
                         <div class="cart-item-controls">
                             <button class="cart-qty-btn" data-action="minus"><i class="fas fa-minus"></i></button>
@@ -1256,9 +1192,10 @@ if (mobileMenuToggle) {
         // Attach event listeners
         body.querySelectorAll('.cart-item').forEach(el => {
             const name = el.dataset.name;
-            el.querySelector('[data-action="minus"]').addEventListener('click', () => updateQty(name, -1));
-            el.querySelector('[data-action="plus"]').addEventListener('click', () => updateQty(name, 1));
-            el.querySelector('.cart-item-remove').addEventListener('click', () => removeItem(name, el));
+            const size = el.dataset.size || '';
+            el.querySelector('[data-action="minus"]').addEventListener('click', () => updateQty(name, size, -1));
+            el.querySelector('[data-action="plus"]').addEventListener('click', () => updateQty(name, size, 1));
+            el.querySelector('.cart-item-remove').addEventListener('click', () => removeItem(name, size, el));
         });
     }
 
@@ -1296,245 +1233,4 @@ if (mobileMenuToggle) {
     }
 })();
 
-console.log('House of Ambava - Premium Lehangas Website');
-console.log('Crafted with elegance and precision');
 
-// ============================================================
-// Global Mouse Interaction Effects
-// (Magnetic buttons, 3D tilt cards, click ripples, glow spotlight)
-// ============================================================
-(function initMouseEffects() {
-    // Skip on pure-touch devices (not laptops with touchscreen) or reduced motion
-    if (window.matchMedia('(hover: none) and (pointer: coarse)').matches) return;
-    if (prefersReducedMotion) return;
-
-    // ── Shared state ──
-    let mouseX = 0, mouseY = 0;
-
-    document.addEventListener('mousemove', (e) => {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-    }, { passive: true });
-
-    // ──────────────────────────────────────────────
-    // 1. MAGNETIC HOVER — buttons/links pull toward cursor
-    // ──────────────────────────────────────────────
-    const MAGNETIC_SELECTORS = 'a.btn, button, .order-action-btn, .profile-btn, .track-search-btn, .profile-quick-link, nav a, .header-icons > *, .profile-dropdown-item, .filter-btn, .product-cart-btn, .add-to-cart';
-    const MAG_STRENGTH = 0.35;
-    const MAG_DISTANCE = 80;
-
-    function initMagnetic() {
-        const els = document.querySelectorAll(MAGNETIC_SELECTORS);
-        els.forEach(el => {
-            if (el.dataset.magInit) return;
-            el.dataset.magInit = '1';
-            el.style.transition = el.style.transition
-                ? el.style.transition + ', transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)'
-                : 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-
-            el.addEventListener('mousemove', (e) => {
-                const rect = el.getBoundingClientRect();
-                const cx = rect.left + rect.width / 2;
-                const cy = rect.top + rect.height / 2;
-                const dx = e.clientX - cx;
-                const dy = e.clientY - cy;
-                const dist = Math.sqrt(dx * dx + dy * dy);
-                if (dist < MAG_DISTANCE) {
-                    const pull = (1 - dist / MAG_DISTANCE) * MAG_STRENGTH;
-                    el.style.transform = `translate(${dx * pull}px, ${dy * pull}px)`;
-                }
-            }, { passive: true });
-
-            el.addEventListener('mouseleave', () => {
-                el.style.transform = '';
-            }, { passive: true });
-        });
-    }
-
-    // ──────────────────────────────────────────────
-    // 2. 3D TILT — cards rotate based on mouse position
-    // ──────────────────────────────────────────────
-    const TILT_SELECTORS = '.featured-card, .showcase-item, .flip-card, .product-card, .order-card, .track-order-card, .return-card, .stat-card, .profile-section, .track-detail';
-    const TILT_MAX = 8;      // degrees
-    const TILT_PERSPECTIVE = 800;
-    const TILT_SCALE = 1.02;
-
-    function initTilt() {
-        const els = document.querySelectorAll(TILT_SELECTORS);
-        els.forEach(el => {
-            if (el.dataset.tiltInit) return;
-            el.dataset.tiltInit = '1';
-            el.style.transformStyle = 'preserve-3d';
-            el.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-
-            el.addEventListener('mousemove', (e) => {
-                const rect = el.getBoundingClientRect();
-                const x = (e.clientX - rect.left) / rect.width;
-                const y = (e.clientY - rect.top) / rect.height;
-                const rotateX = (0.5 - y) * TILT_MAX;
-                const rotateY = (x - 0.5) * TILT_MAX;
-                el.style.transform = `perspective(${TILT_PERSPECTIVE}px) rotateX(${rotateX.toFixed(1)}deg) rotateY(${rotateY.toFixed(1)}deg) scale3d(${TILT_SCALE}, ${TILT_SCALE}, 1)`;
-            }, { passive: true });
-
-            el.addEventListener('mouseleave', () => {
-                el.style.transform = '';
-            }, { passive: true });
-        });
-    }
-
-    // ──────────────────────────────────────────────
-    // 3. CLICK RIPPLE — golden ripple expands from cursor
-    // ──────────────────────────────────────────────
-    const RIPPLE_SELECTORS = 'a, button, .order-action-btn, .profile-btn, .filter-btn, .product-card, .featured-card, .showcase-item, .flip-card, .order-card, .track-order-card, .profile-quick-link, .nav-link';
-
-    function initRipple() {
-        document.addEventListener('click', (e) => {
-            const target = e.target.closest(RIPPLE_SELECTORS);
-            if (!target) return;
-
-            const rect = target.getBoundingClientRect();
-            const ripple = document.createElement('span');
-            ripple.className = 'mouse-ripple';
-            const size = Math.max(rect.width, rect.height) * 2;
-            const x = e.clientX - rect.left - size / 2;
-            const y = e.clientY - rect.top - size / 2;
-
-            ripple.style.cssText = `width:${size}px;height:${size}px;left:${x}px;top:${y}px;`;
-
-            // Ensure parent can contain the ripple
-            const pos = getComputedStyle(target).position;
-            if (pos === 'static') target.style.position = 'relative';
-            if (!target.style.overflow) target.style.overflow = 'hidden';
-
-            target.appendChild(ripple);
-            ripple.addEventListener('animationend', () => ripple.remove());
-        });
-    }
-
-    // ──────────────────────────────────────────────
-    // 4. GLOW SPOTLIGHT — radial glow follows cursor on sections
-    // ──────────────────────────────────────────────
-    function initSpotlight() {
-        const sections = document.querySelectorAll('section, .profile-container, .shop-content');
-        sections.forEach(sec => {
-            if (sec.dataset.spotInit) return;
-            sec.dataset.spotInit = '1';
-
-            const glow = document.createElement('div');
-            glow.className = 'mouse-spotlight';
-            sec.style.position = sec.style.position || 'relative';
-            sec.appendChild(glow);
-
-            sec.addEventListener('mousemove', (e) => {
-                const rect = sec.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                glow.style.opacity = '1';
-                glow.style.transform = `translate(${x}px, ${y}px)`;
-            }, { passive: true });
-
-            sec.addEventListener('mouseleave', () => {
-                glow.style.opacity = '0';
-            }, { passive: true });
-        });
-    }
-
-    // ──────────────────────────────────────────────
-    // 5. HOVER GLOW BORDER — gradient border follows cursor
-    // ──────────────────────────────────────────────
-    const GLOW_BORDER_SELECTORS = '.featured-card, .product-card, .order-card, .track-order-card, .flip-card, .showcase-item';
-
-    function initGlowBorder() {
-        const els = document.querySelectorAll(GLOW_BORDER_SELECTORS);
-        els.forEach(el => {
-            if (el.dataset.glowInit) return;
-            el.dataset.glowInit = '1';
-
-            el.addEventListener('mousemove', (e) => {
-                const rect = el.getBoundingClientRect();
-                const x = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
-                const y = ((e.clientY - rect.top) / rect.height * 100).toFixed(1);
-                el.style.setProperty('--glow-x', x + '%');
-                el.style.setProperty('--glow-y', y + '%');
-            }, { passive: true });
-        });
-    }
-
-    // ──────────────────────────────────────────────
-    // 6. TEXT HOVER WAVE — chars animate on hover
-    // ──────────────────────────────────────────────
-    function initTextWave() {
-        const headings = document.querySelectorAll('.section-header h2, .page-title, .hero-title');
-        headings.forEach(h => {
-            if (h.dataset.waveInit) return;
-            h.dataset.waveInit = '1';
-            const text = h.textContent;
-            h.innerHTML = '';
-            h.setAttribute('aria-label', text);
-
-            text.split('').forEach((char, i) => {
-                const span = document.createElement('span');
-                span.className = 'wave-char';
-                span.textContent = char === ' ' ? '\u00A0' : char;
-                span.style.animationDelay = (i * 0.02) + 's';
-                span.style.transitionDelay = (i * 0.015) + 's';
-                h.appendChild(span);
-            });
-
-            h.addEventListener('mouseenter', () => h.classList.add('wave-active'));
-            h.addEventListener('mouseleave', () => h.classList.remove('wave-active'));
-        });
-    }
-
-    // ──────────────────────────────────────────────
-    // 7. IMAGE PARALLAX SHIFT — images shift inside container on hover
-    // ──────────────────────────────────────────────
-    function initImageShift() {
-        const containers = document.querySelectorAll('.card-image-wrapper, .item-image, .product-card-img');
-        containers.forEach(cont => {
-            if (cont.dataset.shiftInit) return;
-            cont.dataset.shiftInit = '1';
-            const img = cont.querySelector('img');
-            if (!img) return;
-
-            cont.addEventListener('mousemove', (e) => {
-                const rect = cont.getBoundingClientRect();
-                const x = (e.clientX - rect.left) / rect.width - 0.5;
-                const y = (e.clientY - rect.top) / rect.height - 0.5;
-                img.style.transform = `scale(1.08) translate(${x * -12}px, ${y * -12}px)`;
-                img.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-            }, { passive: true });
-
-            cont.addEventListener('mouseleave', () => {
-                img.style.transform = '';
-            }, { passive: true });
-        });
-    }
-
-    // ── Init all effects ──
-    function initAll() {
-        initMagnetic();
-        initTilt();
-        initRipple();
-        initSpotlight();
-        initGlowBorder();
-        initTextWave();
-        initImageShift();
-    }
-
-    // Run on load & on dynamic content (MutationObserver)
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initAll);
-    } else {
-        initAll();
-    }
-
-    // Re-init when DOM changes (e.g. AJAX loaded content)
-    const mo = new MutationObserver(() => {
-        initMagnetic();
-        initTilt();
-        initGlowBorder();
-        initImageShift();
-    });
-    mo.observe(document.body, { childList: true, subtree: true });
-})();

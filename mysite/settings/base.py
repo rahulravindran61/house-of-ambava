@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',
     'store',
 ]
 
@@ -145,8 +146,8 @@ SESSION_SAVE_EVERY_REQUEST = False
 # ────────────────────────────────────────────────────────────────
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'hoa-cache',
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': BASE_DIR / 'cache',
         'TIMEOUT': 300,
     }
 }

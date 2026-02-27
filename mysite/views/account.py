@@ -4,6 +4,7 @@ import re
 from django.shortcuts import redirect, render
 from django.http import JsonResponse
 from django.contrib.auth.models import User
+from django.utils import timezone
 from store.models import (
     Address, Order, OrderItem, ReturnExchange, UserProfile,
 )
@@ -171,8 +172,17 @@ def order_history(request):
     if not request.user.is_authenticated or request.user.is_staff:
         return redirect('customer_login')
 
-    orders = Order.objects.filter(user=request.user).prefetch_related('items', 'items__product')
-    return render(request, 'order_history.html', {'orders': orders})
+    from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+    orders_qs = Order.objects.filter(user=request.user).prefetch_related('items', 'items__product')
+    paginator = Paginator(orders_qs, 10)
+    page_num = request.GET.get('page', 1)
+    try:
+        orders = paginator.page(page_num)
+    except PageNotAnInteger:
+        orders = paginator.page(1)
+    except EmptyPage:
+        orders = paginator.page(paginator.num_pages)
+    return render(request, 'order_history.html', {'orders': orders, 'page_obj': orders})
 
 
 # ── Track Order ──
@@ -219,6 +229,51 @@ def returns_exchanges(request):
         'returns': returns,
         'eligible_orders': eligible_orders,
         'reason_choices': ReturnExchange.REASON_CHOICES,
+    })
+
+
+def cancel_order(request):
+    """AJAX: cancel an order (only if pending or confirmed)."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'error': 'Not logged in.'}, status=401)
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'POST required.'}, status=405)
+
+    order_id = request.POST.get('order_id', '').strip()
+    reason = request.POST.get('reason', '').strip()
+
+    if not order_id:
+        return JsonResponse({'ok': False, 'error': 'Order ID is required.'})
+
+    order = Order.objects.filter(pk=order_id, user=request.user).first()
+    if not order:
+        return JsonResponse({'ok': False, 'error': 'Order not found.'}, status=404)
+
+    if not order.can_cancel:
+        if order.status in ('shipped', 'out_for_delivery'):
+            msg = ('This order has already been shipped and cannot be cancelled online. '
+                   'Please refuse the delivery when the delivery partner arrives at your doorstep '
+                   'to automatically initiate a return.')
+        else:
+            msg = f'This order cannot be cancelled. Current status: {order.get_status_display()}.'
+        return JsonResponse({'ok': False, 'error': msg})
+
+    # Cancel the order
+    order.status = 'cancelled'
+    order.cancellation_reason = reason or 'Cancelled by customer'
+    order.cancelled_at = timezone.now()
+
+    # If payment was already collected, mark for refund
+    if order.payment_status == 'paid' and order.payment_method != 'cod':
+        order.payment_status = 'refunded'
+
+    order.save(update_fields=['status', 'cancellation_reason', 'cancelled_at', 'payment_status', 'updated_at'])
+
+    return JsonResponse({
+        'ok': True,
+        'message': f'Order {order.order_number} has been cancelled successfully.',
+        'order_number': order.order_number,
+        'refund': order.payment_status == 'refunded',
     })
 
 

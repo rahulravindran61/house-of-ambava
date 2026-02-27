@@ -118,7 +118,7 @@ body {
 .floating-text,
 .section-header h2,
 .section-header p {
-    will-change: transform, opacity;
+    will-change: transform;
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     contain: layout style;
@@ -131,20 +131,11 @@ section {
     perspective: 1200px;
 }
 
-/* Crisp image rendering + smooth lazy-load fade */
+/* Crisp image rendering */
 img {
     image-rendering: -webkit-optimize-contrast;
     image-rendering: crisp-edges;
-}
-
-img[loading="lazy"] {
-    opacity: 0;
-    transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-img[loading="lazy"].loaded,
-img[loading="lazy"][complete] {
-    opacity: 1;
+    /* Images are always visible — no opacity hiding */
 }
 
 /* Smooth focus states for accessibility */
@@ -1313,6 +1304,15 @@ nav a:active {
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.4;
+}
+
+.cart-item-size {
+    font-size: 11px;
+    color: var(--text-secondary, #999);
+    margin: 0;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-weight: 500;
 }
 
 .cart-item-price {
@@ -3686,7 +3686,7 @@ section {
 
 /* Smooth card transitions during scroll */
 .featured-card, .showcase-item, .flip-card, .stat-card {
-    transition: transform 0.1s ease-out, opacity 0.1s ease-out, box-shadow 0.2s ease;
+    transition: transform 0.1s ease-out, box-shadow 0.2s ease;
     transform-style: preserve-3d;
 }
 
