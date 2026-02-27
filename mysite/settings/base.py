@@ -214,3 +214,12 @@ FACEBOOK_APP_SECRET = os.environ.get('FACEBOOK_APP_SECRET', '')
 
 MSG91_AUTH_KEY = os.environ.get('MSG91_AUTH_KEY', '')
 MSG91_TEMPLATE_ID = os.environ.get('MSG91_TEMPLATE_ID', '')
+
+# ────────────────────────────────────────────────────────────────
+# Razorpay Payment Gateway
+# Sign up at https://dashboard.razorpay.com and get your keys.
+# Use TEST keys for development, LIVE keys for production.
+# ────────────────────────────────────────────────────────────────
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', '')        # rzp_test_xxx or rzp_live_xxx
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', '')
+RAZORPAY_CURRENCY = 'INR'

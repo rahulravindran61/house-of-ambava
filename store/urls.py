@@ -17,6 +17,7 @@ from mysite.views import (
     returns_exchanges, return_request_create,
     # Checkout
     checkout, checkout_update_profile, checkout_login, place_order,
+    verify_razorpay_payment, razorpay_payment_failed,
 )
 
 # ── Shop / product pages ──
@@ -56,4 +57,6 @@ checkout_urlpatterns = [
     path('login/', checkout_login, name='checkout_login'),
     path('update-profile/', checkout_update_profile, name='checkout_update_profile'),
     path('place-order/', place_order, name='place_order'),
+    path('verify-payment/', verify_razorpay_payment, name='verify_razorpay_payment'),
+    path('payment-failed/', razorpay_payment_failed, name='razorpay_payment_failed'),
 ]

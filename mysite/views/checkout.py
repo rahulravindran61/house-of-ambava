@@ -1,7 +1,8 @@
-"""Checkout views — checkout page, inline login, place order."""
+"""Checkout views — checkout page, inline login, place order, Razorpay payment."""
 
 import json
 import re
+import logging
 from django.shortcuts import redirect, render
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login
@@ -12,6 +13,8 @@ from store.models import (
     Address, Order, OrderItem, ShowcaseProduct, UserProfile,
 )
 from .helpers import normalize_phone, get_otp, clear_otp
+
+logger = logging.getLogger(__name__)
 
 
 # ── Checkout page ──
@@ -259,7 +262,10 @@ def checkout_login(request):
 
 @csrf_exempt
 def place_order(request):
-    """AJAX: create an order from cart JSON payload."""
+    """AJAX: create an order from cart JSON payload.
+    For COD — order is confirmed immediately.
+    For Razorpay — order is created as pending and a Razorpay order is generated.
+    """
     if request.method != 'POST':
         return JsonResponse({'ok': False, 'error': 'POST required.'}, status=405)
     if not request.user.is_authenticated:
@@ -274,6 +280,7 @@ def place_order(request):
     shipping = body.get('shipping', {})
     email = body.get('email', '').strip()
     save_address = body.get('save_address', False)
+    payment_method = body.get('payment_method', 'cod').strip()
 
     errors = {}
     if not items:
@@ -354,10 +361,14 @@ def place_order(request):
     shipping_charge = 0 if subtotal >= 5000 else 199
     total = subtotal + shipping_charge
 
+    # Determine payment status based on method
+    is_online = payment_method in ('razorpay', 'upi', 'card', 'netbanking')
+
     order = Order.objects.create(
         user=user,
-        status='confirmed',
-        payment_status='paid',
+        status='pending' if is_online else 'confirmed',
+        payment_status='pending' if is_online else 'paid',
+        payment_method='razorpay' if is_online else 'cod',
         shipping_full_name=shipping['full_name'],
         shipping_phone=shipping.get('phone', ''),
         shipping_address=f"{shipping['address_line1']}, {shipping.get('address_line2', '')}".rstrip(', '),
@@ -380,9 +391,176 @@ def place_order(request):
             total=oi['total'],
         )
 
+    # For online payment methods — create a Razorpay order
+    if is_online:
+        from django.conf import settings as django_settings
+        import razorpay
+
+        rzp_key = getattr(django_settings, 'RAZORPAY_KEY_ID', '')
+        rzp_secret = getattr(django_settings, 'RAZORPAY_KEY_SECRET', '')
+        rzp_currency = getattr(django_settings, 'RAZORPAY_CURRENCY', 'INR')
+
+        if not rzp_key or not rzp_secret:
+            # Razorpay not configured — fall back to COD
+            order.payment_method = 'cod'
+            order.status = 'confirmed'
+            order.payment_status = 'paid'
+            order.save(update_fields=['payment_method', 'status', 'payment_status'])
+            return JsonResponse({
+                'ok': True,
+                'order_number': order.order_number,
+                'total': str(order.total),
+                'payment_method': 'cod',
+                'message': 'Online payment is not configured. Order placed as Cash on Delivery.',
+            })
+
+        try:
+            client = razorpay.Client(auth=(rzp_key, rzp_secret))
+            razorpay_order = client.order.create({
+                'amount': int(total * 100),  # Razorpay expects paise
+                'currency': rzp_currency,
+                'receipt': order.order_number,
+                'notes': {
+                    'order_number': order.order_number,
+                    'customer_email': email,
+                },
+            })
+            order.razorpay_order_id = razorpay_order['id']
+            order.save(update_fields=['razorpay_order_id'])
+
+            return JsonResponse({
+                'ok': True,
+                'order_number': order.order_number,
+                'total': str(order.total),
+                'payment_method': 'razorpay',
+                'razorpay': {
+                    'order_id': razorpay_order['id'],
+                    'key_id': rzp_key,
+                    'amount': int(total * 100),
+                    'currency': rzp_currency,
+                    'name': 'House of Ambava',
+                    'description': f'Order #{order.order_number}',
+                    'prefill': {
+                        'name': shipping['full_name'],
+                        'email': email,
+                        'contact': shipping.get('phone', ''),
+                    },
+                },
+                'message': 'Razorpay order created. Complete payment.',
+            })
+        except Exception as e:
+            logger.error(f'Razorpay order creation failed: {e}')
+            order.delete()
+            return JsonResponse({
+                'ok': False,
+                'error': 'Payment gateway error. Please try again or use Cash on Delivery.',
+            })
+
+    # COD — order is already confirmed
     return JsonResponse({
         'ok': True,
         'order_number': order.order_number,
         'total': str(order.total),
+        'payment_method': 'cod',
         'message': 'Order placed successfully!',
+    })
+
+
+@csrf_exempt
+def verify_razorpay_payment(request):
+    """AJAX: verify Razorpay payment signature after successful checkout."""
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'POST required.'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'error': 'Login required.'}, status=401)
+
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'ok': False, 'error': 'Invalid JSON.'}, status=400)
+
+    razorpay_order_id = body.get('razorpay_order_id', '')
+    razorpay_payment_id = body.get('razorpay_payment_id', '')
+    razorpay_signature = body.get('razorpay_signature', '')
+    order_number = body.get('order_number', '')
+
+    if not all([razorpay_order_id, razorpay_payment_id, razorpay_signature, order_number]):
+        return JsonResponse({'ok': False, 'error': 'Missing payment details.'}, status=400)
+
+    order = Order.objects.filter(
+        order_number=order_number,
+        user=request.user,
+        razorpay_order_id=razorpay_order_id,
+    ).first()
+
+    if not order:
+        return JsonResponse({'ok': False, 'error': 'Order not found.'}, status=404)
+
+    from django.conf import settings as django_settings
+    import razorpay
+
+    rzp_key = getattr(django_settings, 'RAZORPAY_KEY_ID', '')
+    rzp_secret = getattr(django_settings, 'RAZORPAY_KEY_SECRET', '')
+
+    try:
+        client = razorpay.Client(auth=(rzp_key, rzp_secret))
+        client.utility.verify_payment_signature({
+            'razorpay_order_id': razorpay_order_id,
+            'razorpay_payment_id': razorpay_payment_id,
+            'razorpay_signature': razorpay_signature,
+        })
+    except razorpay.errors.SignatureVerificationError:
+        order.payment_status = 'failed'
+        order.status = 'cancelled'
+        order.save(update_fields=['payment_status', 'status'])
+        return JsonResponse({'ok': False, 'error': 'Payment verification failed. Please contact support.'})
+    except Exception as e:
+        logger.error(f'Razorpay verification error: {e}')
+        return JsonResponse({'ok': False, 'error': 'Payment verification error. Please contact support.'})
+
+    # Signature verified — mark order as paid
+    order.razorpay_payment_id = razorpay_payment_id
+    order.razorpay_signature = razorpay_signature
+    order.payment_status = 'paid'
+    order.status = 'confirmed'
+    order.save(update_fields=['razorpay_payment_id', 'razorpay_signature', 'payment_status', 'status'])
+
+    return JsonResponse({
+        'ok': True,
+        'order_number': order.order_number,
+        'message': 'Payment successful! Your order has been confirmed.',
+    })
+
+
+@csrf_exempt
+def razorpay_payment_failed(request):
+    """AJAX: handle failed Razorpay payment — mark order as failed."""
+    if request.method != 'POST':
+        return JsonResponse({'ok': False, 'error': 'POST required.'}, status=405)
+    if not request.user.is_authenticated:
+        return JsonResponse({'ok': False, 'error': 'Login required.'}, status=401)
+
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'ok': False, 'error': 'Invalid JSON.'}, status=400)
+
+    order_number = body.get('order_number', '')
+    error_description = body.get('error_description', '')
+
+    order = Order.objects.filter(
+        order_number=order_number,
+        user=request.user,
+        payment_status='pending',
+    ).first()
+
+    if order:
+        order.payment_status = 'failed'
+        order.status = 'cancelled'
+        order.notes = f'Payment failed: {error_description}'
+        order.save(update_fields=['payment_status', 'status', 'notes'])
+
+    return JsonResponse({
+        'ok': True,
+        'message': 'Payment was not completed. You can try again from your orders page.',
     })

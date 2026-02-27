@@ -482,11 +482,19 @@ class Order(models.Model):
         ('failed', 'Failed'),
         ('refunded', 'Refunded'),
     ]
+    PAYMENT_METHOD_CHOICES = [
+        ('cod', 'Cash on Delivery'),
+        ('razorpay', 'Razorpay (Online)'),
+    ]
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
     order_number = models.CharField(max_length=20, unique=True, editable=False)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     payment_status = models.CharField(max_length=20, choices=PAYMENT_CHOICES, default='pending')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='cod')
+    razorpay_order_id = models.CharField(max_length=100, blank=True, default='', help_text='Razorpay order ID (order_xxx)')
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, default='', help_text='Razorpay payment ID (pay_xxx)')
+    razorpay_signature = models.CharField(max_length=255, blank=True, default='', help_text='Razorpay payment signature')
     shipping_full_name = models.CharField(max_length=150, blank=True)
     shipping_phone = models.CharField(max_length=20, blank=True)
     shipping_address = models.TextField(blank=True, help_text='Full shipping address')

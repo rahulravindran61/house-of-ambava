@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}?v=10">
     <link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=5">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Razorpay Checkout SDK -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
         // Restore theme before paint
         (function(){
@@ -349,30 +351,12 @@
                             </div>
                             <div class="payment-check"><i class="fas fa-check-circle"></i></div>
                         </label>
-                        <label class="payment-option" data-method="upi">
-                            <input type="radio" name="payment" value="upi">
-                            <div class="payment-icon"><i class="fas fa-mobile-alt"></i></div>
+                        <label class="payment-option" data-method="razorpay">
+                            <input type="radio" name="payment" value="razorpay">
+                            <div class="payment-icon"><i class="fas fa-shield-alt"></i></div>
                             <div class="payment-info">
-                                <span class="payment-title">UPI</span>
-                                <span class="payment-desc">Google Pay, PhonePe, Paytm</span>
-                            </div>
-                            <div class="payment-check"><i class="fas fa-check-circle"></i></div>
-                        </label>
-                        <label class="payment-option" data-method="card">
-                            <input type="radio" name="payment" value="card">
-                            <div class="payment-icon"><i class="fas fa-credit-card"></i></div>
-                            <div class="payment-info">
-                                <span class="payment-title">Credit / Debit Card</span>
-                                <span class="payment-desc">Visa, Mastercard, RuPay</span>
-                            </div>
-                            <div class="payment-check"><i class="fas fa-check-circle"></i></div>
-                        </label>
-                        <label class="payment-option" data-method="netbanking">
-                            <input type="radio" name="payment" value="netbanking">
-                            <div class="payment-icon"><i class="fas fa-university"></i></div>
-                            <div class="payment-info">
-                                <span class="payment-title">Net Banking</span>
-                                <span class="payment-desc">All major banks supported</span>
+                                <span class="payment-title">Pay Online (Razorpay)</span>
+                                <span class="payment-desc">UPI, Cards, Net Banking, Wallets</span>
                             </div>
                             <div class="payment-check"><i class="fas fa-check-circle"></i></div>
                         </label>
@@ -1032,10 +1016,13 @@
             btn.querySelector('.btn-spinner').style.display = '';
             btn.disabled = true;
 
+            const selectedPayment = document.querySelector('input[name="payment"]:checked').value;
+
             const payload = {
                 items: cart.map(i => ({ name: i.name, price: i.price, quantity: i.quantity, image: i.image || '' })),
                 email: gid('shipEmail').value.trim(),
-                save_address: false,  // address already saved at step 2 if checkbox was checked
+                save_address: false,
+                payment_method: selectedPayment,
                 shipping: {
                     full_name: gid('shipName').value.trim(),
                     phone: gid('shipPhone').value.trim(),
@@ -1055,13 +1042,95 @@
                 });
                 const d = await r.json();
                 if (d.ok) {
-                    // Clear cart
-                    localStorage.removeItem('ambava_cart');
-                    gid('successOrderNum').textContent = d.order_number;
-                    // Hide sidebar on success
-                    gid('checkoutSidebar').style.display = 'none';
-                    document.querySelector('.checkout-progress').style.display = 'none';
-                    goToStep(5);
+                    if (d.payment_method === 'razorpay' && d.razorpay) {
+                        // ── Open Razorpay Checkout ──
+                        const rzpOptions = {
+                            key: d.razorpay.key_id,
+                            amount: d.razorpay.amount,
+                            currency: d.razorpay.currency,
+                            name: d.razorpay.name,
+                            description: d.razorpay.description,
+                            order_id: d.razorpay.order_id,
+                            prefill: d.razorpay.prefill,
+                            theme: { color: '#C4A57B' },
+                            modal: {
+                                ondismiss: async function() {
+                                    try {
+                                        await fetch('/checkout/payment-failed/', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({
+                                                order_number: d.order_number,
+                                                error_description: 'Payment popup closed by user',
+                                            }),
+                                        });
+                                    } catch (e) {}
+                                    btn.querySelector('span').style.display = '';
+                                    btn.querySelector('.btn-spinner').style.display = 'none';
+                                    btn.disabled = false;
+                                    alert('Payment was cancelled. You can try again.');
+                                },
+                            },
+                            handler: async function(response) {
+                                btn.querySelector('span').textContent = 'Verifying...';
+                                btn.querySelector('span').style.display = '';
+                                try {
+                                    const vr = await fetch('/checkout/verify-payment/', {
+                                        method: 'POST',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            razorpay_order_id: response.razorpay_order_id,
+                                            razorpay_payment_id: response.razorpay_payment_id,
+                                            razorpay_signature: response.razorpay_signature,
+                                            order_number: d.order_number,
+                                        }),
+                                    });
+                                    const vd = await vr.json();
+                                    if (vd.ok) {
+                                        localStorage.removeItem('ambava_cart');
+                                        gid('successOrderNum').textContent = vd.order_number;
+                                        gid('checkoutSidebar').style.display = 'none';
+                                        document.querySelector('.checkout-progress').style.display = 'none';
+                                        goToStep(5);
+                                    } else {
+                                        alert(vd.error || 'Payment verification failed. Please contact support.');
+                                    }
+                                } catch (err) {
+                                    alert('Verification error. Please contact support with your order number: ' + d.order_number);
+                                }
+                                btn.querySelector('span').textContent = 'Place Order';
+                                btn.querySelector('.btn-spinner').style.display = 'none';
+                                btn.disabled = false;
+                            },
+                        };
+
+                        const rzp = new Razorpay(rzpOptions);
+                        rzp.on('payment.failed', async function(response) {
+                            try {
+                                await fetch('/checkout/payment-failed/', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        order_number: d.order_number,
+                                        error_description: response.error.description || 'Payment failed',
+                                    }),
+                                });
+                            } catch (e) {}
+                            alert('Payment failed: ' + (response.error.description || 'Unknown error') + '. Please try again.');
+                            btn.querySelector('span').style.display = '';
+                            btn.querySelector('.btn-spinner').style.display = 'none';
+                            btn.disabled = false;
+                        });
+                        rzp.open();
+                        return;
+                    } else {
+                        // COD — order placed directly
+                        localStorage.removeItem('ambava_cart');
+                        gid('successOrderNum').textContent = d.order_number;
+                        gid('checkoutSidebar').style.display = 'none';
+                        document.querySelector('.checkout-progress').style.display = 'none';
+                        goToStep(5);
+                    }
                 } else {
                     alert(d.error || Object.values(d.errors || {}).join('\n') || 'Something went wrong.');
                 }
@@ -1069,6 +1138,7 @@
                 alert('Network error. Please try again.');
             }
             btn.querySelector('span').style.display = '';
+            btn.querySelector('span').textContent = 'Place Order';
             btn.querySelector('.btn-spinner').style.display = 'none';
             btn.disabled = false;
         });

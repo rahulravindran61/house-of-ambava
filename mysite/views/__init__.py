@@ -20,4 +20,5 @@ from .account import (                                              # noqa: F401
 from .checkout import (                                             # noqa: F401
     checkout, checkout_update_profile,
     checkout_login, place_order,
+    verify_razorpay_payment, razorpay_payment_failed,
 )
