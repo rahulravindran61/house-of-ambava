@@ -119,10 +119,9 @@
     const clearBtn = document.getElementById('searchClear');
     const closeBtn = document.getElementById('searchClose');
     const backdrop = overlay?.querySelector('.search-overlay-backdrop');
+    if (!toggle || !overlay) return;
 
     const container = overlay.querySelector('.search-container');
-
-    if (!toggle || !overlay) return;
 
     let debounceTimer = null;
     let abortController = null;
@@ -1232,5 +1231,4 @@ if (mobileMenuToggle) {
         } catch (e) { /* ignore */ }
     }
 })();
-
 
