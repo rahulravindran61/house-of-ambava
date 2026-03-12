@@ -14,26 +14,9 @@ from store.models import (
     Address, Order, OrderItem, ShowcaseProduct, UserProfile,
 )
 from .helpers import normalize_phone, get_otp, clear_otp
+from .checkout_rollback import rollback_pending_online_order
 
 logger = logging.getLogger(__name__)
-
-
-def _rollback_pending_online_order(order):
-    """Restore inventory and coupon usage for a failed pending online order."""
-    if not order or order.payment_method != 'razorpay' or order.payment_status != 'pending':
-        return
-
-    for item in order.items.select_related('product'):
-        if item.product:
-            item.product.stock_quantity += item.quantity
-            item.product.save(update_fields=['stock_quantity'])
-
-    if order.coupon_code and order.discount_amount:
-        from store.models import Coupon
-        coupon = Coupon.objects.filter(code__iexact=order.coupon_code).first()
-        if coupon and coupon.used_count > 0:
-            coupon.used_count -= 1
-            coupon.save(update_fields=['used_count'])
 
 
 # ── Checkout page ──
@@ -516,7 +499,7 @@ def place_order(request):
             logger.error(f'Razorpay order creation failed: {e}')
 
             # Roll back inventory + coupon usage for a failed online checkout attempt.
-            _rollback_pending_online_order(order)
+            rollback_pending_online_order(order)
             order.delete()
             return JsonResponse({
                 'ok': False,
@@ -588,7 +571,7 @@ def verify_razorpay_payment(request):
             'razorpay_signature': razorpay_signature,
         })
     except razorpay.errors.SignatureVerificationError:
-        _rollback_pending_online_order(order)
+        rollback_pending_online_order(order)
         order.payment_status = 'failed'
         order.status = 'cancelled'
         order.save(update_fields=['payment_status', 'status'])
@@ -636,7 +619,7 @@ def razorpay_payment_failed(request):
     ).first()
 
     if order:
-        _rollback_pending_online_order(order)
+        rollback_pending_online_order(order)
         order.payment_status = 'failed'
         order.status = 'cancelled'
         order.notes = f'Payment failed: {error_description}'
