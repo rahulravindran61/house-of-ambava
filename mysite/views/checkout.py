@@ -405,7 +405,6 @@ def place_order(request):
     # ── Apply coupon if provided ──
     coupon_code = body.get('coupon_code', '').strip()
     discount_amount = 0
-    applied_coupon = None
     if coupon_code:
         from store.models import Coupon
         try:
@@ -414,7 +413,6 @@ def place_order(request):
                 discount_amount = coupon.calculate_discount(subtotal)
                 coupon.used_count += 1
                 coupon.save(update_fields=['used_count'])
-                applied_coupon = coupon
         except Coupon.DoesNotExist:
             pass
 
@@ -518,16 +516,7 @@ def place_order(request):
             logger.error(f'Razorpay order creation failed: {e}')
 
             # Roll back inventory + coupon usage for a failed online checkout attempt.
-            for oi in order_items_data:
-                product = oi.get('product')
-                if product:
-                    product.stock_quantity += oi['quantity']
-                    product.save(update_fields=['stock_quantity'])
-
-            if applied_coupon and applied_coupon.used_count > 0:
-                applied_coupon.used_count -= 1
-                applied_coupon.save(update_fields=['used_count'])
-
+            _rollback_pending_online_order(order)
             order.delete()
             return JsonResponse({
                 'ok': False,

@@ -132,3 +132,65 @@ class PlaceOrderRazorpayFailureTests(TestCase):
         self.assertEqual(order.status, 'cancelled')
         self.assertEqual(self.product.stock_quantity, 5)
         self.assertEqual(self.coupon.used_count, 0)
+
+    def test_verify_signature_failure_restores_stock_and_coupon(self):
+        payload = {
+            'items': [
+                {
+                    'name': self.product.name,
+                    'quantity': 2,
+                    'size': 'M',
+                    'image': '/media/test.jpg',
+                }
+            ],
+            'shipping': {
+                'full_name': 'Test Buyer',
+                'phone': '9999999999',
+                'address_line1': '123 Test Street',
+                'city': 'Mumbai',
+                'state': 'Maharashtra',
+                'pincode': '400001',
+            },
+            'email': 'buyer@example.com',
+            'payment_method': 'razorpay',
+            'coupon_code': self.coupon.code,
+        }
+
+        with patch('razorpay.Client') as mock_client:
+            mock_client.return_value.order.create.return_value = {'id': 'order_test_456'}
+            place_response = self.client.post(
+                reverse('place_order'),
+                data=json.dumps(payload),
+                content_type='application/json',
+            )
+
+        self.assertEqual(place_response.status_code, 200)
+        self.assertTrue(place_response.json()['ok'])
+
+        order = Order.objects.get(order_number=place_response.json()['order_number'])
+
+        import razorpay
+        with patch('razorpay.Client') as mock_client:
+            mock_client.return_value.utility.verify_payment_signature.side_effect = razorpay.errors.SignatureVerificationError('bad signature')
+            verify_response = self.client.post(
+                reverse('verify_razorpay_payment'),
+                data=json.dumps({
+                    'order_number': order.order_number,
+                    'razorpay_order_id': order.razorpay_order_id,
+                    'razorpay_payment_id': 'pay_test_001',
+                    'razorpay_signature': 'sig_test_001',
+                }),
+                content_type='application/json',
+            )
+
+        self.assertEqual(verify_response.status_code, 200)
+        self.assertFalse(verify_response.json()['ok'])
+
+        order.refresh_from_db()
+        self.product.refresh_from_db()
+        self.coupon.refresh_from_db()
+
+        self.assertEqual(order.payment_status, 'failed')
+        self.assertEqual(order.status, 'cancelled')
+        self.assertEqual(self.product.stock_quantity, 5)
+        self.assertEqual(self.coupon.used_count, 0)
