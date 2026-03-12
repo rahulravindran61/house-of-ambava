@@ -79,7 +79,3 @@ python -m pip install --index-url <your-internal-pypi-url> -r requirements.txt
 ├── media/               # User-uploaded content (not tracked)
 └── manage.py
 ```
-
-## License
-
-This project is for educational purposes.
