@@ -119,10 +119,10 @@
     const clearBtn = document.getElementById('searchClear');
     const closeBtn = document.getElementById('searchClose');
     const backdrop = overlay?.querySelector('.search-overlay-backdrop');
-    if (!toggle || !overlay) return;
 
     const container = overlay.querySelector('.search-container');
-    if (!container || !input || !results || !clearBtn || !closeBtn || !backdrop) return;
+
+    if (!toggle || !overlay) return;
 
     let debounceTimer = null;
     let abortController = null;
@@ -280,18 +280,14 @@ if (typeof Lenis !== 'undefined') {
 
 // ============================================================
 // Splash Cursor — comet-tail: sleek at pointer, swells outward
-// Disable only on true touch-first devices (coarse pointer + no fine pointer).
-// Hybrid touch laptops usually expose a fine pointer and should keep animations.
+// (Disabled on touch devices for performance)
 // ============================================================
-const _hasFinePointer = window.matchMedia('(any-pointer: fine)').matches;
-const _isCoarsePrimaryPointer = window.matchMedia('(pointer: coarse)').matches;
-const _disableSplashCursor = _isCoarsePrimaryPointer && !_hasFinePointer;
-
+const _isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
 const _canvas = document.getElementById('cursor-canvas');
-if (_canvas && _disableSplashCursor) {
+if (_canvas && _isTouchDevice) {
     _canvas.style.display = 'none';
 }
-const _ctx = (_canvas && !_disableSplashCursor) ? _canvas.getContext('2d') : null;
+const _ctx = (_canvas && !_isTouchDevice) ? _canvas.getContext('2d') : null;
 let _cw, _ch;
 
 function resizeCanvas() {
@@ -1236,4 +1232,5 @@ if (mobileMenuToggle) {
         } catch (e) { /* ignore */ }
     }
 })();
+
 
