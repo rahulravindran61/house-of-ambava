@@ -17,25 +17,25 @@ A luxury lehenga e-commerce website built with Django.
 
 ## Tech Stack
 
-- **Backend:** Django 6.0.2, Python 3.14
+- **Backend:** Django 5.x, Python 3.10+
 - **Database:** SQLite (development)
 - **Frontend:** Vanilla HTML/CSS/JS, Font Awesome icons
 - **Smooth Scroll:** Lenis
 
-## Setup
+## Setup (safe, non-breaking)
 
 ```bash
 # Clone the repo
 git clone https://github.com/rahulravindran61/house-of-ambava.git
 cd house-of-ambava
 
-# Create virtual environment
-python -m venv env
-source env/bin/activate   # Linux/Mac
-env\Scripts\activate      # Windows
+# Create an isolated virtual environment (recommended)
+python3 -m venv .venv
+source .venv/bin/activate   # Linux/Mac
+.venv\Scripts\activate      # Windows
 
-# Install dependencies
-pip install django pillow requests
+# Install all pinned app dependencies
+python -m pip install -r requirements.txt
 
 # Run migrations
 python manage.py migrate
@@ -43,11 +43,27 @@ python manage.py migrate
 # Create superuser (admin)
 python manage.py createsuperuser
 
-# Populate products
-python populate_shop.py
+# Optional: populate products
+python manage.py populate_shop
 
 # Run the server
 python manage.py runserver
+```
+
+### If dependency install fails in restricted/proxy environments
+
+Use the app venv and proxy-aware variables rather than global/system Python:
+
+```bash
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+```
+
+If your environment blocks outbound package downloads, configure an internal package index and retry:
+
+```bash
+source .venv/bin/activate
+python -m pip install --index-url <your-internal-pypi-url> -r requirements.txt
 ```
 
 ## Project Structure

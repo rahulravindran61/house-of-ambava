@@ -279,14 +279,18 @@ if (typeof Lenis !== 'undefined') {
 
 // ============================================================
 // Splash Cursor — comet-tail: sleek at pointer, swells outward
-// (Disabled on touch devices for performance)
+// Disable only on true touch-first devices (coarse pointer + no fine pointer).
+// Hybrid touch laptops usually expose a fine pointer and should keep animations.
 // ============================================================
-const _isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+const _hasFinePointer = window.matchMedia('(any-pointer: fine)').matches;
+const _isCoarsePrimaryPointer = window.matchMedia('(pointer: coarse)').matches;
+const _disableSplashCursor = _isCoarsePrimaryPointer && !_hasFinePointer;
+
 const _canvas = document.getElementById('cursor-canvas');
-if (_canvas && _isTouchDevice) {
+if (_canvas && _disableSplashCursor) {
     _canvas.style.display = 'none';
 }
-const _ctx = (_canvas && !_isTouchDevice) ? _canvas.getContext('2d') : null;
+const _ctx = (_canvas && !_disableSplashCursor) ? _canvas.getContext('2d') : null;
 let _cw, _ch;
 
 function resizeCanvas() {
