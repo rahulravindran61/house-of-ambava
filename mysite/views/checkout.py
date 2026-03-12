@@ -14,7 +14,6 @@ from store.models import (
     Address, Order, OrderItem, ShowcaseProduct, UserProfile,
 )
 from .helpers import normalize_phone, get_otp, clear_otp
-from .checkout_rollback import rollback_pending_online_order
 
 logger = logging.getLogger(__name__)
 
@@ -497,9 +496,6 @@ def place_order(request):
             })
         except Exception as e:
             logger.error(f'Razorpay order creation failed: {e}')
-
-            # Roll back inventory + coupon usage for a failed online checkout attempt.
-            rollback_pending_online_order(order)
             order.delete()
             return JsonResponse({
                 'ok': False,
@@ -571,7 +567,6 @@ def verify_razorpay_payment(request):
             'razorpay_signature': razorpay_signature,
         })
     except razorpay.errors.SignatureVerificationError:
-        rollback_pending_online_order(order)
         order.payment_status = 'failed'
         order.status = 'cancelled'
         order.save(update_fields=['payment_status', 'status'])
@@ -619,7 +614,6 @@ def razorpay_payment_failed(request):
     ).first()
 
     if order:
-        rollback_pending_online_order(order)
         order.payment_status = 'failed'
         order.status = 'cancelled'
         order.notes = f'Payment failed: {error_description}'
