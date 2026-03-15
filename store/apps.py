@@ -19,6 +19,5 @@ class StoreConfig(AppConfig):
 
         connection_created.connect(_set_sqlite_pragmas)
 
-        # Register signals (email notifications + payment rollback safety)
+        # Register signals for email notifications
         import store.signals  # noqa: F401
-        import store.payment_rollback_signals  # noqa: F401
