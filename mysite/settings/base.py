@@ -5,6 +5,7 @@ Shared settings used by both dev and prod configurations.
 """
 
 import os
+import dj_database_url
 from pathlib import Path
 
 # ────────────────────────────────────────────────────────────────
@@ -88,13 +89,11 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 # Database
 # ────────────────────────────────────────────────────────────────
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        'OPTIONS': {
-            'timeout': 20,
-        },
-    }
+    "default": dj_database_url.parse(
+        os.environ.get("DATABASE_URL"),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
