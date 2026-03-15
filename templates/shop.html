@@ -283,9 +283,7 @@
                                                 data-product="{{ product.name }}" 
                                                 data-price="{{ product.cart_price|floatformat:0 }}" 
                                                 data-image="{{ product.image.url }}" 
-                                                data-product-url="{% url 'product_detail' slug=product.slug %}"
-                                                data-sizes="{{ product.available_sizes }}"
-                                                title="Select size to add"
+                                                title="Add to Cart"
                                                 onclick="event.preventDefault(); event.stopPropagation();">
                                             <i class="fas fa-shopping-bag"></i>
                                             <span>Add to Bag</span>
@@ -542,22 +540,6 @@
                     const name  = this.dataset.product;
                     const price = this.dataset.price;
                     const image = this.dataset.image || '';
-                    const productUrl = this.dataset.productUrl || '';
-                    const sizes = (this.dataset.sizes || '')
-                        .split(',')
-                        .map(s => s.trim())
-                        .filter(Boolean);
-
-                    if (sizes.length > 0) {
-                        if (typeof window.showCartToast === 'function') {
-                            window.showCartToast('Please select a size on the product page.');
-                        }
-                        if (productUrl) {
-                            setTimeout(() => { window.location.href = `${productUrl}#sizeOptions`; }, 350);
-                        }
-                        return;
-                    }
-
                     if (typeof window.addToCart === 'function') window.addToCart(name, price, image, '');
                 });
             });
