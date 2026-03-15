@@ -85,3 +85,6 @@ def order_post_save_email(sender, instance, created, **kwargs):
             pass
         finally:
             instance._status_changed = False
+
+# Register payment rollback signal receivers from dedicated module.
+import store.payment_rollback_signals  # noqa: F401
