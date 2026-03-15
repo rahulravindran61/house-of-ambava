@@ -14,3 +14,8 @@ if not _env or _env == 'mysite.settings':
         from .dev import *   # noqa: F401,F403
     else:
         from .prod import *  # noqa: F401,F403
+
+# Deployment safety: ensure staticfiles app is always enabled so
+# `manage.py collectstatic` is available on platforms like Vercel.
+if 'django.contrib.staticfiles' not in INSTALLED_APPS:  # noqa: F405
+    INSTALLED_APPS = [*INSTALLED_APPS, 'django.contrib.staticfiles']  # noqa: F405
