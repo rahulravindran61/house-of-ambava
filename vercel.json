@@ -1,4 +1,3 @@
-@@ -0,0 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "routes": [
