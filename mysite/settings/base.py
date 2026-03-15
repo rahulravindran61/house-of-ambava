@@ -175,19 +175,14 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'simple',
         },
-        'file': {
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'logs' / 'django.log',
-            'formatter': 'verbose',
-        },
     },
     'root': {
-        'handlers': ['console', 'file'],
+        'handlers': ['console'],
         'level': LOG_LEVEL,
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': LOG_LEVEL,
             'propagate': False,
         },
@@ -197,7 +192,7 @@ LOGGING = {
             'propagate': False,
         },
         'store': {
-            'handlers': ['console', 'file'],
+            'handlers': ['console'],
             'level': LOG_LEVEL,
             'propagate': False,
         },
