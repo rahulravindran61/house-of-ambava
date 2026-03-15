@@ -58,6 +58,13 @@ class Migration(migrations.Migration):
         ),
         # Step 3: Populate slugs for existing products
         migrations.RunPython(populate_slugs, migrations.RunPython.noop),
+        # Step 3.5: On some PostgreSQL deploys, a previous partial run may leave
+        # behind the auto-generated LIKE index for slug. Drop it defensively so
+        # AlterField can recreate indexes/constraints cleanly.
+        migrations.RunSQL(
+            sql='DROP INDEX IF EXISTS store_showcaseproduct_slug_378f72cd_like;',
+            reverse_sql=migrations.RunSQL.noop,
+        ),
         # Step 4: Now make slug unique
         migrations.AlterField(
             model_name='showcaseproduct',
