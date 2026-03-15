@@ -1069,6 +1069,7 @@ if (mobileMenuToggle) {
 
     // ── Add to cart (exposed globally for shop page) ──
     window.addToCart = addToCart;
+    window.showCartToast = showToast;
     function addToCart(name, price, image, size) {
         size = size || '';
         const existing = cart.find(i => i.name === name && i.size === size);
